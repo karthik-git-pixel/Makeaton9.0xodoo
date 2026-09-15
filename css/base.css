@@ -290,3 +290,112 @@ a { color: inherit; }
   color: var(--white);
   text-shadow: 2px 2px 0 var(--ink);
 }
+
+/* Comic Mascot Corner Characters ------------------------------------------- */
+.mascot-corner {
+  position: absolute;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.mascot-corner:hover {
+  transform: scale(1.12) rotate(-3deg);
+}
+.mascot-corner .mascot-img {
+  display: block;
+  width: clamp(80px, 9vw, 140px);
+  height: auto;
+  filter: drop-shadow(5px 5px 0 var(--ink));
+  transition: transform 0.25s ease;
+}
+.mascot-corner:hover .mascot-img {
+  transform: scale(1.05);
+}
+.mascot-corner .mascot-bubble {
+  position: relative;
+  padding: 4px 10px;
+  margin-bottom: 6px;
+  font-family: var(--font-tape);
+  font-size: clamp(0.68rem, 0.78vw, 0.85rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+  background: var(--tape);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--ink);
+  animation: mascot-bubble-pulse 3s ease-in-out infinite;
+}
+.mascot-corner .mascot-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--ink);
+}
+
+@keyframes mascot-bubble-pulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes mascot-float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+/* Individual Corner Positionings */
+.mascot-corner--hero {
+  bottom: 8%;
+  left: clamp(16px, 3.5vw, 48px);
+  animation: mascot-float-slow 4s ease-in-out infinite;
+}
+.mascot-corner--about {
+  bottom: clamp(20px, 3vw, 40px);
+  right: clamp(16px, 3.5vw, 48px);
+  animation: mascot-float-slow 4.5s ease-in-out 0.5s infinite;
+}
+.mascot-corner--odoo {
+  bottom: clamp(20px, 3.5vw, 44px);
+  left: clamp(16px, 3vw, 40px);
+  animation: mascot-float-slow 4.2s ease-in-out 1s infinite;
+}
+.mascot-corner--prizes {
+  top: clamp(60px, 6vw, 100px);
+  right: clamp(16px, 4vw, 56px);
+  animation: mascot-float-slow 3.8s ease-in-out 0.3s infinite;
+}
+.mascot-corner--faq {
+  bottom: clamp(20px, 3vw, 40px);
+  right: clamp(16px, 3.5vw, 48px);
+  animation: mascot-float-slow 4.6s ease-in-out 1.2s infinite;
+}
+
+@media (max-width: 768px) {
+  .mascot-corner {
+    opacity: 0.92;
+  }
+  .mascot-corner .mascot-img {
+    width: clamp(60px, 14vw, 85px);
+  }
+  .mascot-corner .mascot-bubble {
+    font-size: 0.62rem;
+    padding: 3px 8px;
+  }
+  .mascot-corner--prizes {
+    top: 20px;
+    right: 12px;
+  }
+}
+
