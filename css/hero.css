@@ -1,0 +1,164 @@
+/* ==========================================================================
+   Hero · built from mainpage.png (3240 × 1440 artboard)
+   Tapes sit at 10.35% / 89.65% of the height, tilted ±2°.
+   Logo is 60.4% of the width, nudged slightly below centre.
+   ========================================================================== */
+
+.hero {
+  --pattern-color: #000;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  height: max(100svh, 44.44vw);
+  min-height: 520px;
+  overflow: hidden;
+  background: var(--white);
+}
+
+.hero .tape {
+  --tape-h: clamp(52px, 5.6vw, 140px);
+  --tape-star: var(--star-pink);
+  animation: hero-tape-in 0.8s cubic-bezier(0.2, 1.1, 0.35, 1) both;
+}
+.tape--hero-top { top: 10.35%; }
+.tape--hero-bottom { top: 89.65%; animation-delay: 0.1s; }
+
+/* The stage is the logo's box, so the register button can be placed against the lettering */
+.hero__stage {
+  position: relative;
+  z-index: 2;
+  width: clamp(300px, 60.4vw, 1500px);
+  max-width: 88vw;
+  translate: 0 14%;
+}
+.hero__logo {
+  width: 100%;
+  height: auto;
+  animation: hero-logo-in 0.9s cubic-bezier(0.2, 1.4, 0.4, 1) 0.25s both;
+}
+
+/* Register button ------------------------------------------------------------
+   Landscape: tucked into the space under "TON", tilted with the logo's rising baseline.
+   Portrait: centred below the logo. Its shadow falls down-left, like the logo's extrusion. */
+.hero-cta {
+  position: absolute;
+  top: 73%;
+  right: 0;
+  display: block;
+  font-family: var(--font-tape);
+  font-size: clamp(1rem, 1.9vw, 2.85rem);
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--white);
+  rotate: -4deg;
+  animation: hero-cta-in 0.75s cubic-bezier(0.2, 1.5, 0.4, 1) 0.95s both;
+}
+.hero-cta[hidden] { display: none; }
+.hero-cta:focus-visible { outline: none; }
+.hero-cta:focus-visible .hero-cta__face { outline: 3px solid var(--ink); outline-offset: 5px; }
+
+.hero-cta__face {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.38em 0.38em 0.38em 1em;
+  overflow: hidden;
+  background: var(--star-pink);
+  border: max(3px, 0.13em) solid var(--ink);
+  border-radius: 999px;
+  box-shadow: -0.2em 0.26em 0 var(--ink);
+  transition: translate 0.18s ease, box-shadow 0.18s ease;
+}
+/* Gloss that sweeps across every few seconds */
+.hero-cta__face::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 35%;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.7) 50%, transparent 80%);
+  translate: -120% 0;
+  animation: hero-cta-shine 4.2s ease-in-out 2.2s infinite;
+  pointer-events: none;
+}
+.hero-cta__label {
+  -webkit-text-stroke: 0.09em var(--ink);
+  paint-order: stroke fill;
+  text-shadow: -0.05em 0.07em 0 var(--ink);
+}
+.hero-cta__arrow {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.65em;
+  aspect-ratio: 1;
+  color: var(--tape);
+  background: var(--ink);
+  border-radius: 50%;
+  transition: rotate 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.hero-cta__arrow svg { width: 58%; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
+
+/* A scrap of the hero tape stuck on the corner */
+.hero-cta__tag {
+  position: absolute;
+  top: 0;
+  right: 0.6em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.32em 0.75em;
+  font-size: max(0.72rem, 0.44em);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--ink);
+  background: var(--tape);
+  border-block: max(2px, 0.26em) solid var(--ink);
+  box-shadow: 0 0.35em 0 var(--tape-shadow);
+  translate: 0 -72%;
+  rotate: 8deg;
+  transition: rotate 0.25s ease;
+}
+.hero-cta__tag::before,
+.hero-cta__tag::after {
+  content: "";
+  flex: none;
+  width: 0.8em;
+  height: 0.8em;
+  background: var(--star-pink);
+  -webkit-mask: var(--star) center / contain no-repeat;
+  mask: var(--star) center / contain no-repeat;
+}
+
+.hero-cta:hover .hero-cta__face { translate: 0.06em -0.1em; box-shadow: -0.28em 0.38em 0 var(--ink); }
+.hero-cta:hover .hero-cta__arrow { rotate: -45deg; }
+.hero-cta:hover .hero-cta__tag { rotate: 3deg; }
+.hero-cta:active .hero-cta__face { translate: -0.16em 0.2em; box-shadow: -0.04em 0.06em 0 var(--ink); }
+
+@media (max-aspect-ratio: 1/1) {
+  .hero-cta {
+    top: calc(100% + clamp(28px, 6svh, 64px));
+    right: auto;
+    left: 50%;
+    translate: -50% 0;
+    font-size: clamp(1.15rem, 4.8vw, 1.75rem);
+    rotate: -3deg;
+  }
+}
+
+@keyframes hero-logo-in {
+  from { opacity: 0; scale: 0.6; rotate: -6deg; }
+}
+@keyframes hero-tape-in {
+  from { opacity: 0; transform: translateY(-50%) rotate(var(--tilt)) translateX(-25%); }
+}
+@keyframes hero-cta-in {
+  from { opacity: 0; scale: 0.3; rotate: 16deg; }
+}
+@keyframes hero-cta-shine {
+  0% { translate: -120% 0; }
+  30%, 100% { translate: 320% 0; }
+}
