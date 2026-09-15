@@ -369,20 +369,37 @@
 .page__mascot-wrap {
   position: relative;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-top: 0.2em;
+  margin-top: 0.1em;
+  cursor: pointer;
+}
+.page__mascot-wrap.mascot-peeker--inline {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  top: auto;
+  transform: none;
+  animation: none;
+}
+.page__mascot-wrap .mascot-bubble {
+  position: relative;
+  margin-bottom: 8px;
+  font-size: clamp(0.68rem, 0.8vw, 0.82rem);
+  padding: 4px 10px;
 }
 .page__mascot-img {
-  width: clamp(105px, 15vw, 155px);
-  max-height: clamp(120px, 24vh, 185px);
+  width: clamp(100px, 14vw, 145px);
+  max-height: clamp(110px, 22vh, 165px);
   object-fit: contain;
   filter: drop-shadow(6px 6px 0 var(--ink));
   animation: mascot-float-slow 4s ease-in-out infinite;
   transition: transform 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
-.page__mascot-img:hover {
+.page__mascot-wrap:hover .page__mascot-img {
   transform: scale(1.1) rotate(-3deg);
 }
 

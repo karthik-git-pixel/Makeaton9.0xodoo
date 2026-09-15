@@ -157,7 +157,150 @@
     });
   }
 
+  // Mascot Rapid Expression Animator & Interactive Peeker
+  function initMascots() {
+    const MASCOT_SETS = {
+      red: [
+        'assets/mascot/mascot-red-cheer.svg',
+        'assets/mascot/mascot-red-excited.svg',
+        'assets/mascot/mascot-red-star-eyes.svg',
+        'assets/mascot/mascot-red-cool.svg',
+        'assets/mascot/mascot-red-curious.svg'
+      ],
+      green: [
+        'assets/mascot/mascot-green-cheer.svg',
+        'assets/mascot/mascot-green-excited.svg',
+        'assets/mascot/mascot-green-star-eyes.svg',
+        'assets/mascot/mascot-green-cool.svg',
+        'assets/mascot/mascot-green-curious.svg'
+      ]
+    };
+
+    const QUIPS = [
+      "LET'S HACK!", "POW!", "100K+ BAG!", "FAST-TRACK!", "LFG!", "24 HR FINAL!",
+      "SHIP IT!", "CUSAT KOCHI!", "BOOM!", "VICTORY!", "FULL SPEED!", "HACK TIME!"
+    ];
+
+    // Preload SVGs for instantaneous zero-flicker transitions
+    Object.values(MASCOT_SETS).flat().forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+
+    const bindMascot = (mascot) => {
+      if (mascot.dataset.mascotBound === 'true') return;
+      mascot.dataset.mascotBound = 'true';
+
+      const img = mascot.querySelector('.mascot-img, .page__mascot-img');
+      const bubble = mascot.querySelector('.mascot-bubble');
+      if (!img) return;
+
+      let color = mascot.dataset.mascotColor || (img.src.includes('red') ? 'red' : 'green');
+      let baseSrc = img.getAttribute('src');
+      let cycleInterval = null;
+      let currentIndex = 0;
+
+      const getSet = () => MASCOT_SETS[color] || MASCOT_SETS.green;
+
+      // Rapid Comic Flipbook Cycle
+      const startCycling = (speedMs = 105) => {
+        if (cycleInterval) clearInterval(cycleInterval);
+        const set = getSet();
+        cycleInterval = setInterval(() => {
+          currentIndex = (currentIndex + 1) % set.length;
+          img.src = set[currentIndex];
+        }, speedMs);
+      };
+
+      const stopCycling = (landOnIndex = null) => {
+        if (cycleInterval) {
+          clearInterval(cycleInterval);
+          cycleInterval = null;
+        }
+        const set = getSet();
+        if (landOnIndex !== null && set[landOnIndex]) {
+          img.src = set[landOnIndex];
+        } else {
+          img.src = baseSrc;
+        }
+      };
+
+      // Hover Interaction: Rapid Expression Reel!
+      mascot.addEventListener('mouseenter', () => {
+        startCycling(95);
+      });
+
+      mascot.addEventListener('mouseleave', () => {
+        stopCycling(0); // Settles cleanly on cheer/main pose
+      });
+
+      // Click Interaction: Cartoon Burst + Color Toggle + Speech Bubble Quip!
+      mascot.addEventListener('click', () => {
+        mascot.classList.remove('is-bursting');
+        void mascot.offsetWidth; // Trigger reflow for restart
+        mascot.classList.add('is-bursting');
+
+        // Toggle between Red and Green on click
+        color = color === 'red' ? 'green' : 'red';
+        mascot.dataset.mascotColor = color;
+        const set = getSet();
+        baseSrc = set[currentIndex % set.length];
+
+        // Rapid burst cycle
+        startCycling(65);
+        setTimeout(() => {
+          const winnerIndex = Math.floor(Math.random() * set.length);
+          stopCycling(winnerIndex);
+          baseSrc = set[winnerIndex];
+        }, 520);
+
+        if (bubble) {
+          const randomQuip = QUIPS[Math.floor(Math.random() * QUIPS.length)];
+          bubble.textContent = randomQuip;
+          bubble.style.animation = 'none';
+          void bubble.offsetWidth;
+          bubble.style.animation = '';
+        }
+      });
+    };
+
+    const scanAndBind = () => {
+      document.querySelectorAll('.mascot-peeker, .mascot-corner, .page__mascot-wrap').forEach(bindMascot);
+    };
+
+    scanAndBind();
+    window.addEventListener('timeline-book-ready', scanAndBind);
+
+    // Idle Subtle Double-Take: every 4.5s, a visible mascot briefly blinks an expression
+    if (!reduceMotion.matches) {
+      setInterval(() => {
+        const visibleMascots = [...document.querySelectorAll('.mascot-peeker, .mascot-corner, .page__mascot-wrap')].filter((m) => {
+          const rect = m.getBoundingClientRect();
+          return rect.top < window.innerHeight && rect.bottom > 0;
+        });
+        if (visibleMascots.length === 0) return;
+        const target = visibleMascots[Math.floor(Math.random() * visibleMascots.length)];
+        const img = target.querySelector('.mascot-img, .page__mascot-img');
+        if (!img) return;
+
+        const color = target.dataset.mascotColor || (img.src.includes('red') ? 'red' : 'green');
+        const set = MASCOT_SETS[color] || MASCOT_SETS.green;
+        const orig = img.getAttribute('src');
+        const flipPose = set[Math.floor(Math.random() * set.length)];
+
+        img.src = flipPose;
+        setTimeout(() => {
+          if (!target.matches(':hover')) {
+            img.src = orig;
+          }
+        }, 550);
+      }, 4500);
+    }
+  }
+
   initCenterTitleTilt();
   initMarqueeTracks();
+  initMascots();
 })();
+
 

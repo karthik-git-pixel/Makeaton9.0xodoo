@@ -291,111 +291,192 @@ a { color: inherit; }
   text-shadow: 2px 2px 0 var(--ink);
 }
 
-/* Comic Mascot Corner Characters ------------------------------------------- */
+/* Comic Mascot Peeker & Corner Characters ---------------------------------- */
+.mascot-peeker,
 .mascot-corner {
   position: absolute;
-  z-index: 12;
+  z-index: 15;
   display: flex;
   flex-direction: column;
   align-items: center;
   pointer-events: auto;
   user-select: none;
   cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+  transform-origin: center bottom;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.25s ease;
 }
-.mascot-corner:hover {
-  transform: scale(1.12) rotate(-3deg);
-}
+
+.mascot-peeker .mascot-img,
 .mascot-corner .mascot-img {
   display: block;
-  width: clamp(80px, 9vw, 140px);
+  width: clamp(100px, 12vw, 160px);
   height: auto;
-  filter: drop-shadow(5px 5px 0 var(--ink));
+  filter: drop-shadow(6px 6px 0 var(--ink));
   transition: transform 0.25s ease;
 }
-.mascot-corner:hover .mascot-img {
-  transform: scale(1.05);
-}
+
+.mascot-peeker .mascot-bubble,
 .mascot-corner .mascot-bubble {
   position: relative;
-  padding: 4px 10px;
+  padding: 5px 12px;
   margin-bottom: 6px;
   font-family: var(--font-tape);
-  font-size: clamp(0.68rem, 0.78vw, 0.85rem);
+  font-size: clamp(0.72rem, 0.85vw, 0.92rem);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
   color: var(--ink);
   background: var(--tape);
   border: 2px solid var(--ink);
   border-radius: 999px;
-  box-shadow: 2px 2px 0 var(--ink);
-  animation: mascot-bubble-pulse 3s ease-in-out infinite;
+  box-shadow: 3px 3px 0 var(--ink);
+  animation: mascot-bubble-pulse 2.8s ease-in-out infinite;
+  transition: transform 0.25s cubic-bezier(0.2, 1.4, 0.4, 1), background-color 0.2s ease;
 }
+
+.mascot-peeker .mascot-bubble::after,
 .mascot-corner .mascot-bubble::after {
   content: "";
   position: absolute;
-  bottom: -5px;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid var(--ink);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid var(--ink);
 }
 
+.mascot-peeker:hover .mascot-bubble,
+.mascot-corner:hover .mascot-bubble {
+  transform: translateY(-4px) scale(1.08);
+  background: #FFF066;
+}
+
+/* 25% Off-Edge / Peeking Positionings: Mascot partially concealed until hovered */
+/* 1. Hero: Peeking from bottom-left corner */
+.mascot-peeker--hero,
+.mascot-peeker--bottom-left {
+  bottom: -15px;
+  left: -20px;
+  transform: translate(-15%, 22%) rotate(-8deg);
+  animation: mascot-peek-sway-left 4.5s ease-in-out infinite;
+}
+.mascot-peeker--hero:hover,
+.mascot-peeker--bottom-left:hover {
+  transform: translate(18px, -15px) scale(1.12) rotate(3deg);
+  animation-play-state: paused;
+}
+
+/* 2. About: Peeking from bottom-right of about panel */
+.mascot-peeker--about,
+.mascot-peeker--bottom-right {
+  bottom: -15px;
+  right: -20px;
+  transform: translate(15%, 20%) rotate(8deg);
+  animation: mascot-peek-sway-right 4.8s ease-in-out 0.6s infinite;
+}
+.mascot-peeker--about:hover,
+.mascot-peeker--bottom-right:hover {
+  transform: translate(-18px, -15px) scale(1.12) rotate(-3deg);
+  animation-play-state: paused;
+}
+
+/* 3. Odoo: Peeking from left edge */
+.mascot-peeker--odoo,
+.mascot-peeker--left-side {
+  top: 48%;
+  left: -24px;
+  transform: translateY(-50%) translate(-22%, 0) rotate(10deg);
+  animation: mascot-peek-side-left 4.2s ease-in-out 1.2s infinite;
+}
+.mascot-peeker--odoo:hover,
+.mascot-peeker--left-side:hover {
+  transform: translateY(-50%) translate(20px, 0) scale(1.14) rotate(0deg);
+  animation-play-state: paused;
+}
+
+/* 4. Prizes: Peeking from top-right corner of prize sunburst */
+.mascot-peeker--prizes,
+.mascot-peeker--top-right {
+  top: -12px;
+  right: -20px;
+  transform: translate(18%, -16%) rotate(-10deg);
+  animation: mascot-peek-top-right 4s ease-in-out 0.4s infinite;
+}
+.mascot-peeker--prizes:hover,
+.mascot-peeker--top-right:hover {
+  transform: translate(-18px, 16px) scale(1.12) rotate(2deg);
+  animation-play-state: paused;
+}
+
+/* 5. FAQ: Peeking from bottom-right corner */
+.mascot-peeker--faq {
+  bottom: -15px;
+  right: -20px;
+  transform: translate(16%, 22%) rotate(6deg);
+  animation: mascot-peek-sway-right 4.6s ease-in-out 1.5s infinite;
+}
+.mascot-peeker--faq:hover {
+  transform: translate(-18px, -15px) scale(1.12) rotate(-2deg);
+  animation-play-state: paused;
+}
+
+/* Keyframe Animations */
 @keyframes mascot-bubble-pulse {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
+
+@keyframes mascot-peek-sway-left {
+  0%, 100% { transform: translate(-15%, 22%) rotate(-8deg); }
+  50% { transform: translate(-10%, 16%) rotate(-4deg); }
+}
+
+@keyframes mascot-peek-sway-right {
+  0%, 100% { transform: translate(15%, 20%) rotate(8deg); }
+  50% { transform: translate(10%, 14%) rotate(4deg); }
+}
+
+@keyframes mascot-peek-side-left {
+  0%, 100% { transform: translateY(-50%) translate(-22%, 0) rotate(10deg); }
+  50% { transform: translateY(-50%) translate(-14%, -6px) rotate(6deg); }
+}
+
+@keyframes mascot-peek-top-right {
+  0%, 100% { transform: translate(18%, -16%) rotate(-10deg); }
+  50% { transform: translate(12%, -10%) rotate(-6deg); }
+}
+
 @keyframes mascot-float-slow {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-8px) rotate(2deg); }
 }
 
-/* Individual Corner Positionings */
-.mascot-corner--hero {
-  bottom: 8%;
-  left: clamp(16px, 3.5vw, 48px);
-  animation: mascot-float-slow 4s ease-in-out infinite;
+/* Rapid Comic Burst Animation on Click / Flip */
+.mascot-peeker.is-bursting {
+  animation: mascot-burst 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
 }
-.mascot-corner--about {
-  bottom: clamp(20px, 3vw, 40px);
-  right: clamp(16px, 3.5vw, 48px);
-  animation: mascot-float-slow 4.5s ease-in-out 0.5s infinite;
-}
-.mascot-corner--odoo {
-  bottom: clamp(20px, 3.5vw, 44px);
-  left: clamp(16px, 3vw, 40px);
-  animation: mascot-float-slow 4.2s ease-in-out 1s infinite;
-}
-.mascot-corner--prizes {
-  top: clamp(60px, 6vw, 100px);
-  right: clamp(16px, 4vw, 56px);
-  animation: mascot-float-slow 3.8s ease-in-out 0.3s infinite;
-}
-.mascot-corner--faq {
-  bottom: clamp(20px, 3vw, 40px);
-  right: clamp(16px, 3.5vw, 48px);
-  animation: mascot-float-slow 4.6s ease-in-out 1.2s infinite;
+@keyframes mascot-burst {
+  0% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.28) rotate(-12deg); }
+  50% { transform: scale(0.92) rotate(8deg); }
+  75% { transform: scale(1.15) rotate(-4deg); }
+  100% { transform: scale(1.08) rotate(0deg); }
 }
 
 @media (max-width: 768px) {
-  .mascot-corner {
-    opacity: 0.92;
-  }
+  .mascot-peeker .mascot-img,
   .mascot-corner .mascot-img {
-    width: clamp(60px, 14vw, 85px);
+    width: clamp(75px, 16vw, 105px);
   }
+  .mascot-peeker .mascot-bubble,
   .mascot-corner .mascot-bubble {
-    font-size: 0.62rem;
+    font-size: 0.65rem;
     padding: 3px 8px;
   }
-  .mascot-corner--prizes {
-    top: 20px;
-    right: 12px;
-  }
 }
+
 

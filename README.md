@@ -40,10 +40,16 @@ Built with a bespoke **Pop-Art / Comic Book** visual identity:
    - Dynamic 3-tier fan-out podium (-3.5° 2nd Place Silver, 1.06x Gold Champion with spinning sunburst rays, +3.5° 3rd Place Bronze).
    - Animated count-up counters calculating prize pool amounts upon viewport intersection.
 
-6. **Frequently Asked Questions** (`#faq`):
+6. **Interactive Animated Mascots (Red & Green)**:
+   - 10 total vectorized mascot characters in both **Red** (`#EF0808`) and **Green** (`#22AC5F`) themes across 5 distinct comic expressions: *Cheer, Excited, Star-Eyes, Cool, and Curious*.
+   - **25% Peeking Placement**: Mascots peek in from section edges and corners (~25% concealed outside boundaries), springing fully into frame on hover.
+   - **Rapid Expression Flipbook**: Hovering any mascot triggers rapid stop-motion cycling through all expressions; clicking triggers a cartoon burst, randomized comic quip ("POW!", "100K+ BAG!", "FAST-TRACK!"), and Red/Green color toggle.
+   - **Subtle Idle Double-Take**: Background idle loop triggers occasional winks/double-takes across on-screen mascots.
+
+7. **Frequently Asked Questions** (`#faq`):
    - Accessible interactive accordion items with expandable answers.
 
-7. **Site Navigation & Footer**:
+8. **Site Navigation & Footer**:
    - Scroll-aware header that reveals as you scroll past the hero.
    - Fully responsive mobile drawer menu.
 
@@ -55,22 +61,25 @@ Built with a bespoke **Pop-Art / Comic Book** visual identity:
 final-makeaton/
 ├── index.html              # Main website entry point
 ├── css/
-│   ├── base.css            # Design tokens, reset, typography, cards, patterns
+│   ├── base.css            # Design tokens, reset, typography, cards, peeker mascots
 │   ├── hero.css            # Hero canvas, marquee marquees, 3D tilt styles
 │   ├── sections.css        # About, Odoo, Prizes, FAQ, Footer styles
 │   └── timeline.css        # Interactive storybook timeline styles
 ├── js/
-│   ├── main.js             # Nav observer, 3D tilt, marquees, prize count-up
+│   ├── main.js             # Nav observer, 3D tilt, marquees, prize count-up, mascot animations
 │   └── timeline.js         # Interactive book flip logic, chapter tabs & controls
 ├── assets/
 │   ├── favicon.svg         # Favicon icon
 │   ├── logo.svg            # Site navigation brand logo
 │   ├── logo-hero.svg       # High-resolution hero title logo
+│   ├── mascot/             # Red & Green mascot SVGs (Cheer, Cool, Curious, Excited, Star-Eyes)
 │   ├── star_pattern.svg    # Hero SVG dense star tile
 │   ├── shapes/             # Comic badges, bursts, stickers, and icons
 │   └── timeline/           # Story panels (1–5) and timeline artwork
 ├── docs/                   # Design assets, markdown exports, and reference files
 │   ├── design_ton/         # Reference design sandbox
+│   ├── mascot-green/       # Raw green vector components
+│   ├── mascot-red/         # Raw red vector components
 │   ├── prizes-animation-specs.md
 │   └── timeline-story-export.md
 ├── README.md               # Project documentation
@@ -99,3 +108,4 @@ Open [http://localhost:8181](http://localhost:8181) in your browser.
 
 - **`main`**: Production release branch.
 - **`updates`**: Active development and design iteration branch.
+

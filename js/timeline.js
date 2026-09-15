@@ -82,8 +82,9 @@
     <div class="page page--left page--end face--back">
       <p class="page__cover-title">The end?</p>
       <p class="page__blurb">Not quite. The best chapter is the one you build.</p>
-      <div class="page__mascot-wrap">
-        <img class="page__mascot-img" src="assets/mascot/mascot-cheer.svg" alt="Make-A-Ton Mascot">
+      <div class="page__mascot-wrap mascot-peeker mascot-peeker--inline" data-mascot-color="green" aria-label="Make-A-Ton Mascot">
+        <div class="mascot-bubble">BUILD WITH US!</div>
+        <img class="page__mascot-img mascot-img" src="assets/mascot/mascot-green-cheer.svg" alt="Make-A-Ton Mascot" width="242" height="325" loading="lazy">
       </div>
     </div>`;
 
@@ -125,6 +126,7 @@
   scroller.hidden = false;
   scroller.removeAttribute('aria-hidden');
   scroller.style.setProperty('--leaves', n);
+  window.dispatchEvent(new CustomEvent('timeline-book-ready'));
 
   const leafEls = [...scroller.querySelectorAll('.leaf')];
   const tabs = [...scroller.querySelectorAll('.book-tabs button')];
