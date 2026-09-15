@@ -146,13 +146,13 @@
   .about-panel--cittic .about-panel__head::before { content: none; }
 }
 
-/* About Odoo Hackathon · clean white canvas + squiggle pattern + caution tape */
+/* About Odoo Hackathon · blue canvas + yellow pattern (Figma node 26:2) */
 .section--odoo {
-  --pattern-color: #000;
+  --pattern-color: #FCC230;
   position: relative;
   overflow: hidden;
-  color: var(--ink);
-  background: var(--white);
+  color: var(--white);
+  background: #437AEC;
 }
 .section--odoo :focus-visible { outline-color: var(--tape); }
 /* Brush stroke under the title's last word, as on Odoo's own page */
