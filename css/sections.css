@@ -146,8 +146,14 @@
   .about-panel--cittic .about-panel__head::before { content: none; }
 }
 
-/* About Odoo Hackathon · black + purple asterisks --------------------------- */
-.section--odoo { --pattern-color: var(--purple); color: var(--white); background: var(--ink); }
+/* About Odoo Hackathon · clean white canvas + squiggle pattern + caution tape */
+.section--odoo {
+  --pattern-color: #000;
+  position: relative;
+  overflow: hidden;
+  color: var(--ink);
+  background: var(--white);
+}
 .section--odoo :focus-visible { outline-color: var(--tape); }
 /* Brush stroke under the title's last word, as on Odoo's own page */
 .swoosh { position: relative; display: inline-block; }
@@ -168,7 +174,13 @@
   align-items: center;
   gap: clamp(48px, 6vw, 80px);
 }
-.odoo__card { color: var(--ink); box-shadow: 10px 10px 0 var(--purple); rotate: 1deg; }
+.odoo__card {
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  box-shadow: 10px 10px 0 var(--ink);
+  rotate: 1deg;
+}
 .odoo__lead { font-size: clamp(1.2rem, 1.05rem + 0.7vw, 1.65rem); font-weight: 700; line-height: 1.35; }
 .odoo__punch { font-family: var(--font-tape); font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem); line-height: 1.35; }
 .scribble {
@@ -194,14 +206,14 @@
   background: var(--cream);
   border: var(--line) solid var(--ink);
   border-radius: 18px;
-  box-shadow: 6px 6px 0 var(--purple);
+  box-shadow: 6px 6px 0 var(--ink);
   rotate: 3deg;
 }
 .odoo__stat b { font-family: var(--font-display); font-size: clamp(2.6rem, 1.6rem + 3vw, 4.2rem); font-weight: 400; line-height: 1; letter-spacing: 0.02em; }
 .odoo__stat span { font-family: var(--font-tape); font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.95rem); letter-spacing: 0.05em; text-transform: uppercase; }
 .odoo__badge { position: relative; display: grid; place-items: center; width: 100%; max-width: 440px; rotate: -8deg; }
 .odoo__badge > * { grid-area: 1 / 1; }
-.odoo__burst { width: 100%; filter: drop-shadow(6px 6px 0 var(--white)); }
+.odoo__burst { width: 100%; filter: drop-shadow(6px 6px 0 var(--ink)); }
 .odoo__badge p {
   position: relative; /* keep the text above the filtered burst image */
   display: flex;
@@ -223,7 +235,7 @@
   top: -75%;
   right: -2%;
   width: 26%;
-  filter: drop-shadow(4px 4px 0 var(--white));
+  filter: drop-shadow(4px 4px 0 var(--ink));
   animation: spin 16s linear infinite;
 }
 @keyframes spin { to { rotate: 360deg; } }
