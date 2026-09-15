@@ -1,0 +1,406 @@
+/* ==========================================================================
+   MAKEATON 9.0 - COMPONENTS & PRECISE FIGMA FRAMING
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   HERO VIEWPORT STAGE
+   -------------------------------------------------------------------------- */
+.viewport-stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--color-white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Background Pattern: Continuous Star Grid (Zero White Voids) */
+.bg-pattern-container,
+.group1814106721 {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: var(--z-bg);
+  pointer-events: none;
+  background-color: var(--color-white);
+}
+
+.bg-pattern-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   CAUTION TAPE BORDERS
+   -------------------------------------------------------------------------- */
+.caution-tape {
+  position: absolute;
+  left: -10vw;
+  width: 120vw;
+  background-color: var(--color-yellow);
+  border-top: var(--tape-border-width) solid var(--color-black);
+  border-bottom: var(--tape-border-width) solid var(--color-black);
+  padding: clamp(0.7rem, 1.6vh, 1.3rem) 0;
+  overflow: hidden;
+  white-space: nowrap;
+  user-select: none;
+  cursor: default;
+}
+
+/* Top Caution Tape */
+.caution-tape-top {
+  top: clamp(14px, 2.6vh, 36px);
+  transform: rotate(var(--tape-rotation-top));
+  z-index: var(--z-tape-top);
+  box-shadow: 0px 14px 0px 0px rgba(0, 0, 0, 0.35);
+}
+
+/* Bottom Caution Tape */
+.caution-tape-bottom {
+  bottom: clamp(18px, 3.2vh, 44px);
+  transform: rotate(var(--tape-rotation-bottom));
+  z-index: var(--z-tape-bottom);
+  box-shadow: 0px 14px 0px 0px rgba(0, 0, 0, 0.35);
+}
+
+/* Marquee Scroller */
+.marquee-wrapper {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-track {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  will-change: transform;
+}
+
+.caution-tape-top .marquee-track {
+  animation: marqueeScrollLeft var(--marquee-duration-desktop) linear infinite;
+}
+
+.caution-tape-bottom .marquee-track {
+  animation: marqueeScrollRight var(--marquee-duration-desktop) linear infinite;
+}
+
+@keyframes marqueeScrollLeft {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes marqueeScrollRight {
+  0% { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.tape-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.8vw, 3.8rem);
+  line-height: 1.15;
+  color: var(--color-black);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0 clamp(0.75rem, 1.5vw, 1.75rem);
+  display: inline-flex;
+  align-items: center;
+}
+
+.diamond-separator {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.88em;
+  padding: 0 clamp(0.6rem, 1.4vw, 1.6rem);
+  color: var(--color-black);
+  transform: translateY(-0.04em);
+}
+
+/* --------------------------------------------------------------------------
+   HERO CENTER TITLE
+   -------------------------------------------------------------------------- */
+.center-title-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--z-center-title);
+  width: 100%;
+  max-width: min(84vw, 1100px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  padding: 1rem;
+}
+
+.center-title-img {
+  width: 100%;
+  height: auto;
+  max-height: clamp(220px, 44vh, 560px);
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.12));
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1), filter 0.25s ease;
+  cursor: pointer;
+}
+
+.center-title-img:hover {
+  filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 0.22));
+}
+
+/* ==========================================================================
+   TIMELINE SECTION (FRAME 1814106765)
+   ========================================================================== */
+.timeline-section {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  overflow: hidden;
+  background-color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: clamp(50px, 9vh, 100px) clamp(16px, 3.5vw, 48px);
+}
+
+/* Background Squiggle/Wave Pattern Layer */
+.timeline-bg-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+  background-color: var(--color-white);
+}
+
+.timeline-bg-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Timeline Content Stage */
+.timeline-content-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1220px;
+  z-index: 10;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Section Header & Title Placement */
+.timeline-header {
+  position: relative;
+  width: 100%;
+  z-index: 15;
+  margin-bottom: -22px;
+  margin-left: -8px;
+}
+
+.timeline-title-img {
+  width: clamp(260px, 38vw, 480px);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0px 6px 14px rgba(0, 0, 0, 0.16));
+}
+
+/* Main Comic Board (Frame 20:6550) */
+.comic-board {
+  background-color: var(--color-cream);
+  border: 3.5px solid var(--color-black);
+  box-shadow: 8px 8px 0px var(--color-black);
+  padding: clamp(16px, 2.2vw, 28px);
+  position: relative;
+  width: 100%;
+  border-radius: 2px;
+}
+
+/* 2x2 Comic Strip Grid */
+.comic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(16px, 2vw, 24px);
+  width: 100%;
+}
+
+/* Individual Comic Panel */
+.comic-panel {
+  position: relative;
+  background-color: var(--color-white);
+  border: 3px solid var(--color-black);
+  box-shadow: 4px 4px 0px var(--color-black);
+  overflow: hidden;
+  aspect-ratio: 512 / 382;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.22s ease;
+  cursor: pointer;
+}
+
+.comic-panel:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px var(--color-black);
+}
+
+.panel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.comic-panel:hover .panel-img {
+  transform: scale(1.02);
+}
+
+/* Yellow Date Header Badge */
+.panel-date-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: var(--color-yellow-badge);
+  border-right: 3px solid var(--color-black);
+  border-bottom: 3px solid var(--color-black);
+  box-shadow: 2px 2px 0px var(--color-black);
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: clamp(0.66rem, 0.85vw, 0.82rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-black);
+  z-index: 5;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+}
+
+/* Comic Speech Bubble */
+.panel-speech-bubble {
+  position: absolute;
+  background-color: var(--color-white);
+  border: 2.5px solid var(--color-black);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0px var(--color-black);
+  padding: 6px 14px;
+  font-family: var(--font-bubble);
+  font-weight: 700;
+  font-size: clamp(0.7rem, 0.92vw, 0.88rem);
+  text-transform: uppercase;
+  color: var(--color-black);
+  z-index: 5;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 90%;
+}
+
+.panel-speech-bubble.pos-bottom-left {
+  bottom: 12px;
+  left: 12px;
+}
+
+.panel-speech-bubble.pos-bottom-right {
+  bottom: 12px;
+  right: 12px;
+}
+
+.panel-speech-bubble.pos-top-left {
+  top: 36px;
+  left: 12px;
+}
+
+.bubble-keyword {
+  color: var(--color-red-accent);
+  font-style: italic;
+  font-weight: 700;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.15);
+}
+
+/* Corner Official Badge */
+.panel-corner-tag {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: var(--color-black);
+  border: 2px solid var(--color-white);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.4);
+  padding: 4px 8px;
+  color: var(--color-white);
+  font-family: var(--font-bubble);
+  font-size: clamp(0.6rem, 0.75vw, 0.74rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  z-index: 6;
+  letter-spacing: 0.03em;
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE MEDIA QUERIES
+   -------------------------------------------------------------------------- */
+@media (max-width: 860px) {
+  :root {
+    --tape-border-width: 6px;
+    --tape-shadow: 0px 10px 0px 0px rgba(0, 0, 0, 0.35);
+  }
+
+  .caution-tape-top {
+    top: clamp(8px, 1.8vh, 22px);
+  }
+
+  .caution-tape-bottom {
+    bottom: clamp(12px, 2.2vh, 26px);
+  }
+
+  .comic-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .timeline-header {
+    margin-bottom: -16px;
+    margin-left: 0;
+  }
+
+  .timeline-title-img {
+    width: clamp(200px, 50vw, 320px);
+  }
+
+  .panel-speech-bubble {
+    white-space: normal;
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --tape-border-width: 5px;
+    --tape-shadow: 0px 8px 0px 0px rgba(0, 0, 0, 0.35);
+  }
+
+  .center-title-img {
+    max-height: 180px;
+  }
+
+  .timeline-section {
+    padding: 40px 12px;
+  }
+
+  .comic-board {
+    padding: 12px;
+    box-shadow: 5px 5px 0px var(--color-black);
+  }
+}
