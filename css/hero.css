@@ -1,46 +1,184 @@
 /* ==========================================================================
-   Hero · built from mainpage.png (3240 × 1440 artboard)
-   Tapes sit at 10.35% / 89.65% of the height, tilted ±2°.
-   Logo is 60.4% of the width, nudged slightly below centre.
+   Hero Section · Model from design_ton
+   Continuous dense star grid canvas, dual rotating caution tape marquees,
+   and interactive 3D pointer-tilted center title
    ========================================================================== */
 
+:root {
+  /* Caution Tape Dimensions & Angles */
+  --tape-rotation-top: -2.00deg;
+  --tape-rotation-bottom: 2.00deg;
+  --tape-border-width: max(4px, 0.5vw);
+  --tape-shadow: 0px 14px 0px 0px rgba(0, 0, 0, 0.35);
+
+  /* Animation Timers */
+  --marquee-duration-desktop: 22s;
+  --marquee-duration-mobile: 12s;
+
+  /* Z-Index Hierarchy */
+  --z-bg: 1;
+  --z-tape-top: 10;
+  --z-center-title: 20;
+  --z-tape-bottom: 30;
+}
+
+/* --------------------------------------------------------------------------
+   HERO VIEWPORT STAGE
+   -------------------------------------------------------------------------- */
+.viewport-stage,
 .hero {
-  --pattern-color: #000;
   position: relative;
   isolation: isolate;
-  display: grid;
-  place-items: center;
-  height: max(100svh, 44.44vw);
-  min-height: 520px;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 540px;
   overflow: hidden;
-  background: var(--white);
+  background-color: var(--white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.hero .tape {
-  --tape-h: clamp(52px, 5.6vw, 140px);
-  --tape-star: var(--star-pink);
-  animation: hero-tape-in 0.8s cubic-bezier(0.2, 1.1, 0.35, 1) both;
+/* Background Pattern: Continuous Star Grid */
+.bg-pattern-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: var(--z-bg);
+  pointer-events: none;
+  background-color: var(--white);
 }
-.tape--hero-top { top: 10.35%; }
-.tape--hero-bottom { top: 89.65%; animation-delay: 0.1s; }
 
-/* The stage is the logo's box, so the register button can be placed against the lettering */
-.hero__stage {
-  position: relative;
-  z-index: 2;
-  width: clamp(300px, 60.4vw, 1500px);
-  max-width: 88vw;
-  translate: 0 14%;
+.bg-pattern-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
-.hero__logo {
+
+/* --------------------------------------------------------------------------
+   CAUTION TAPE BORDERS
+   -------------------------------------------------------------------------- */
+.caution-tape {
+  position: absolute;
+  left: -10vw;
+  width: 120vw;
+  background-color: var(--tape);
+  border-top: var(--tape-border-width) solid var(--ink);
+  border-bottom: var(--tape-border-width) solid var(--ink);
+  padding: clamp(0.7rem, 1.6vh, 1.3rem) 0;
+  overflow: hidden;
+  white-space: nowrap;
+  user-select: none;
+  cursor: default;
+}
+
+/* Top Caution Tape */
+.caution-tape-top {
+  top: clamp(14px, 2.6vh, 36px);
+  transform: rotate(var(--tape-rotation-top));
+  z-index: var(--z-tape-top);
+  box-shadow: 0px 14px 0px 0px rgba(0, 0, 0, 0.35);
+}
+
+/* Bottom Caution Tape */
+.caution-tape-bottom {
+  bottom: clamp(18px, 3.2vh, 44px);
+  transform: rotate(var(--tape-rotation-bottom));
+  z-index: var(--z-tape-bottom);
+  box-shadow: 0px 14px 0px 0px rgba(0, 0, 0, 0.35);
+}
+
+/* Marquee Scroller */
+.marquee-wrapper {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-track {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  will-change: transform;
+}
+
+.caution-tape-top .marquee-track {
+  animation: marqueeScrollLeft var(--marquee-duration-desktop) linear infinite;
+}
+
+.caution-tape-bottom .marquee-track {
+  animation: marqueeScrollRight var(--marquee-duration-desktop) linear infinite;
+}
+
+@keyframes marqueeScrollLeft {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes marqueeScrollRight {
+  0% { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.tape-text {
+  font-family: var(--font-tape);
+  font-size: clamp(1.6rem, 3.8vw, 3.8rem);
+  line-height: 1.15;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0 clamp(0.75rem, 1.5vw, 1.75rem);
+  display: inline-flex;
+  align-items: center;
+}
+
+.diamond-separator {
+  display: inline-block;
+  font-family: var(--font-tape);
+  font-size: 0.88em;
+  padding: 0 clamp(0.6rem, 1.4vw, 1.6rem);
+  color: var(--ink);
+  transform: translateY(-0.04em);
+}
+
+/* --------------------------------------------------------------------------
+   HERO CENTER TITLE & 3D INTERACTIVITY
+   -------------------------------------------------------------------------- */
+.center-title-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--z-center-title);
+  width: 100%;
+  max-width: min(84vw, 1100px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  padding: 1rem;
+}
+
+.center-title-img {
   width: 100%;
   height: auto;
-  animation: hero-logo-in 0.9s cubic-bezier(0.2, 1.4, 0.4, 1) 0.25s both;
+  max-height: clamp(220px, 44vh, 560px);
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.12));
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1), filter 0.25s ease;
+  cursor: pointer;
 }
 
-/* Register button ------------------------------------------------------------
-   Landscape: tucked into the space under "TON", tilted with the logo's rising baseline.
-   Portrait: centred below the logo. Its shadow falls down-left, like the logo's extrusion. */
+.center-title-img:hover {
+  filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 0.22));
+}
+
+/* CTA Button tucked alongside the center title */
 .hero-cta {
   position: absolute;
   top: 73%;
@@ -73,7 +211,6 @@
   box-shadow: -0.2em 0.26em 0 var(--ink);
   transition: translate 0.18s ease, box-shadow 0.18s ease;
 }
-/* Gloss that sweeps across every few seconds */
 .hero-cta__face::after {
   content: "";
   position: absolute;
@@ -102,7 +239,6 @@
 }
 .hero-cta__arrow svg { width: 58%; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
 
-/* A scrap of the hero tape stuck on the corner */
 .hero-cta__tag {
   position: absolute;
   top: 0;
@@ -140,7 +276,7 @@
 
 @media (max-aspect-ratio: 1/1) {
   .hero-cta {
-    top: calc(100% + clamp(28px, 6svh, 64px));
+    top: calc(100% + clamp(16px, 4svh, 48px));
     right: auto;
     left: 50%;
     translate: -50% 0;
@@ -149,12 +285,6 @@
   }
 }
 
-@keyframes hero-logo-in {
-  from { opacity: 0; scale: 0.6; rotate: -6deg; }
-}
-@keyframes hero-tape-in {
-  from { opacity: 0; transform: translateY(-50%) rotate(var(--tilt)) translateX(-25%); }
-}
 @keyframes hero-cta-in {
   from { opacity: 0; scale: 0.3; rotate: 16deg; }
 }
