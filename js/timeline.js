@@ -82,7 +82,9 @@
     <div class="page page--left page--end face--back">
       <p class="page__cover-title">The end?</p>
       <p class="page__blurb">Not quite. The best chapter is the one you build.</p>
-      <img class="page__shape page__shape--small" src="assets/shapes/bowtie.svg" alt="">
+      <div class="page__mascot-wrap">
+        <img class="page__mascot-img" src="assets/mascot/mascot-cheer.svg" alt="Make-A-Ton Mascot">
+      </div>
     </div>`;
 
   const leaves = [cover + art(chapters[0], 2)];
