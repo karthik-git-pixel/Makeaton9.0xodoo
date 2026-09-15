@@ -7,12 +7,15 @@
   // Keep the static cards when motion is reduced or the screen is too short for a book
   if (!scroller || reduceMotion.matches || window.innerHeight < 560) return;
 
-  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const esc = (s) => (s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const chapters = [...section.querySelectorAll('.timeline-list > li')].map((li, i) => ({
     num: String(i + 1).padStart(2, '0'),
     short: li.dataset.short,
     title: li.dataset.title,
-    shape: li.dataset.shape,
+    panel: li.dataset.panel,
+    badge: li.dataset.badge,
+    dialogue: li.dataset.dialogue,
+    highlight: li.dataset.highlight,
     date: li.querySelector('time').textContent.trim(),
     activity: li.querySelector('h3').textContent.trim(),
     lead: li.querySelector('.timeline-list__lead b').textContent.trim(),
@@ -21,17 +24,43 @@
   if (!chapters.length) return;
   const last = chapters[chapters.length - 1];
 
+  const formatDialogue = (dialogue, highlight) => {
+    if (!dialogue) return '';
+    const safeDialogue = esc(dialogue);
+    if (!highlight) return safeDialogue;
+    const safeHighlight = esc(highlight);
+    return safeDialogue.replace(safeHighlight, `<strong class="page__bubble-highlight">${safeHighlight}</strong>`);
+  };
+
   // Spread k (k ≥ 1): left = art for chapter k (back of leaf k-1), right = details (front of leaf k)
   const art = (c, folio) => `
     <div class="page page--left page--art face--back">
-      <p class="page__kicker">Chapter ${c.num}</p>
-      <img class="page__shape" src="assets/shapes/${c.shape}.svg" alt="">
-      <p class="page__bigdate">${esc(c.short)}</p>
-      <p class="page__folio">${folio}</p>
+      <div class="page__head">
+        <p class="page__kicker">Chapter ${c.num}</p>
+        ${c.badge ? `<p class="page__badge">${esc(c.badge)}</p>` : ''}
+      </div>
+      <div class="page__panel-wrap">
+        <div class="page__panel-frame">
+          <img class="page__panel-img" src="assets/timeline/${esc(c.panel)}" alt="${esc(c.title)}">
+        </div>
+        ${c.dialogue ? `
+          <div class="page__bubble">
+            <p>${formatDialogue(c.dialogue, c.highlight)}</p>
+          </div>
+        ` : ''}
+      </div>
+      <div class="page__foot">
+        <span class="page__stamp">${esc(c.lead)}</span>
+        <p class="page__folio">${folio}</p>
+      </div>
     </div>`;
+
   const detail = (c, folio) => `
     <div class="page page--right page--chapter">
-      <p class="page__kicker">Chapter ${c.num}</p>
+      <div class="page__head">
+        <p class="page__kicker">Chapter ${c.num}</p>
+        <p class="page__date-pill">${esc(c.short)}</p>
+      </div>
       <h3 class="page__title">${esc(c.title)}</h3>
       <p class="page__activity">${esc(c.activity)}</p>
       <dl class="page__meta">

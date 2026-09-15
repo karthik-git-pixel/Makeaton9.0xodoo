@@ -122,35 +122,35 @@
           <p class="timeline__hint">Keep scrolling to turn the pages</p>
         </header>
         <ol class="timeline-list">
-          <li data-short="21 Sep" data-title="The Gates Open" data-shape="spark">
+          <li data-short="21 Sep" data-title="The Call to Arms" data-panel="panel-1.png" data-badge="ODOO PORTAL" data-dialogue="THE FORM IS LIVE! WHO'S ON THE SQUAD?" data-highlight="LIVE!">
             <time datetime="2026-09-21">21 September 2026</time>
             <h3>Registration Starts</h3>
             <p class="timeline-list__lead">In charge: <b>Odoo</b></p>
-            <p>Registrations open. Sign up and start sketching your ideas.</p>
+            <p>Applications open. Teams of up to four form, argue about names, and put their idea in writing for the first time.</p>
           </li>
-          <li data-short="10 Nov" data-title="Last Call" data-shape="burst">
+          <li data-short="10 Nov" data-title="The Midnight Wire" data-panel="panel-2.png" data-badge="CUSAT INITIATIVE" data-dialogue="11:59 PM... SUBMITTED WITH 3 SECONDS TO SPARE!" data-highlight="SUBMITTED">
             <time datetime="2026-11-10">10 November 2026</time>
             <h3>Registration Ends</h3>
             <p class="timeline-list__lead">In charge: <b>CUSAT</b></p>
-            <p>Registrations close. This is your last chance to get in.</p>
+            <p>Last call. Everything after this point is judged on what you build, not on what you promised.</p>
           </li>
-          <li data-short="14 Nov" data-title="The Virtual Sprint" data-shape="asterisk">
+          <li data-short="14 Nov" data-title="The 8-Hour Crucible" data-panel="panel-3.png" data-badge="HOSTED BY ODOO" data-dialogue="8 HOURS ON THE CLOCK. LET'S CRACK THIS PROMPT!" data-highlight="CRACK">
             <time datetime="2026-11-14">14 November 2026</time>
             <h3>Virtual Round (8 hrs)</h3>
             <p class="timeline-list__lead">In charge: <b>Odoo</b></p>
-            <p>Eight hours, online. Build it, then ship it.</p>
+            <p>Eight hours, online, wherever you are. The round that decides who travels to Kochi in December.</p>
           </li>
-          <li data-short="26 Nov" data-title="The Big Reveal" data-shape="flower">
+          <li data-short="26 Nov" data-title="The Golden Ticket" data-panel="panel-4.png" data-badge="OFFICIAL SHORTLIST" data-dialogue="CHECK THE SHORTLIST... WE'RE GOING TO KOCHI!" data-highlight="SHORTLIST">
             <time datetime="2026-11-26">26 November 2026</time>
             <h3>Virtual Round Result</h3>
             <p class="timeline-list__lead">In charge: <b>Odoo</b></p>
-            <p>The finalists are announced.</p>
+            <p>Shortlists go out. If your name is on one, you have three weeks to get ready for the floor.</p>
           </li>
-          <li data-short="19–20 Dec" data-title="The Final Showdown" data-shape="ring">
+          <li data-short="19–20 Dec" data-title="The Final Arena" data-panel="panel-5.png" data-badge="ON-SITE @ CUSAT" data-dialogue="24 HOURS OF NON-STOP SHIPPING. MAIN STAGE AWAITS!" data-highlight="SHIPPING">
             <time datetime="2026-12-19">19–20 December 2026</time>
-            <h3>Final Round (24 hrs)</h3>
+            <h3>The Final Round (24 hrs)</h3>
             <p class="timeline-list__lead">In charge: <b>CUSAT</b></p>
-            <p>24 hours at CUSAT, Kochi. Build, pitch, win.</p>
+            <p>Twenty-four hours on campus at CUSAT. Build, demo, and interview on the spot with the people who came to hire.</p>
           </li>
         </ol>
       </div>
@@ -163,24 +163,60 @@
       <div class="tape tape--divider tape--white tape--tilt-right" data-tape="₹1,05,000 IN PRIZES"></div>
       <div class="section__inner">
         <header class="section-head section-head--center">
-          <p class="kicker">What's up for grabs</p>
-          <h2 class="display" id="prizes-title">Prizes</h2>
+          <p class="kicker"><span class="kicker__pulse" aria-hidden="true"></span>Reward Pool // ₹1,05,000+</p>
+          <h2 class="display display--prizes" id="prizes-title">The Victory Loot</h2>
+          <p class="prizes-subtitle">Ship the winning build. Claim the bag. Sponsored by Odoo &amp; CUSAT.</p>
         </header>
         <ol class="podium">
-          <li class="prize prize--first">
-            <p class="prize__rank">1st</p>
-            <p class="prize__amount">₹<span data-count="45000">45,000</span></p>
-            <h3 class="prize__label">Winning team</h3>
-          </li>
+          <!-- 2nd Place: First Runner-Up -->
           <li class="prize prize--second">
-            <p class="prize__rank">2nd</p>
-            <p class="prize__amount">₹<span data-count="35000">35,000</span></p>
-            <h3 class="prize__label">First runner-up</h3>
+            <div class="prize__sunburst-wrap" aria-hidden="true"></div>
+            <div class="prize__body">
+              <div class="prize__header-top">
+                <span class="prize__badge prize__badge--second">🥈 2ND PLACE // 1ST RUNNER-UP</span>
+              </div>
+              <div class="prize__amount-wrap">
+                <span class="prize__amount-label">Bounty Check</span>
+                <p class="prize__amount">₹<span data-count="35000">35,000</span>/-</p>
+              </div>
+              <h3 class="prize__label">First runner-up</h3>
+              <p class="prize__desc">Silver Tier Build &bull; Swag &amp; Sponsor Bounty</p>
+            </div>
           </li>
+
+          <!-- 1st Place: Grand Champion -->
+          <li class="prize prize--first">
+            <!-- Infinite Spinning Background Conic Seal -->
+            <div class="prize__sunburst-wrap" aria-hidden="true">
+              <div class="prize__sunburst"></div>
+            </div>
+            <div class="prize__body">
+              <div class="prize__header-top">
+                <span class="prize__badge prize__badge--first">🏆 1ST PLACE // GRAND CHAMPION</span>
+              </div>
+              <div class="prize__amount-wrap">
+                <span class="prize__amount-label">Grand Prize Bag</span>
+                <p class="prize__amount prize__amount--champion">₹<span data-count="45000">45,000</span>/-</p>
+              </div>
+              <h3 class="prize__label">Winning team</h3>
+              <p class="prize__desc">The Crown Jewel Build &bull; Winner Trophy &bull; Direct Fast-Track</p>
+            </div>
+          </li>
+
+          <!-- 3rd Place: Second Runner-Up -->
           <li class="prize prize--third">
-            <p class="prize__rank">3rd</p>
-            <p class="prize__amount">₹<span data-count="25000">25,000</span></p>
-            <h3 class="prize__label">Second runner-up</h3>
+            <div class="prize__sunburst-wrap" aria-hidden="true"></div>
+            <div class="prize__body">
+              <div class="prize__header-top">
+                <span class="prize__badge prize__badge--third">🥉 3RD PLACE // 2ND RUNNER-UP</span>
+              </div>
+              <div class="prize__amount-wrap">
+                <span class="prize__amount-label">Bounty Check</span>
+                <p class="prize__amount">₹<span data-count="25000">25,000</span>/-</p>
+              </div>
+              <h3 class="prize__label">Second runner-up</h3>
+              <p class="prize__desc">Bronze Tier Build &bull; Exclusive Goodies</p>
+            </div>
           </li>
         </ol>
       </div>

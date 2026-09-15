@@ -51,7 +51,23 @@
     });
   }
 
-  // Prizes: count up when the podium scrolls into view
+  // Prizes: podium spring fan-out reveal & count up when scrolling into view
+  const podium = document.querySelector('.podium');
+  if (podium) {
+    if (reduceMotion.matches) {
+      podium.classList.add('is-visible');
+    } else {
+      const podiumObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          podium.classList.add('is-visible');
+          podiumObserver.unobserve(entry.target);
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+      podiumObserver.observe(podium);
+    }
+  }
+
   const rupees = new Intl.NumberFormat('en-IN');
   if (!reduceMotion.matches) {
     const counter = new IntersectionObserver((entries) => {
@@ -68,7 +84,7 @@
         };
         requestAnimationFrame(tick);
       });
-    }, { threshold: 0.6 });
+    }, { threshold: 0.4 });
     document.querySelectorAll('[data-count]').forEach((el) => counter.observe(el));
   }
 
