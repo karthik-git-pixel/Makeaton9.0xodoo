@@ -75,9 +75,11 @@
   height: 100svh;
   padding-top: 56px;
   overflow: hidden;
-  /* Same yellow squiggle field as the rest of the section */
+  /* Same yellow squiggle field as the rest of the section. The tile SVG carries
+     only a viewBox, so both axes are stated: an `auto` height resolves against
+     the element, which stretched the tile on tall, narrow screens. */
   background:
-    var(--squiggle-yellow) 0 0 / max(150px, 13.73vw) auto repeat,
+    var(--squiggle-yellow) 0 0 / max(150px, 13.73vw) max(150px, 13.73vw) repeat,
     var(--yellow);
 }
 

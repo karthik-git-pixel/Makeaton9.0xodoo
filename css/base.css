@@ -256,8 +256,10 @@ a { color: inherit; }
   z-index: -1;
   pointer-events: none;
   background: var(--pattern-color, var(--ink));
-  -webkit-mask: var(--pattern-img) 0 0 / var(--pattern-size) auto repeat;
-  mask: var(--pattern-img) 0 0 / var(--pattern-size) auto repeat;
+  /* Both axes: the tile SVGs carry only a viewBox, so an `auto` height resolves
+     against the element and stretches the tile on very tall or narrow blocks. */
+  -webkit-mask: var(--pattern-img) 0 0 / var(--pattern-size) var(--pattern-size) repeat;
+  mask: var(--pattern-img) 0 0 / var(--pattern-size) var(--pattern-size) repeat;
 }
 .pattern--squiggle { --pattern-img: var(--squiggle-tile); --pattern-size: max(150px, 13.73vw); }
 .pattern--asterisk { --pattern-img: var(--asterisk-tile); --pattern-size: max(240px, 24vw); }
