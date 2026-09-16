@@ -396,49 +396,6 @@
   animation: hero-fade-up 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) 0.12s both;
 }
 
-.hero-facts {
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: clamp(8px, 1.2vw, 16px);
-  max-width: 100%;
-  animation: hero-fade-up 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) 0.22s both;
-}
-
-.hero-fact {
-  display: flex;
-  align-items: center;
-  gap: 0.6em;
-  max-width: 100%;
-  padding: 0.35em 1em 0.35em 0.4em;
-  background: var(--white);
-  border: var(--line) solid var(--ink);
-  border-radius: 999px;
-  box-shadow: 4px 4px 0 var(--ink);
-}
-
-.hero-fact__label {
-  flex: none;
-  padding: 0.35em 0.85em;
-  font-family: var(--font-tape);
-  font-size: clamp(0.6rem, 0.55rem + 0.18vw, 0.72rem);
-  line-height: 1.1;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink);
-  background: var(--tape);
-  border-radius: 999px;
-}
-
-.hero-fact__value {
-  font-size: clamp(0.82rem, 0.74rem + 0.34vw, 1.02rem);
-  font-weight: 700;
-  line-height: 1.25;
-  text-wrap: balance;
-}
-.hero-fact__value time { font: inherit; }
-
 /* CTA -------------------------------------------------------------------- */
 .hero-cta {
   display: inline-flex;
@@ -576,7 +533,25 @@
 @media (max-width: 720px) {
   .caution-tape-top .marquee-track,
   .caution-tape-bottom .marquee-track { animation-duration: var(--marquee-duration-mobile); }
-  .hero-fact { width: 100%; justify-content: center; }
+
+  /* Phones get a tighter lockup: less padding, smaller chrome and short-form
+     facts, so the stack sits in the middle instead of filling the screen. */
+  .viewport-stage,
+  .hero { padding-block: clamp(60px, 8.5svh, 92px); }
+  .hero-stage { gap: clamp(9px, 1.5svh, 16px); }
+  .hero-logo { max-height: clamp(104px, 20svh, 200px); }
+
+  .hero-tagline { padding: 0.38em 0.9em; font-size: 0.78rem; letter-spacing: 0.04em; box-shadow: 0.14em 0.16em 0 rgba(12, 14, 15, 0.22); }
+
+  .countdown { gap: 5px; }
+  .countdown__label { font-size: 0.62rem; }
+  .countdown__units { gap: 6px; }
+  .countdown__unit { min-width: 46px; padding: 0.24em 0.4em 0.3em; border-radius: 12px; box-shadow: 3px 3px 0 var(--ink); }
+  .countdown__value { font-size: 1.45rem; }
+  .countdown__name { font-size: 0.5rem; }
+  .countdown__deadline { font-size: 0.56rem; }
+
+  .hero-cta { margin-top: 2px; padding: 0.48em 0.48em 0.48em 1.2em; font-size: 1.05rem; }
 
   /* thin the scene out so it frames the lockup instead of crowding it */
   .hero-spark--4,
@@ -609,7 +584,6 @@
   .caution-tape-bottom { bottom: 10px; }
   .hero-logo { max-height: 96px; }
   .hero-tagline { padding: 0.35em 0.9em; font-size: 0.75rem; }
-  .hero-fact { padding: 0.25em 0.8em 0.25em 0.3em; }
   .countdown { gap: 4px; }
   .countdown__unit { min-width: 50px; padding: 0.2em 0.4em 0.25em; border-radius: 11px; }
   .countdown__value { font-size: 1.5rem; }
