@@ -1,0 +1,66 @@
+/* ==========================================================================
+   MAKEATON 9.0 - DESIGN SYSTEM & TOKENS
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,700;1,700&family=Space+Mono:wght@700&family=Titan+One&display=swap');
+
+:root {
+  /* Color Palette */
+  --color-yellow: #FFE23A;
+  --color-yellow-badge: #FFDE59;
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+  --color-cream: #FAF7EE;
+  --color-red-accent: #E32636;
+  --color-shadow: rgba(0, 0, 0, 0.35);
+
+  /* Typography */
+  --font-display: 'Titan One', 'Impact', cursive, sans-serif;
+  --font-comic: 'Bangers', cursive, sans-serif;
+  --font-bubble: 'Comic Neue', cursive, sans-serif;
+  --font-mono: 'Space Mono', monospace, monospace;
+
+  /* Caution Tape Dimensions & Angles */
+  --tape-rotation-top: -2.00deg;
+  --tape-rotation-bottom: 2.00deg;
+  --tape-border-width: 8px;
+  --tape-shadow: 0px 14px 0px 0px rgba(0, 0, 0, 0.35);
+
+  /* Animation Timers */
+  --marquee-duration-desktop: 22s;
+  --marquee-duration-mobile: 12s;
+
+  /* Z-Index Hierarchy */
+  --z-bg: 1;
+  --z-tape-top: 10;
+  --z-center-title: 20;
+  --z-tape-bottom: 30;
+}
+
+/* Modern CSS Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: var(--color-white);
+  user-select: none;
+  -webkit-user-select: none;
+  scroll-behavior: smooth;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none !important;
+  }
+}

@@ -51,7 +51,23 @@
     });
   }
 
-  // Prizes: count up when the podium scrolls into view
+  // Prizes: podium spring fan-out reveal & count up when scrolling into view
+  const podium = document.querySelector('.podium');
+  if (podium) {
+    if (reduceMotion.matches) {
+      podium.classList.add('is-visible');
+    } else {
+      const podiumObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          podium.classList.add('is-visible');
+          podiumObserver.unobserve(entry.target);
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+      podiumObserver.observe(podium);
+    }
+  }
+
   const rupees = new Intl.NumberFormat('en-IN');
   if (!reduceMotion.matches) {
     const counter = new IntersectionObserver((entries) => {
@@ -68,66 +84,223 @@
         };
         requestAnimationFrame(tick);
       });
-    }, { threshold: 0.6 });
+    }, { threshold: 0.4 });
     document.querySelectorAll('[data-count]').forEach((el) => counter.observe(el));
   }
 
-  // Registration: countdown to open, then to close
-  const reg = document.querySelector('[data-register]');
-  if (reg) {
-    const opens = new Date(reg.dataset.opens);
-    const closes = new Date(reg.dataset.closes);
-    const url = (reg.dataset.registerUrl || '').trim();
-    const status = reg.querySelector('[data-register-status]');
-    const button = reg.querySelector('[data-register-button]');
-    const units = {};
-    reg.querySelectorAll('[data-unit]').forEach((el) => { units[el.dataset.unit] = el; });
-    const longDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Kolkata' });
-    const shortDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata' });
-    const pad = (n) => String(n).padStart(2, '0');
-    // Hero button: tag shows the date, links straight to the form once it's live, hides when closed
-    const heroCta = document.querySelector('[data-hero-cta]');
-    const heroTag = heroCta && heroCta.querySelector('[data-hero-cta-tag]');
-    const linkToForm = (link) => {
-      link.href = url;
-      link.target = '_blank';
-      link.rel = 'noopener';
-    };
+  // Hero Section (design_ton model): 3D tilt & Marquee track initialization
+  function initCenterTitleTilt() {
+    const stage = document.getElementById('top') || document.querySelector('.hero');
+    const titleImg = document.getElementById('centerTitleImg');
+    if (!stage || !titleImg || reduceMotion.matches) return;
 
-    const setState = (state) => {
-      if (reg.dataset.state === state) return;
-      reg.dataset.state = state;
-      if (state === 'soon') {
-        status.textContent = `Registrations open on ${longDate.format(opens)}`;
-        button.textContent = `Link drops ${shortDate.format(opens)}`;
-        if (heroCta) heroTag.textContent = `Opens ${shortDate.format(opens)}`;
-      } else if (state === 'open') {
-        status.textContent = `Registrations are open until ${longDate.format(closes)}`;
-        button.textContent = url ? 'Register now' : 'Link coming soon';
-        if (heroCta) heroTag.textContent = url ? `Open till ${shortDate.format(closes)}` : 'Link coming soon';
-        if (url) {
-          linkToForm(button);
-          button.removeAttribute('aria-disabled');
-          if (heroCta) linkToForm(heroCta);
-        }
-      } else {
-        status.textContent = 'Registrations are closed. See you at the final!';
-        if (heroCta) heroCta.hidden = true;
+    let mouseX = 0;
+    let mouseY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let isHovering = false;
+    let rafId = null;
+
+    function onPointerMove(e) {
+      const rect = stage.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      mouseX = (e.clientX - centerX) / (rect.width / 2);
+      mouseY = (e.clientY - centerY) / (rect.height / 2);
+
+      mouseX = Math.max(-1, Math.min(1, mouseX));
+      mouseY = Math.max(-1, Math.min(1, mouseY));
+
+      if (!isHovering) {
+        isHovering = true;
+        startLoop();
       }
+    }
+
+    function onPointerLeave() {
+      mouseX = 0;
+      mouseY = 0;
+    }
+
+    function startLoop() {
+      function animate() {
+        currentX += (mouseX - currentX) * 0.08;
+        currentY += (mouseY - currentY) * 0.08;
+
+        const rotateX = -currentY * 7;
+        const rotateY = currentX * 9;
+
+        titleImg.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`;
+
+        if (Math.abs(mouseX - currentX) > 0.001 || Math.abs(mouseY - currentY) > 0.001) {
+          rafId = requestAnimationFrame(animate);
+        } else {
+          isHovering = false;
+        }
+      }
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(animate);
+    }
+
+    stage.addEventListener('pointermove', onPointerMove, { passive: true });
+    stage.addEventListener('pointerleave', onPointerLeave, { passive: true });
+  }
+
+  function initMarqueeTracks() {
+    const tracks = document.querySelectorAll('.marquee-track');
+    tracks.forEach(track => {
+      if (track.children.length < 8) {
+        const content = track.innerHTML;
+        track.innerHTML = content + content;
+      }
+    });
+  }
+
+  // Mascot Rapid Expression Animator & Interactive Peeker
+  function initMascots() {
+    const MASCOT_SETS = {
+      red: [
+        'assets/mascot/mascot-red-cheer.svg',
+        'assets/mascot/mascot-red-excited.svg',
+        'assets/mascot/mascot-red-star-eyes.svg',
+        'assets/mascot/mascot-red-cool.svg',
+        'assets/mascot/mascot-red-curious.svg'
+      ],
+      green: [
+        'assets/mascot/mascot-green-cheer.svg',
+        'assets/mascot/mascot-green-excited.svg',
+        'assets/mascot/mascot-green-star-eyes.svg',
+        'assets/mascot/mascot-green-cool.svg',
+        'assets/mascot/mascot-green-curious.svg'
+      ]
     };
 
-    const render = () => {
-      const now = Date.now();
-      const state = now < opens ? 'soon' : now <= closes ? 'open' : 'closed';
-      setState(state);
-      if (state === 'closed') return;
-      const secs = Math.max(0, Math.floor(((state === 'soon' ? opens : closes) - now) / 1000));
-      units.d.textContent = pad(Math.floor(secs / 86400));
-      units.h.textContent = pad(Math.floor(secs / 3600) % 24);
-      units.m.textContent = pad(Math.floor(secs / 60) % 60);
-      units.s.textContent = pad(secs % 60);
+    const QUIPS = [
+      "LET'S HACK!", "POW!", "100K+ BAG!", "FAST-TRACK!", "LFG!", "24 HR FINAL!",
+      "SHIP IT!", "CUSAT KOCHI!", "BOOM!", "VICTORY!", "FULL SPEED!", "HACK TIME!"
+    ];
+
+    // Preload SVGs for instantaneous zero-flicker transitions
+    Object.values(MASCOT_SETS).flat().forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+
+    const bindMascot = (mascot) => {
+      if (mascot.dataset.mascotBound === 'true') return;
+      mascot.dataset.mascotBound = 'true';
+
+      const img = mascot.querySelector('.mascot-img, .page__mascot-img');
+      const bubble = mascot.querySelector('.mascot-bubble');
+      if (!img) return;
+
+      let color = mascot.dataset.mascotColor || (img.src.includes('red') ? 'red' : 'green');
+      let baseSrc = img.getAttribute('src');
+      let cycleInterval = null;
+      let currentIndex = 0;
+
+      const getSet = () => MASCOT_SETS[color] || MASCOT_SETS.green;
+
+      // Rapid Comic Flipbook Cycle
+      const startCycling = (speedMs = 105) => {
+        if (cycleInterval) clearInterval(cycleInterval);
+        const set = getSet();
+        cycleInterval = setInterval(() => {
+          currentIndex = (currentIndex + 1) % set.length;
+          img.src = set[currentIndex];
+        }, speedMs);
+      };
+
+      const stopCycling = (landOnIndex = null) => {
+        if (cycleInterval) {
+          clearInterval(cycleInterval);
+          cycleInterval = null;
+        }
+        const set = getSet();
+        if (landOnIndex !== null && set[landOnIndex]) {
+          img.src = set[landOnIndex];
+        } else {
+          img.src = baseSrc;
+        }
+      };
+
+      // Hover Interaction: Rapid Expression Reel!
+      mascot.addEventListener('mouseenter', () => {
+        startCycling(95);
+      });
+
+      mascot.addEventListener('mouseleave', () => {
+        stopCycling(0); // Settles cleanly on cheer/main pose
+      });
+
+      // Click Interaction: Cartoon Burst + Color Toggle + Speech Bubble Quip!
+      mascot.addEventListener('click', () => {
+        mascot.classList.remove('is-bursting');
+        void mascot.offsetWidth; // Trigger reflow for restart
+        mascot.classList.add('is-bursting');
+
+        // Toggle between Red and Green on click
+        color = color === 'red' ? 'green' : 'red';
+        mascot.dataset.mascotColor = color;
+        const set = getSet();
+        baseSrc = set[currentIndex % set.length];
+
+        // Rapid burst cycle
+        startCycling(65);
+        setTimeout(() => {
+          const winnerIndex = Math.floor(Math.random() * set.length);
+          stopCycling(winnerIndex);
+          baseSrc = set[winnerIndex];
+        }, 520);
+
+        if (bubble) {
+          const randomQuip = QUIPS[Math.floor(Math.random() * QUIPS.length)];
+          bubble.textContent = randomQuip;
+          bubble.style.animation = 'none';
+          void bubble.offsetWidth;
+          bubble.style.animation = '';
+        }
+      });
     };
-    render();
-    setInterval(render, 1000);
+
+    const scanAndBind = () => {
+      document.querySelectorAll('.mascot-peeker, .mascot-corner, .page__mascot-wrap').forEach(bindMascot);
+    };
+
+    scanAndBind();
+    window.addEventListener('timeline-book-ready', scanAndBind);
+
+    // Idle Subtle Double-Take: every 4.5s, a visible mascot briefly blinks an expression
+    if (!reduceMotion.matches) {
+      setInterval(() => {
+        const visibleMascots = [...document.querySelectorAll('.mascot-peeker, .mascot-corner, .page__mascot-wrap')].filter((m) => {
+          const rect = m.getBoundingClientRect();
+          return rect.top < window.innerHeight && rect.bottom > 0;
+        });
+        if (visibleMascots.length === 0) return;
+        const target = visibleMascots[Math.floor(Math.random() * visibleMascots.length)];
+        const img = target.querySelector('.mascot-img, .page__mascot-img');
+        if (!img) return;
+
+        const color = target.dataset.mascotColor || (img.src.includes('red') ? 'red' : 'green');
+        const set = MASCOT_SETS[color] || MASCOT_SETS.green;
+        const orig = img.getAttribute('src');
+        const flipPose = set[Math.floor(Math.random() * set.length)];
+
+        img.src = flipPose;
+        setTimeout(() => {
+          if (!target.matches(':hover')) {
+            img.src = orig;
+          }
+        }, 550);
+      }, 4500);
+    }
   }
+
+  initCenterTitleTilt();
+  initMarqueeTracks();
+  initMascots();
 })();
+
+
