@@ -50,6 +50,7 @@ body {
   background: var(--ink);
 }
 main { display: block; overflow-x: clip; background: var(--white); }
+::selection { color: var(--white); background: var(--ink); }
 img, svg { display: block; max-width: 100%; }
 h1, h2, h3, p, ol, ul { margin: 0; }
 ol, ul { padding: 0; list-style: none; }
@@ -122,7 +123,7 @@ a { color: inherit; }
 .display {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(3.2rem, 1.6rem + 7vw, 7.5rem);
+  font-size: clamp(3rem, 1.6rem + 5.6vw, 6.4rem);
   line-height: 0.92;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -133,7 +134,7 @@ a { color: inherit; }
   text-shadow: 0.05em 0.07em 0 var(--ink);
 }
 .display--yellow { color: var(--tape); }
-.display--panel { font-size: clamp(2.8rem, 1.2rem + 4.6vw, 5.6rem); }
+.display--panel { font-size: clamp(2.6rem, 1.2rem + 3.9vw, 4.8rem); }
 
 .kicker {
   display: inline-block;
@@ -154,7 +155,8 @@ a { color: inherit; }
 .section {
   position: relative;
   isolation: isolate;
-  padding-block: clamp(110px, 12vw, 170px);
+  padding-block: clamp(76px, 7.5vw, 112px) clamp(96px, 9vw, 132px);
+  scroll-margin-top: 84px;
 }
 .section__inner {
   position: relative;
@@ -166,7 +168,7 @@ a { color: inherit; }
   display: grid;
   justify-items: start;
   gap: 16px;
-  margin-bottom: clamp(36px, 5vw, 64px);
+  margin-bottom: clamp(28px, 3.4vw, 44px);
 }
 .section-head--center { justify-items: center; text-align: center; }
 
@@ -218,6 +220,7 @@ a { color: inherit; }
 .tape--white { --tape-bg: var(--white); }
 .tape--tilt-right { --tilt: 2deg; }
 .tape--divider { top: 0; }
+.tape--divider + .section__inner { padding-top: clamp(8px, 1vw, 16px); }
 
 .tape__track {
   display: flex;
@@ -259,11 +262,6 @@ a { color: inherit; }
 .pattern--squiggle { --pattern-img: var(--squiggle-tile); --pattern-size: max(150px, 13.73vw); }
 .pattern--asterisk { --pattern-img: var(--asterisk-tile); --pattern-size: max(240px, 24vw); }
 
-.sunburst {
-  background: repeating-conic-gradient(from 0deg at 50% 42%, var(--ray-a) 0deg 7.5deg, var(--ray-b) 7.5deg 15deg);
-}
-.sunburst--yellow { --ray-a: var(--gold); --ray-b: #FFE55C; }
-.sunburst--red { --ray-a: var(--red); --ray-b: #F8683F; }
 
 /* Stickers (traced shapes from the insois sheet) ---------------------------- */
 .sticker {

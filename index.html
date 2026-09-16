@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#FFE23A">
   <meta property="og:title" content="Make-A-Ton 9.0">
   <meta property="og:description" content="Odoo x Make-A-Ton 9.0 Kochi Hackathon. Registrations open 21 September 2026.">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/matbrain.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;700&family=Titan+One&display=swap">
@@ -24,7 +24,7 @@
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-nav" data-nav>
-    <a class="site-nav__brand" href="#top"><img src="assets/logo.svg" alt="Make-A-Ton home" width="1958" height="689"></a>
+    <a class="site-nav__brand" href="#top"><img src="assets/mat9logo.png" alt="Make-A-Ton home" width="1958" height="689"></a>
     <button class="site-nav__toggle" type="button" aria-expanded="false" aria-controls="site-menu">Menu</button>
     <nav class="site-nav__menu" id="site-menu" aria-label="Primary">
       <a href="#about">About</a>
@@ -32,7 +32,7 @@
       <a href="#timeline">Timeline</a>
       <a href="#prizes">Prizes</a>
       <a href="#faq">FAQ</a>
-      <a class="btn site-nav__cta" href="#timeline">Timeline</a>
+      <span class="btn site-nav__cta" aria-disabled="true">Register &middot; 21 Sep</span>
     </nav>
   </header>
 
@@ -41,87 +41,137 @@
     <section class="hero viewport-stage" id="top" aria-label="Makeaton 9.0 Hero Canvas">
       <h1 class="sr-only">Make-A-Ton 9.0: Odoo x Make-A-Ton Kochi Hackathon by CITTIC, CUSAT</h1>
       
-      <!-- Background Star Pattern: Continuous Dense Grid -->
-      <div class="bg-pattern-container" id="bgPatternLayer" aria-hidden="true">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" class="bg-pattern-svg">
-          <defs>
-            <pattern id="starGridPattern" width="160" height="160" patternUnits="userSpaceOnUse">
-              <rect width="160" height="160" fill="#FFFFFF"/>
-              <path d="M 51.73 48.36 C 54.66 47.26 58.13 45.64 61.0 44.39 C 63.14 47.35 73.75 64.28 75.62 64.14 C 76.5 62.95 78.29 48.86 78.71 46.32 L 90.83 52.32 C 90.08 58.33 88.76 64.39 88.21 70.46 C 93.04 69.69 100.42 67.35 105.2 66.03 C 107.44 70.05 109.76 74.04 112.14 78.02 C 109.68 78.58 98.25 81.19 97.7 82.69 C 98.99 84.36 112.88 90.74 116.0 92.27 C 115.55 95.89 114.91 99.35 114.51 103.04 C 108.08 100.16 101.45 96.41 94.86 93.58 C 96.57 96.86 103.64 106.84 106.15 110.52 C 106.3 110.74 106.46 111.16 106.57 111.41 C 105.78 112.62 99.3 114.92 97.53 115.61 C 93.6 109.81 88.33 101.69 84.18 96.21 C 82.93 101.52 82.47 108.69 81.28 114.36 C 77.28 112.36 73.28 110.4 69.26 108.49 C 69.57 105.56 72.27 91.87 71.52 90.06 L 70.9 89.62 C 69.13 89.37 55.74 93.4 53.47 93.99 C 51.2 90.01 48.89 86.02 46.54 82.05 C 51.8 80.62 57.26 79.21 62.42 77.62 C 58.12 75.08 48.82 70.8 44.0 68.4 L 45.6 57.66 C 51.71 60.67 57.99 63.84 64.1 66.66 C 60.7 61.17 55.48 54.02 51.73 48.36 Z" fill="#000000"/>
-              <path d="M -28.27 -31.64 C -25.34 -32.74 -21.87 -34.36 -19.0 -35.61 C -16.86 -32.65 -6.25 -15.72 -4.38 -15.86 C -3.5 -17.05 -1.71 -31.14 -1.29 -33.68 L 10.83 -27.68 C 10.08 -21.67 8.76 -15.61 8.21 -9.54 C 13.04 -10.31 20.42 -12.65 25.2 -13.97 C 27.44 -9.95 29.76 -5.96 32.14 -1.98 C 29.68 -1.42 18.25 1.19 17.7 2.69 C 18.99 4.36 32.88 10.74 36.0 12.27 C 35.55 15.89 34.91 19.35 34.51 23.04 C 28.08 20.16 21.45 16.41 14.86 13.58 C 16.57 16.86 23.64 26.84 26.15 30.52 C 26.3 30.74 26.46 31.16 26.57 31.41 C 25.78 32.62 19.3 34.92 17.53 35.61 C 13.6 29.81 8.33 21.69 4.18 16.21 C 2.93 21.52 2.47 28.69 1.28 34.36 C -2.72 32.36 -6.72 30.4 -10.74 28.49 C -10.43 25.56 -7.73 11.87 -8.48 10.06 L -9.1 9.62 C -10.87 9.37 -24.26 13.4 -26.53 13.99 C -28.8 10.01 -31.11 6.02 -33.46 2.05 C -28.2 0.62 -22.74 -0.79 -17.58 -2.38 C -21.88 -4.92 -31.18 -9.2 -36.0 -11.6 L -34.4 -22.34 C -28.29 -19.33 -22.01 -16.16 -15.9 -13.34 C -19.3 -18.83 -24.52 -25.98 -28.27 -31.64 Z" fill="#000000"/>
-              <path d="M 131.73 -31.64 C 134.66 -32.74 138.13 -34.36 141.0 -35.61 C 143.14 -32.65 153.75 -15.72 155.62 -15.86 C 156.5 -17.05 158.29 -31.14 158.71 -33.68 L 170.83 -27.68 C 170.08 -21.67 168.76 -15.61 168.21 -9.54 C 173.04 -10.31 180.42 -12.65 185.2 -13.97 C 187.44 -9.95 189.76 -5.96 192.14 -1.98 C 189.68 -1.42 178.25 1.19 177.7 2.69 C 178.99 4.36 192.88 10.74 196.0 12.27 C 195.55 15.89 194.91 19.35 194.51 23.04 C 188.08 20.16 181.45 16.41 174.86 13.58 C 176.57 16.86 183.64 26.84 186.15 30.52 C 186.3 30.74 186.46 31.16 186.57 31.41 C 185.78 32.62 179.3 34.92 177.53 35.61 C 173.6 29.81 168.33 21.69 164.18 16.21 C 162.93 21.52 162.47 28.69 161.28 34.36 C 157.28 32.36 153.28 30.4 149.26 28.49 C 149.57 25.56 152.27 11.87 151.52 10.06 L 150.9 9.62 C 149.13 9.37 135.74 13.4 133.47 13.99 C 131.2 10.01 128.89 6.02 126.54 2.05 C 131.8 0.62 137.26 -0.79 142.42 -2.38 C 138.12 -4.92 128.82 -9.2 124.0 -11.6 L 125.6 -22.34 C 131.71 -19.33 137.99 -16.16 144.1 -13.34 C 140.7 -18.83 135.48 -25.98 131.73 -31.64 Z" fill="#000000"/>
-              <path d="M -28.27 128.36 C -25.34 127.26 -21.87 125.64 -19.0 124.39 C -16.86 127.35 -6.25 144.28 -4.38 144.14 C -3.5 142.95 -1.71 128.86 -1.29 126.32 L 10.83 132.32 C 10.08 138.33 8.76 144.39 8.21 150.46 C 13.04 149.69 20.42 147.35 25.2 146.03 C 27.44 150.05 29.76 154.04 32.14 158.02 C 29.68 158.58 18.25 161.19 17.7 162.69 C 18.99 164.36 32.88 170.74 36.0 172.27 C 35.55 175.89 34.91 179.35 34.51 183.04 C 28.08 180.16 21.45 176.41 14.86 173.58 C 16.57 176.86 23.64 186.84 26.15 190.52 C 26.3 190.74 26.46 191.16 26.57 191.41 C 25.78 192.62 19.3 194.92 17.53 195.61 C 13.6 189.81 8.33 181.69 4.18 176.21 C 2.93 181.52 2.47 188.69 1.28 194.36 C -2.72 192.36 -6.72 190.4 -10.74 188.49 C -10.43 185.56 -7.73 171.87 -8.48 170.06 L -9.1 169.62 C -10.87 169.37 -24.26 173.4 -26.53 173.99 C -28.8 170.01 -31.11 166.02 -33.46 162.05 C -28.2 160.62 -22.74 159.21 -17.58 157.62 C -21.88 155.08 -31.18 150.8 -36.0 148.4 L -34.4 137.66 C -28.29 140.67 -22.01 143.84 -15.9 146.66 C -19.3 141.17 -24.52 134.02 -28.27 128.36 Z" fill="#000000"/>
-              <path d="M 131.73 128.36 C 134.66 127.26 138.13 125.64 141.0 124.39 C 143.14 127.35 153.75 144.28 155.62 144.14 C 156.5 142.95 158.29 128.86 158.71 126.32 L 170.83 132.32 C 170.08 138.33 168.76 144.39 168.21 150.46 C 173.04 149.69 180.42 147.35 185.2 146.03 C 187.44 150.05 189.76 154.04 192.14 158.02 C 189.68 158.58 178.25 161.19 177.7 162.69 C 178.99 164.36 192.88 170.74 196.0 172.27 C 195.55 175.89 194.91 179.35 194.51 183.04 C 188.08 180.16 181.45 176.41 174.86 173.58 C 176.57 176.86 183.64 186.84 186.15 190.52 C 186.3 190.74 186.46 191.16 186.57 191.41 C 185.78 192.62 179.3 194.92 177.53 195.61 C 173.6 189.81 168.33 21.69 164.18 176.21 C 162.93 181.52 162.47 188.69 161.28 194.36 C 157.28 192.36 153.28 190.4 149.26 188.49 C 149.57 185.56 152.27 11.87 151.52 10.06 L 150.9 169.62 C 149.13 169.37 135.74 173.4 133.47 173.99 C 131.2 170.01 128.89 166.02 126.54 162.05 C 131.8 160.62 137.26 159.21 142.42 157.62 C 138.12 155.08 128.82 150.8 124.0 148.4 L 125.6 137.66 C 131.71 140.67 137.99 143.84 144.1 146.66 C 140.7 141.17 135.48 134.02 131.73 128.36 Z" fill="#000000"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#starGridPattern)"/>
+      <!-- Decorative hero scene: soft yellow blobs, halftone fields, sparkles and
+           line doodles. Everything here is presentational and animates on its own. -->
+      <div class="hero-scene" aria-hidden="true">
+        <svg class="hero-waves" viewBox="0 0 1440 820" preserveAspectRatio="none" aria-hidden="true">
+          <path class="hero-wave hero-wave--1" d="M0 0h286c-58 74-8 138 34 196 45 62 6 124-52 168-64 48-28 116 22 168 44 46 18 96-40 130-34 20-76 34-124 42H0Z"/>
+          <path class="hero-wave hero-wave--2" d="M1440 0h-268c56 70 14 134-28 190-46 60-12 126 46 172 62 50 30 118-20 168-40 40-16 90 38 124 34 22 148 46 232 60V0Z"/>
+          <path class="hero-wave hero-wave--3" d="M96 820c74-46 44-116 118-146 70-28 132 26 196 4 66-22 58-92 130-104 70-12 108 58 178 52 66-6 88-70 158-64 52 4 88 42 130 86v172Z"/>
         </svg>
+
+        <span class="hero-blob hero-blob--1"></span>
+        <span class="hero-blob hero-blob--2"></span>
+        <span class="hero-blob hero-blob--3"></span>
+
+        <span class="hero-halftone hero-halftone--1"></span>
+        <span class="hero-halftone hero-halftone--2"></span>
+        <span class="hero-halftone hero-halftone--3"></span>
+        <span class="hero-dotgrid"></span>
+
+        <svg class="hero-lines" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMid slice" fill="none">
+          <path class="hero-line hero-line--1" d="M-30 300C90 214 196 356 316 282S520 176 612 250"/>
+          <path class="hero-line hero-line--2" d="M860 586C972 668 1086 540 1206 606S1392 662 1474 588"/>
+          <path class="hero-line hero-line--3" d="M1046 150C1106 86 1190 178 1272 112"/>
+          <path class="hero-curl" d="M232 604c-26-34 22-58 40-30 16 25-22 44-46 30-30-17-12-60 26-66"/>
+        </svg>
+
+        <span class="hero-spark hero-spark--1"></span>
+        <span class="hero-spark hero-spark--2"></span>
+        <span class="hero-spark hero-spark--3"></span>
+        <span class="hero-spark hero-spark--4"></span>
+        <span class="hero-spark hero-spark--5"></span>
+        <span class="hero-spark hero-spark--6"></span>
+        <span class="hero-spark hero-spark--7"></span>
+        <span class="hero-spark hero-spark--8"></span>
+        <span class="hero-spark hero-spark--9"></span>
+
+        <span class="hero-ring hero-ring--1"></span>
+        <span class="hero-ring hero-ring--2"></span>
+        <span class="hero-ring hero-ring--3"></span>
+        <span class="hero-pip hero-pip--1"></span>
+        <span class="hero-pip hero-pip--2"></span>
+        <span class="hero-pip hero-pip--3"></span>
+        <span class="hero-pip hero-pip--4"></span>
+
+        <span class="hero-shard hero-shard--1"></span>
+        <span class="hero-shard hero-shard--2"></span>
+        <span class="hero-shard hero-shard--3"></span>
+        <span class="hero-cursor"></span>
       </div>
 
       <!-- Top Caution Tape Banner: Balanced & Full-Width with rotate-[-2.00deg] -->
       <aside class="caution-tape caution-tape-top" role="region" aria-label="Top Caution Tape Ticker">
         <div class="marquee-wrapper">
           <div class="marquee-track" id="topTrack">
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
+            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
           </div>
         </div>
       </aside>
 
       <!-- Center Hero Title -->
-      <section class="center-title-container" aria-label="Makeaton 9.0 Main Title">
-        <img 
-          src="assets/logo-hero.svg" 
-          alt="MAKEATON 9.0" 
-          class="center-title-img"
+      <div class="hero-stage">
+        <img
+          src="assets/mat9logo.png"
+          alt="Make-A-Ton 9.0"
+          class="hero-logo"
           id="centerTitleImg"
           width="1958"
           height="689"
           fetchpriority="high"
         />
-        <!-- Hero CTA pointing to Timeline story -->
-        <a class="hero-cta" href="#timeline" data-hero-cta>
-          <span class="hero-cta__face">
-            <span class="hero-cta__label">Explore</span>
-            <span class="hero-cta__arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span>
-          </span>
-          <span class="sr-only">, </span>
-          <span class="hero-cta__tag" data-hero-cta-tag>Opens 21 Sep</span>
-        </a>
-      </section>
 
-      <!-- Peeker Mascot: Red Excited Runner -->
-      <div class="mascot-peeker mascot-peeker--hero" data-mascot-color="red" aria-label="Make-A-Ton Mascot">
-        <div class="mascot-bubble">LET'S HACK!</div>
-        <img src="assets/mascot/mascot-red-excited.svg" alt="Make-A-Ton Mascot" class="mascot-img" width="300" height="317" loading="lazy">
+        <p class="hero-tagline">South India&rsquo;s Largest Hiring Hackathon</p>
+
+        <ul class="hero-facts">
+          <li class="hero-fact">
+            <span class="hero-fact__label">Dates</span>
+            <span class="hero-fact__value"><time datetime="2026-12-19">19th</time> &amp; <time datetime="2026-12-20">20th December</time></span>
+          </li>
+          <li class="hero-fact">
+            <span class="hero-fact__label">Venue</span>
+            <span class="hero-fact__value">Cochin University of Science and Technology</span>
+          </li>
+        </ul>
+
+        <!-- Registration deadline countdown. The deadline is IST; js/main.js fills the digits. -->
+        <div class="countdown" data-countdown-deadline="2026-10-25T23:59:59+05:30">
+          <p class="countdown__label">Registration closes in</p>
+          <ol class="countdown__units" aria-hidden="true">
+            <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="days">--</b><span class="countdown__name">Days</span></li>
+            <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="hours">--</b><span class="countdown__name">Hrs</span></li>
+            <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="minutes">--</b><span class="countdown__name">Min</span></li>
+            <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="seconds">--</b><span class="countdown__name">Sec</span></li>
+          </ol>
+          <p class="countdown__deadline">Deadline <time datetime="2026-10-25">25 October 2026</time></p>
+        </div>
+
+        <!-- Hero register button. TODO: put the registration URL in data-register-url
+             (or swap the button back to an <a href>) once it exists. -->
+        <button class="hero-cta" type="button" data-register-url="">
+          <span class="hero-cta__label">Register</span>
+          <span class="hero-cta__arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span>
+        </button>
+
       </div>
 
       <!-- Bottom Caution Tape Banner: Balanced & Full-Width with rotate-[2.00deg] -->
       <aside class="caution-tape caution-tape-bottom" role="region" aria-label="Bottom Caution Tape Ticker">
         <div class="marquee-wrapper">
           <div class="marquee-track" id="bottomTrack">
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
-            <span class="tape-text" aria-hidden="true">MAKE A TON 9.0 <span class="diamond-separator">✦</span></span>
+            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
+            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
           </div>
         </div>
       </aside>
@@ -137,10 +187,6 @@
         <div class="about-panel__body">
           <p>Welcome to Make-A-Ton 9.0: South India's Biggest Hackathon! The most exciting hackathon of the year is back with a bang. With a ₹1,05,000 prize pool up for grabs, we're set to make history.</p>
           <p>Organized by CITTIC, Make-A-Ton is a coding marathon that fuels innovation. It starts with an 8-hour virtual round, and the shortlisted teams head to CUSAT, Kochi for a 24-hour final. Get ready for intense coding sessions, groundbreaking solutions and yes — plenty of coffee! Join us and leave your mark on the tech world!</p>
-          <ul class="about-panel__stickers" aria-label="Quick facts">
-            <li class="sticker sticker--ticket"><img src="assets/shapes/ticket.svg" alt=""><span>9th<br>edition</span></li>
-            <li class="sticker sticker--blob"><img src="assets/shapes/blob.svg" alt=""><span>24 hr<br>final</span></li>
-          </ul>
         </div>
       </div>
       <div class="about-panel about-panel--cittic pattern pattern--asterisk">
@@ -151,50 +197,32 @@
         <div class="about-panel__body">
           <p>The Centre for Innovation, Technology Transfer and Industrial Collaboration (CITTIC), the technology business incubator of CUSAT, has nurtured several young startups and has supported the growth of technology in the student community.</p>
           <p>CITTIC was set up on the campus with central and state government funding to provide a vibrant, innovative and entrepreneurial environment for faculty and students to run university-linked startup companies.</p>
-          <p class="sticker sticker--pillow" aria-hidden="true"><img src="assets/shapes/pillow.svg" alt=""><span>CUSAT<br>Kochi</span></p>
         </div>
-        <!-- Peeker Mascot: Red Cheering Champion -->
-        <div class="mascot-peeker mascot-peeker--about" data-mascot-color="red" aria-label="Make-A-Ton Mascot">
-          <div class="mascot-bubble">24 HR FINAL!</div>
-          <img src="assets/mascot/mascot-red-cheer.svg" alt="Make-A-Ton Mascot" class="mascot-img" width="242" height="325" loading="lazy">
-        </div>
+
       </div>
     </section>
 
     <!-- ABOUT ODOO HACKATHON (after the About Odoo Hackathon page) -->
-    <section class="section section--odoo pattern pattern--asterisk" id="odoo" aria-labelledby="odoo-title">
-      <div class="tape tape--divider tape--tilt-right" data-tape="ODOO X MAKE-A-TON"></div>
+    <section class="section section--odoo pattern pattern--squiggle" id="odoo" aria-labelledby="odoo-title">
+      <div class="tape tape--divider tape--tilt-right" data-tape="ODOO × MAKE-A-TON"></div>
       <div class="section__inner">
-        <header class="section-head">
-          <p class="kicker kicker--light">Our partner</p>
+        <header class="section-head section-head--center">
+          <p class="kicker">Our partner</p>
           <h2 class="display display--yellow" id="odoo-title">About Odoo <span class="swoosh">Hackathon</span></h2>
         </header>
-        <div class="odoo__grid">
-          <article class="card card--white odoo__card">
-            <p class="odoo__lead">Odoo India's hackathons are an open challenge to all tech enthusiasts and a great tool for Odoo to hire the best coders and designers to join Odoo India's growing team.</p>
-            <p>Odoo India's hiring hackathon journey began in June 2024 with Odoo Combat, its first open recruitment hackathon, attracting over 3,000 students and discovering exceptional young developers. Encouraged by its success, Odoo India collaborated with leading universities to bring hackathons closer to emerging talent, transforming a simple idea into a nationwide hackathon series.</p>
+        <article class="card card--white odoo__card">
+          <p class="odoo__lead">Odoo India&rsquo;s hackathons are an open challenge to all tech enthusiasts and a great tool for Odoo to hire the best coders and designers to join Odoo India&rsquo;s growing team.</p>
+          <div class="odoo__cols">
+            <p>Odoo India&rsquo;s hiring hackathon journey began in June 2024 with Odoo Combat, its first open recruitment hackathon, attracting over 3,000 students and discovering exceptional young developers. Encouraged by its success, Odoo India collaborated with leading universities to bring hackathons closer to emerging talent, transforming a simple idea into a nationwide hackathon series.</p>
             <p class="odoo__punch">Today, Odoo India has replaced traditional campus placements with <em class="scribble">hiring hackathons</em>.</p>
-            <p class="odoo__tie-in"><b>At Make-A-Ton 9.0,</b> Odoo opens registrations, runs the 8-hour virtual round and announces the finalists.</p>
-          </article>
-          <div class="odoo__side">
-            <div class="odoo__badge" aria-hidden="true">
-              <img class="odoo__burst" src="assets/shapes/burst.svg" alt="">
-              <p><span>Odoo</span><b>×</b><span>Make-A-Ton</span></p>
-              <img class="odoo__asterisk" src="assets/shapes/asterisk.svg" alt="">
-            </div>
-            <p class="odoo__stat" aria-hidden="true"><b>3,000+</b><span>students at Odoo Combat, June 2024</span></p>
           </div>
-        </div>
-      </div>
-      <!-- Peeker Mascot: Green Cool Hacker -->
-      <div class="mascot-peeker mascot-peeker--odoo" data-mascot-color="green" aria-label="Make-A-Ton Mascot">
-        <div class="mascot-bubble">FAST-TRACK!</div>
-        <img src="assets/mascot/mascot-green-cool.svg" alt="Make-A-Ton Mascot" class="mascot-img" width="252" height="329" loading="lazy">
+          <p class="odoo__tie-in"><b>At Make-A-Ton 9.0,</b> Odoo opens registrations, runs the 8-hour virtual round and announces the finalists.</p>
+        </article>
       </div>
     </section>
 
     <!-- TIMELINE: static list, upgraded to a scroll-driven page-flip book by js/timeline.js -->
-    <section class="section section--timeline" id="timeline" aria-labelledby="timeline-title" data-timeline>
+    <section class="section section--timeline pattern pattern--squiggle" id="timeline" aria-labelledby="timeline-title" data-timeline>
       <div class="tape tape--divider tape--white" data-tape="THE TIMELINE"></div>
       <div class="section__inner">
         <header class="section-head section-head--center">
@@ -209,27 +237,27 @@
             <p class="timeline-list__lead">In charge: <b>Odoo</b></p>
             <p>Applications open. Teams of up to four form, argue about names, and put their idea in writing for the first time.</p>
           </li>
-          <li data-short="10 Nov" data-title="The Midnight Wire" data-panel="panel-2.png" data-badge="CUSAT INITIATIVE" data-dialogue="11:59 PM... SUBMITTED WITH 3 SECONDS TO SPARE!" data-highlight="SUBMITTED">
-            <time datetime="2026-11-10">10 November 2026</time>
+          <li data-short="25 Oct" data-title="The Midnight Wire" data-panel="panel-2.png" data-badge="CUSAT INITIATIVE" data-dialogue="11:59 PM... SUBMITTED WITH 3 SECONDS TO SPARE!" data-highlight="SUBMITTED">
+            <time datetime="2026-10-25">25 October 2026</time>
             <h3>Registration Ends</h3>
             <p class="timeline-list__lead">In charge: <b>CUSAT</b></p>
             <p>Last call. Everything after this point is judged on what you build, not on what you promised.</p>
           </li>
-          <li data-short="14 Nov" data-title="The 8-Hour Crucible" data-panel="panel-3.png" data-badge="HOSTED BY ODOO" data-dialogue="8 HOURS ON THE CLOCK. LET'S CRACK THIS PROMPT!" data-highlight="CRACK">
-            <time datetime="2026-11-14">14 November 2026</time>
+          <li data-short="31 Oct" data-title="The 8-Hour Crucible" data-panel="panel-3.png" data-badge="HOSTED BY ODOO" data-dialogue="8 HOURS ON THE CLOCK. LET'S CRACK THIS PROMPT!" data-highlight="CRACK">
+            <time datetime="2026-10-31">31 October 2026</time>
             <h3>Virtual Round (8 hrs)</h3>
             <p class="timeline-list__lead">In charge: <b>Odoo</b></p>
             <p>Eight hours, online, wherever you are. The round that decides who travels to Kochi in December.</p>
           </li>
-          <li data-short="26 Nov" data-title="The Golden Ticket" data-panel="panel-4.png" data-badge="OFFICIAL SHORTLIST" data-dialogue="CHECK THE SHORTLIST... WE'RE GOING TO KOCHI!" data-highlight="SHORTLIST">
-            <time datetime="2026-11-26">26 November 2026</time>
+          <li data-short="19 Nov" data-title="The Golden Ticket" data-panel="panel-4.png" data-badge="OFFICIAL SHORTLIST" data-dialogue="CHECK THE SHORTLIST... WE'RE GOING TO KOCHI!" data-highlight="SHORTLIST">
+            <time datetime="2026-11-19">19 November 2026</time>
             <h3>Virtual Round Result</h3>
             <p class="timeline-list__lead">In charge: <b>Odoo</b></p>
-            <p>Shortlists go out. If your name is on one, you have three weeks to get ready for the floor.</p>
+            <p>Shortlists go out. If your name is on one, you have a month to get ready for the floor.</p>
           </li>
           <li data-short="19–20 Dec" data-title="The Final Arena" data-panel="panel-5.png" data-badge="ON-SITE @ CUSAT" data-dialogue="24 HOURS OF NON-STOP SHIPPING. MAIN STAGE AWAITS!" data-highlight="SHIPPING">
             <time datetime="2026-12-19">19–20 December 2026</time>
-            <h3>The Final Round (24 hrs)</h3>
+            <h3>Final Round &mdash; 24 hrs at CUSAT</h3>
             <p class="timeline-list__lead">In charge: <b>CUSAT</b></p>
             <p>Twenty-four hours on campus at CUSAT. Build, demo, and interview on the spot with the people who came to hire.</p>
           </li>
@@ -240,7 +268,7 @@
     </section>
 
     <!-- PRIZES -->
-    <section class="section section--prizes sunburst sunburst--red" id="prizes" aria-labelledby="prizes-title">
+    <section class="section section--prizes pattern pattern--asterisk" id="prizes" aria-labelledby="prizes-title">
       <div class="tape tape--divider tape--white tape--tilt-right" data-tape="₹1,05,000 IN PRIZES"></div>
       <div class="section__inner">
         <header class="section-head section-head--center">
@@ -251,7 +279,9 @@
         <ol class="podium">
           <!-- 2nd Place: First Runner-Up -->
           <li class="prize prize--second">
-            <div class="prize__sunburst-wrap" aria-hidden="true"></div>
+            <div class="prize__sunburst-wrap" aria-hidden="true">
+              <div class="prize__sunburst"></div>
+            </div>
             <div class="prize__body">
               <div class="prize__header-top">
                 <span class="prize__badge prize__badge--second">🥈 2ND PLACE // 1ST RUNNER-UP</span>
@@ -261,7 +291,7 @@
                 <p class="prize__amount">₹<span data-count="35000">35,000</span>/-</p>
               </div>
               <h3 class="prize__label">First runner-up</h3>
-              <p class="prize__desc">Silver Tier Build &bull; Swag &amp; Sponsor Bounty</p>
+
             </div>
           </li>
 
@@ -280,13 +310,15 @@
                 <p class="prize__amount prize__amount--champion">₹<span data-count="45000">45,000</span>/-</p>
               </div>
               <h3 class="prize__label">Winning team</h3>
-              <p class="prize__desc">The Crown Jewel Build &bull; Winner Trophy &bull; Direct Fast-Track</p>
+
             </div>
           </li>
 
           <!-- 3rd Place: Second Runner-Up -->
           <li class="prize prize--third">
-            <div class="prize__sunburst-wrap" aria-hidden="true"></div>
+            <div class="prize__sunburst-wrap" aria-hidden="true">
+              <div class="prize__sunburst"></div>
+            </div>
             <div class="prize__body">
               <div class="prize__header-top">
                 <span class="prize__badge prize__badge--third">🥉 3RD PLACE // 2ND RUNNER-UP</span>
@@ -296,16 +328,12 @@
                 <p class="prize__amount">₹<span data-count="25000">25,000</span>/-</p>
               </div>
               <h3 class="prize__label">Second runner-up</h3>
-              <p class="prize__desc">Bronze Tier Build &bull; Exclusive Goodies</p>
+
             </div>
           </li>
         </ol>
       </div>
-      <!-- Peeker Mascot: Red Star-Eyed Champion -->
-      <div class="mascot-peeker mascot-peeker--prizes" data-mascot-color="red" aria-label="Make-A-Ton Mascot">
-        <div class="mascot-bubble">CLAIM THE BAG!</div>
-        <img src="assets/mascot/mascot-red-star-eyes.svg" alt="Make-A-Ton Mascot" class="mascot-img" width="266" height="314" loading="lazy">
-      </div>
+
     </section>
 
     <!-- FAQ -->
@@ -323,11 +351,11 @@
           </details>
           <details class="faq__item" name="faq">
             <summary>How does it work?</summary>
-            <div class="faq__body"><p>There are two rounds. The 8-hour virtual round is on 14 November 2026, with results on 26 November 2026. Shortlisted teams move on to the 24-hour final round on 19–20 December 2026.</p></div>
+            <div class="faq__body"><p>There are two rounds. The 8-hour virtual round is on 31 October 2026, with results on 19 November 2026. Shortlisted teams move on to the 24-hour final round on 19–20 December 2026.</p></div>
           </details>
           <details class="faq__item" name="faq">
             <summary>When can I register?</summary>
-            <div class="faq__body"><p>Registrations open on 21 September 2026 and close on 10 November 2026.</p></div>
+            <div class="faq__body"><p>Registrations open on 21 September 2026 and close on 25 October 2026.</p></div>
           </details>
           <details class="faq__item" name="faq">
             <summary>Where is the final round?</summary>
@@ -348,16 +376,12 @@
           </details>
         </div>
       </div>
-      <!-- Peeker Mascot: Green Curious Detective -->
-      <div class="mascot-peeker mascot-peeker--faq" data-mascot-color="green" aria-label="Make-A-Ton Mascot">
-        <div class="mascot-bubble">STILL WONDERING?</div>
-        <img src="assets/mascot/mascot-green-curious.svg" alt="Make-A-Ton Mascot" class="mascot-img" width="260" height="329" loading="lazy">
-      </div>
+
     </section>
   </main>
 
   <footer class="site-footer">
-    <img class="site-footer__logo" src="assets/logo.svg" alt="Make-A-Ton" width="1958" height="689">
+    <img class="site-footer__logo" src="assets/mat9logo.png" alt="Make-A-Ton" width="1958" height="689">
     <p>Make-A-Ton 9.0 · CITTIC, CUSAT · Kochi, Kerala</p>
     <p>Presented with Odoo</p>
     <a class="site-footer__top" href="#top">Back to top ↑</a>
