@@ -137,11 +137,11 @@
   font-size: clamp(1.05rem, 0.98rem + 0.35vw, 1.2rem);
 }
 .about-panel__body > p + p { margin-top: 1em; }
+/* Body copy stays in one typeface; this line earns its emphasis from weight */
 .about-panel__turn {
-  font-family: var(--font-tape);
-  font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem);
-  line-height: 1.3;
-  text-transform: uppercase;
+  font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.35;
 }
 .about-panel__stickers {
   display: flex;
@@ -315,29 +315,6 @@
   50% {
     transform: rotate(8deg) scale(1.06);
   }
-}
-
-@keyframes bounty-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.4);
-    opacity: 0.7;
-  }
-}
-
-.kicker__pulse {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 8px;
-  border-radius: 50%;
-  background: var(--red);
-  box-shadow: 0 0 0 2px var(--ink);
-  animation: bounty-pulse 1.4s infinite ease-in-out;
-  vertical-align: middle;
 }
 
 .podium {
@@ -832,20 +809,49 @@
   .foot-brand { grid-column: 1 / -1; }
 }
 @media (max-width: 620px) {
+  /* One column, and every band pulled in — the footer is the last thing on a
+     phone, so it should not read as another screenful */
   .site-footer__inner {
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
-    gap: 26px;
+    gap: 18px;
+    padding-block: 24px 20px;
     text-align: center;
   }
   .foot-brand { justify-items: center; }
-  .foot-tagline { max-width: 32ch; }
-  .foot-card { width: 100%; max-width: 380px; rotate: none; }
-  .foot-marks { grid-auto-flow: column; align-items: center; gap: 18px; }
-  .foot-seal { width: 116px; height: 116px; padding: 8px; }
-  .foot-seal__name { font-size: 1.15rem; }
-  .foot-barcode { width: 148px; }
-  .site-footer__bar { justify-content: center; text-align: center; }
+  .foot-kicker { font-size: 0.62rem; letter-spacing: 0.18em; }
+  .foot-logo { width: min(170px, 44vw); margin-block: 8px 8px; }
+  .foot-tagline { max-width: 30ch; font-size: 0.82rem; line-height: 1.35; }
+  .foot-mail { margin-top: 10px; padding: 0.42em 0.85em; font-size: 0.74rem; box-shadow: 3px 3px 0 var(--ink); }
+
+  .foot-card {
+    width: 100%;
+    max-width: 340px;
+    gap: 2px;
+    padding: 12px 14px 14px;
+    font-size: 0.74rem;
+    line-height: 1.4;
+    rotate: none;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .foot-card__head { padding-bottom: 6px; }
+  .foot-card__title { margin-top: 4px; font-size: 1rem; }
+  .foot-card__banner { margin-top: 6px; padding: 0.4em 0.7em; }
+
+  .foot-marks { grid-auto-flow: column; align-items: center; gap: 14px; }
+  .foot-seal { width: 96px; height: 96px; padding: 7px; }
+  .foot-seal__top, .foot-seal__vol { font-size: 0.48rem; letter-spacing: 0.06em; }
+  .foot-seal__name { font-size: 0.95rem; }
+  .foot-barcode { width: 124px; padding: 7px 9px; }
+  .foot-barcode__bars { height: 26px; }
+  .foot-barcode__id { font-size: 0.54rem; }
+
+  .site-footer__bar {
+    justify-content: center;
+    padding-block: 10px;
+    font-size: 0.6rem;
+    text-align: center;
+  }
 }
 @media (max-width: 380px) {
   .foot-marks { grid-auto-flow: row; }

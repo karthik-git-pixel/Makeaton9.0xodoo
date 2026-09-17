@@ -136,21 +136,6 @@ a { color: inherit; }
 .display--yellow { color: var(--tape); }
 .display--panel { font-size: clamp(2.6rem, 1.2rem + 3.9vw, 4.8rem); }
 
-.kicker {
-  display: inline-block;
-  padding: 0.4em 0.95em;
-  font-family: var(--font-tape);
-  font-size: clamp(0.8rem, 0.74rem + 0.3vw, 1rem);
-  line-height: 1.1;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--white);
-  background: var(--ink);
-  border-radius: 999px;
-  transform: rotate(-2deg);
-}
-.kicker--light { color: var(--ink); background: var(--white); }
-
 /* Section scaffolding ------------------------------------------------------ */
 .section {
   position: relative;

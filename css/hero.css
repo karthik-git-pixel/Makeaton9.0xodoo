@@ -224,6 +224,34 @@
   animation: hero-fade-up 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) 0.16s both;
 }
 
+/* Date and venue · one light line, so it costs almost no height */
+.hero-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5em 1.4em;
+  font-family: var(--font-tape);
+  font-size: clamp(0.7rem, 0.62rem + 0.34vw, 0.95rem);
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  /* keeps the line readable where it crosses a trace */
+  text-shadow: 0 0 7px var(--white), 0 0 7px var(--white), 0 0 3px var(--white);
+  animation: hero-fade-up 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) 0.2s both;
+}
+.hero-facts__item { display: inline-flex; align-items: center; gap: 0.45em; }
+.hero-facts__item svg { flex: none; color: var(--red); }
+.hero-facts time { font: inherit; }
+/* A diamond between the two facts, matching the tape separators */
+.hero-facts__item + .hero-facts__item::before {
+  content: "\2726";
+  margin-right: 0.9em;
+  font-size: 0.8em;
+  color: var(--red);
+}
+
 /* CTA ---------------------------------------------------------------------- */
 .hero-cta {
   position: relative;
@@ -395,6 +423,8 @@
   .hero-stage { gap: clamp(9px, 1.5svh, 16px); }
   .hero-logo { max-height: clamp(104px, 20svh, 200px); }
   .hero-tagline { padding: 0.38em 0.9em; font-size: 0.78rem; letter-spacing: 0.04em; box-shadow: 0.14em 0.16em 0 rgba(12, 14, 15, 0.22); }
+  .hero-facts { gap: 0.35em 0.9em; font-size: 0.64rem; letter-spacing: 0.06em; }
+  .hero-facts__item + .hero-facts__item::before { margin-right: 0.55em; }
 
   .countdown { gap: 5px; }
   .countdown__label { font-size: 0.62rem; }
