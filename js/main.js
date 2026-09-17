@@ -88,8 +88,6 @@
     document.querySelectorAll('[data-count]').forEach((el) => counter.observe(el));
   }
 
-  // Hero Section (design_ton model): marquee track initialization.
-  // The wordmark is deliberately static - no pointer tilt, no hover transform.
   // Registration deadline countdown: ticks down to data-countdown-deadline (IST)
   function initCountdown() {
     const root = document.querySelector('[data-countdown-deadline]');
@@ -125,12 +123,70 @@
     timer = setInterval(tick, 1000);
   }
 
-  function initMarqueeTracks() {
-    const tracks = document.querySelectorAll('.marquee-track');
-    tracks.forEach(track => {
-      if (track.children.length < 8) {
-        const content = track.innerHTML;
-        track.innerHTML = content + content;
+  // Hero tapes: repeat the phrases inside each run until one run is wider than
+  // the tape, so the strip never shows a gap. Both runs stay identical, which
+  // is what makes the -50% loop seamless.
+  function initTapes() {
+    document.querySelectorAll('[data-tape-track]').forEach((track) => {
+      const wrapper = track.parentElement;
+      const runs = [...track.querySelectorAll('.marquee-run')];
+      if (runs.length !== 2 || !wrapper) return;
+
+      const phrases = [...runs[0].children].map((node) => node.cloneNode(true));
+      if (!phrases.length) return;
+
+      // A tape is wider than the hero and sits at an angle, so aim past both
+      let guard = 0;
+      while (runs[0].offsetWidth < wrapper.offsetWidth * 1.15 && guard < 24) {
+        runs.forEach((run) => phrases.forEach((node) => run.appendChild(node.cloneNode(true))));
+        guard += 1;
+      }
+    });
+  }
+
+  // Hero: the pointer lights the circuit traces and leans the wordmark toward it.
+  // Everything is written to custom properties, so css/hero.css owns the look.
+  function initHero() {
+    const stage = document.querySelector('[data-hero]');
+    if (!stage || reduceMotion.matches) return;
+
+    const mark = stage.querySelector('[data-hero-tilt]');
+    const LIT_RADIUS = 260;
+    let pending = null;
+    let lit = false;
+
+    const paint = (x, y) => {
+      pending = null;
+      const rect = stage.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      stage.style.setProperty('--mx', `${(x / rect.width) * 100}%`);
+      stage.style.setProperty('--my', `${(y / rect.height) * 100}%`);
+      if (mark) {
+        // ±5deg, and rotateX is inverted so the mark leans into the cursor
+        mark.style.setProperty('--tx', `${((x / rect.width) - 0.5) * 10}deg`);
+        mark.style.setProperty('--ty', `${(0.5 - (y / rect.height)) * 10}deg`);
+      }
+    };
+
+    stage.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'touch') return;
+      const rect = stage.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      if (!lit) {
+        lit = true;
+        stage.style.setProperty('--glow', `${LIT_RADIUS}px`);
+      }
+      if (pending) cancelAnimationFrame(pending);
+      pending = requestAnimationFrame(() => paint(x, y));
+    });
+
+    stage.addEventListener('pointerleave', () => {
+      lit = false;
+      stage.style.setProperty('--glow', '0px');
+      if (mark) {
+        mark.style.setProperty('--tx', '0deg');
+        mark.style.setProperty('--ty', '0deg');
       }
     });
   }
@@ -277,7 +333,8 @@
   }
 
   initCountdown();
-  initMarqueeTracks();
+  initTapes();
+  initHero();
   initMascots();
 })();
 

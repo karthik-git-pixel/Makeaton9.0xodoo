@@ -6,18 +6,19 @@
 /* Same yellow and squiggle tint as the About Make-A-Ton panel, so the band
    reads as part of the same set rather than a separate sunburst poster */
 .section--timeline {
-  /* The squiggle field is the section's whole background, book open or not */
-  --pattern-color: #F4B41F;
   --squiggle-yellow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 445 444'%3E%3Cdefs%3E%3Cpath id='q' d='M16 62C16 80 26 90 40 90C62 90 64 36 86 36C108 36 112 90 134 90C156 90 160 36 182 36C204 36 206 90 228 90C242 90 252 80 252 62'/%3E%3C/defs%3E%3Cg fill='none' stroke='%23F4B41F' stroke-width='32' stroke-linecap='round' stroke-linejoin='round'%3E%3Cuse href='%23q' x='260' y='85'/%3E%3Cuse href='%23q' x='-185' y='85'/%3E%3Cuse href='%23q' x='37' y='307'/%3E%3C/g%3E%3C/svg%3E");
   background: var(--yellow);
 }
-.timeline__hint { display: none; }
-.timeline__note {
-  position: relative;
-  margin: clamp(32px, 4vw, 48px) auto 0;
-  padding-inline: var(--gutter);
-  font-weight: 700;
-  text-align: center;
+/* The section is ~5 viewports tall, so a squiggle field anchored to it drifts
+   against the book, which is pinned. Anchoring the tile to the viewport instead
+   keeps one still field behind everything. The mask the other sections use has
+   no viewport-anchored equivalent, so this layer paints the pre-coloured tile. */
+.section--timeline::before {
+  -webkit-mask: none;
+  mask: none;
+  background:
+    var(--squiggle-yellow) 0 0 / max(150px, 13.73vw) max(150px, 13.73vw) repeat fixed,
+    var(--yellow);
 }
 
 /* Static chapter cards ----------------------------------------------------- */
@@ -62,9 +63,8 @@
   white-space: nowrap;
 }
 .is-book .section-head { margin-bottom: 0; }
-.is-book .timeline__hint { display: block; font-family: var(--font-tape); font-size: 0.9rem; letter-spacing: 0.06em; text-transform: uppercase; }
 
-.book-scroller { position: relative; height: calc(100svh + var(--leaves, 6) * 56svh); }
+.book-scroller { position: relative; height: calc(100svh + var(--leaves, 6) * 46svh); }
 .book-stage {
   position: sticky;
   top: 0;
@@ -75,17 +75,11 @@
   height: 100svh;
   padding-top: 56px;
   overflow: hidden;
-  /* Same yellow squiggle field as the rest of the section. The tile SVG carries
-     only a viewBox, so both axes are stated: an `auto` height resolves against
-     the element, which stretched the tile on tall, narrow screens. */
-  background:
-    var(--squiggle-yellow) 0 0 / max(150px, 13.73vw) max(150px, 13.73vw) repeat,
-    var(--yellow);
 }
 
 .book {
-  --page-w: min(460px, 44vw);
-  --page-h: min(600px, calc(100svh - 200px), calc(var(--page-w) * 1.32));
+  --page-w: min(600px, 45vw);
+  --page-h: min(620px, calc(100svh - 190px), calc(var(--page-w) * 0.87));
   position: relative;
   width: calc(var(--page-w) * 2);
   height: var(--page-h);
@@ -228,18 +222,6 @@
 .page__meta dt { font-family: var(--font-tape); font-size: 0.78em; letter-spacing: 0.06em; text-transform: uppercase; }
 .page__meta dd { margin: 0; font-weight: 700; text-align: right; font-size: 0.9em; }
 
-.book .page__stamp {
-  padding: 0.15em 0.7em;
-  font-family: var(--font-tape);
-  font-weight: 400;
-  text-transform: uppercase;
-  color: #C9321A;
-  border: 2px solid #C9321A;
-  border-radius: 6px;
-  rotate: -4deg;
-  display: inline-block;
-}
-
 .page__blurb {
   font-size: 0.95em;
   line-height: 1.4;
@@ -271,9 +253,12 @@
   padding-block: 0.3em;
 }
 
+/* Only phones use this: on wider screens the panel has its own facing page */
+.page__inline-art { display: none; }
+
 .page__panel-frame {
   position: relative;
-  width: 100%;
+  width: min(100%, calc(clamp(190px, 38svh, 290px) * 4 / 3));
   max-width: 100%;
   aspect-ratio: 4 / 3;
   max-height: clamp(190px, 38svh, 290px);
@@ -290,9 +275,33 @@
 .page__panel-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   display: block;
+}
+
+.page__panel-fallback {
+  display: grid;
+  gap: 0.3em;
+  padding: 1em;
+  text-align: center;
+  background: var(--cream);
+  width: 100%;
+  height: 100%;
+  place-content: center;
+}
+.page__panel-fallback span {
+  font-family: var(--font-tape);
+  font-size: 0.7em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.page__panel-fallback b {
+  font-family: var(--font-display);
+  font-size: 2.1em;
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
 }
 
 .page__bubble {
@@ -335,7 +344,7 @@
 .page__foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
   margin-top: auto;
   flex-shrink: 0;
@@ -370,48 +379,15 @@
   text-shadow: 0.05em 0.06em 0 var(--ink);
 }
 .page__cover-sub { font-family: var(--font-tape); font-size: 1.1em; text-transform: uppercase; text-shadow: 2px 2px 0 var(--ink); }
-.page__cover-shape { width: 28%; filter: drop-shadow(5px 5px 0 var(--ink)); animation: spin 14s linear infinite; }
-.page__cover-hint { position: absolute; bottom: 1.6em; font-family: var(--font-tape); font-size: 0.8em; letter-spacing: 0.06em; text-transform: uppercase; }
 .page__logo { width: 82%; }
-.page__mascot-wrap {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-top: 0.1em;
-  cursor: pointer;
-}
-.page__mascot-wrap.mascot-peeker--inline {
-  position: relative;
-  bottom: auto;
-  left: auto;
-  right: auto;
-  top: auto;
-  transform: none;
-  animation: none;
-}
-.page__mascot-wrap .mascot-bubble {
-  position: relative;
-  margin-bottom: 8px;
-  font-size: clamp(0.68rem, 0.8vw, 0.82rem);
-  padding: 4px 10px;
-}
-.page__mascot-img {
-  width: clamp(100px, 14vw, 145px);
-  max-height: clamp(110px, 22vh, 165px);
-  object-fit: contain;
-  filter: drop-shadow(6px 6px 0 var(--ink));
-  animation: mascot-float-slow 4s ease-in-out infinite;
-  transition: transform 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
-}
-.page__mascot-wrap:hover .page__mascot-img {
-  transform: scale(1.1) rotate(-3deg);
-}
 
 /* Contents page */
 .book .page--contents .page__title { margin-bottom: 0.2em; font-size: 3.4em; }
+.book .page--contents .page__kicker,
+.book .page--contents .page__title {
+  align-self: center;
+  text-align: center;
+}
 .page__toc { display: grid; gap: 0.2em; }
 .page__toc li {
   display: grid;
@@ -425,31 +401,12 @@
 .page__toc span:nth-child(2) { font-weight: 700; line-height: 1.2; }
 .page__toc span:last-child { font-family: var(--font-tape); font-size: 0.8em; text-transform: uppercase; white-space: nowrap; }
 
-/* Chapter tabs under the book */
-.book-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding-inline: var(--gutter); }
-.book-tabs button {
-  min-width: 44px;
-  height: 40px;
-  padding: 0 12px;
-  font-family: var(--font-tape);
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  color: var(--ink);
-  background: var(--white);
-  border: var(--line) solid var(--ink);
-  border-radius: 999px;
-  box-shadow: 3px 3px 0 var(--ink);
-  cursor: pointer;
-  transition: translate 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
-}
-.book-tabs button:hover { translate: -1px -1px; box-shadow: 4px 4px 0 var(--ink); }
-.book-tabs button[aria-current="step"] { color: var(--tape); background: var(--ink); }
-
-/* Phones: a single page that flips away to the left */
+/* Phones: a single page that flips away to the left, comic panel stacked above
+   the chapter text because the facing art page is not rendered here */
 @media (max-width: 760px) {
   .book {
-    --page-w: min(86vw, 400px);
-    --page-h: min(540px, calc(100svh - 210px));
+    --page-w: min(90vw, 420px);
+    --page-h: min(640px, calc(100svh - 130px));
     width: var(--page-w);
   }
   .book::before { inset: -10px -10px -12px; }
@@ -458,6 +415,28 @@
   .book .page--base.page--right,
   .leaf { left: 0; }
   .book .page--right { border-radius: 14px; }
-  .book-tabs { gap: 6px; }
-  .book-tabs button { min-width: 38px; height: 36px; padding: 0 8px; font-size: 0.78rem; }
+
+  .page__inline-art {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 0.2em;
+  }
+  .page__inline-art .page__panel-frame {
+    width: min(100%, calc(clamp(160px, 28svh, 230px) * 4 / 3));
+    max-height: clamp(160px, 28svh, 230px);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .page__inline-art .page__bubble { width: 100%; margin-top: -12px; }
+  /* The bubble is wider than the panel here, so its tail points at the middle */
+  .page__inline-art .page__bubble::before { left: calc(50% - 6px); }
+  /* The head already carries the date as a pill, so the meta row is redundant
+     on a page that now has to fit the panel too */
+  .page--chapter .page__meta { display: none; }
+  .page--chapter .page__title { font-size: 2.1em; }
+
+  /* The stack reads from the top so the title lands high on the page. Folios
+     are a spread convention, so they go rather than sit under a single page. */
+  .book .page__folio { display: none; }
 }

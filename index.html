@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Make-A-Ton 9.0 · Odoo x Make-A-Ton Kochi Hackathon</title>
-  <meta name="description" content="Make-A-Ton 9.0 by CITTIC, CUSAT with Odoo. An 8-hour virtual round, a 24-hour final in Kochi and ₹1,05,000 in prizes. Registrations open 21 September 2026.">
+  <meta name="description" content="Make-A-Ton 9.0 by CITTIC, CUSAT with Odoo: South India's largest hiring hackathon. An 8-hour virtual round, HackForCUSAT on 18 December and a 24-hour final in Kochi, with ₹1,05,000 in prizes. Registrations open 21 September 2026.">
   <meta name="theme-color" content="#FFE23A">
   <meta property="og:title" content="Make-A-Ton 9.0">
-  <meta property="og:description" content="Odoo x Make-A-Ton 9.0 Kochi Hackathon. Registrations open 21 September 2026.">
+  <meta property="og:description" content="Odoo x Make-A-Ton 9.0, South India's largest hiring hackathon at CUSAT, Kochi. Registrations open 21 September 2026.">
   <link rel="icon" href="assets/matbrain.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +29,7 @@
     <nav class="site-nav__menu" id="site-menu" aria-label="Primary">
       <a href="#about">About</a>
       <a href="#odoo">Odoo</a>
+      <a href="#hackforcusat">HackForCUSAT</a>
       <a href="#timeline">Timeline</a>
       <a href="#prizes">Prizes</a>
       <a href="#faq">FAQ</a>
@@ -37,93 +38,44 @@
   </header>
 
   <main id="main">
-    <!-- HERO SECTION (MAKEATON 9.0 CANVAS - design_ton) -->
-    <section class="hero viewport-stage" id="top" aria-label="Makeaton 9.0 Hero Canvas">
+    <!-- HERO · circuit board that lights up under the pointer (js/main.js) -->
+    <section class="hero viewport-stage" id="top" aria-label="Make-A-Ton 9.0" data-hero>
       <h1 class="sr-only">Make-A-Ton 9.0: Odoo x Make-A-Ton Kochi Hackathon by CITTIC, CUSAT</h1>
-      
-      <!-- Decorative hero scene: soft yellow blobs, halftone fields, sparkles and
-           line doodles. Everything here is presentational and animates on its own. -->
-      <div class="hero-scene" aria-hidden="true">
-        <svg class="hero-waves" viewBox="0 0 1440 820" preserveAspectRatio="none" aria-hidden="true">
-          <path class="hero-wave hero-wave--1" d="M0 0h286c-58 74-8 138 34 196 45 62 6 124-52 168-64 48-28 116 22 168 44 46 18 96-40 130-34 20-76 34-124 42H0Z"/>
-          <path class="hero-wave hero-wave--2" d="M1440 0h-268c56 70 14 134-28 190-46 60-12 126 46 172 62 50 30 118-20 168-40 40-16 90 38 124 34 22 148 46 232 60V0Z"/>
-          <path class="hero-wave hero-wave--3" d="M96 820c74-46 44-116 118-146 70-28 132 26 196 4 66-22 58-92 130-104 70-12 108 58 178 52 66-6 88-70 158-64 52 4 88 42 130 86v172Z"/>
-        </svg>
 
-        <span class="hero-blob hero-blob--1"></span>
-        <span class="hero-blob hero-blob--2"></span>
-        <span class="hero-blob hero-blob--3"></span>
-
-        <span class="hero-halftone hero-halftone--1"></span>
-        <span class="hero-halftone hero-halftone--2"></span>
-        <span class="hero-halftone hero-halftone--3"></span>
-        <span class="hero-dotgrid"></span>
-
-        <svg class="hero-lines" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMid slice" fill="none">
-          <path class="hero-line hero-line--1" d="M-30 300C90 214 196 356 316 282S520 176 612 250"/>
-          <path class="hero-line hero-line--2" d="M860 586C972 668 1086 540 1206 606S1392 662 1474 588"/>
-          <path class="hero-line hero-line--3" d="M1046 150C1106 86 1190 178 1272 112"/>
-          <path class="hero-curl" d="M232 604c-26-34 22-58 40-30 16 25-22 44-46 30-30-17-12-60 26-66"/>
-        </svg>
-
-        <span class="hero-spark hero-spark--1"></span>
-        <span class="hero-spark hero-spark--2"></span>
-        <span class="hero-spark hero-spark--3"></span>
-        <span class="hero-spark hero-spark--4"></span>
-        <span class="hero-spark hero-spark--5"></span>
-        <span class="hero-spark hero-spark--6"></span>
-        <span class="hero-spark hero-spark--7"></span>
-        <span class="hero-spark hero-spark--8"></span>
-        <span class="hero-spark hero-spark--9"></span>
-
-        <span class="hero-ring hero-ring--1"></span>
-        <span class="hero-ring hero-ring--2"></span>
-        <span class="hero-ring hero-ring--3"></span>
-        <span class="hero-pip hero-pip--1"></span>
-        <span class="hero-pip hero-pip--2"></span>
-        <span class="hero-pip hero-pip--3"></span>
-        <span class="hero-pip hero-pip--4"></span>
-
-        <span class="hero-shard hero-shard--1"></span>
-        <span class="hero-shard hero-shard--2"></span>
-        <span class="hero-shard hero-shard--3"></span>
-        <span class="hero-cursor"></span>
+      <!-- The board: traces sit dim, a slow sweep keeps them alive where there is
+           no pointer, and the lit layer is revealed around the cursor. -->
+      <div class="hero-board" aria-hidden="true">
+        <span class="hero-board__traces"></span>
+        <span class="hero-board__scan"></span>
+        <span class="hero-board__glow"></span>
+        <span class="hero-board__live"></span>
       </div>
 
-      <!-- Top Caution Tape Banner: Balanced & Full-Width with rotate-[-2.00deg] -->
-      <aside class="caution-tape caution-tape-top" role="region" aria-label="Top Caution Tape Ticker">
+
+      <!-- Caution tape tickers. Each track holds the run twice so the -50% loop
+           is seamless; the second half is hidden from screen readers. -->
+      <aside class="caution-tape caution-tape--top" role="presentation">
         <div class="marquee-wrapper">
-          <div class="marquee-track" id="topTrack">
-            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
+          <div class="marquee-track" data-tape-track>
+            <span class="marquee-run"><span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span><span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span><span class="tape-text">South India&rsquo;s Largest Hiring Hackathon <span class="diamond-separator">&#10022;</span></span></span>
+            <span class="marquee-run" aria-hidden="true"><span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span><span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span><span class="tape-text">South India&rsquo;s Largest Hiring Hackathon <span class="diamond-separator">&#10022;</span></span></span>
           </div>
         </div>
       </aside>
 
-      <!-- Center Hero Title -->
       <div class="hero-stage">
-        <img
-          src="assets/mat9logo.png"
-          alt="Make-A-Ton 9.0"
-          class="hero-logo"
-          id="centerTitleImg"
-          width="1958"
-          height="689"
-          fetchpriority="high"
-        />
+        <div class="hero-mark" data-hero-tilt>
+          <img
+            src="assets/mat9logo.png"
+            alt="Make-A-Ton 9.0"
+            class="hero-logo"
+            width="1958"
+            height="689"
+            fetchpriority="high"
+          />
+        </div>
 
-        <p class="hero-tagline">South India&rsquo;s Largest Hiring Hackathon</p>
-
+        <p class="hero-tagline">South India&rsquo;s largest hiring hackathon</p>
 
         <!-- Registration deadline countdown. The deadline is IST; js/main.js fills the digits. -->
         <div class="countdown" data-countdown-deadline="2026-10-25T23:59:59+05:30">
@@ -137,31 +89,19 @@
           <p class="countdown__deadline">Deadline <time datetime="2026-10-25">25 October 2026</time></p>
         </div>
 
-        <!-- Hero register button. TODO: put the registration URL in data-register-url
-             (or swap the button back to an <a href>) once it exists. -->
+        <!-- TODO: put the registration URL in data-register-url (or swap back to an
+             <a href>) once it exists. -->
         <button class="hero-cta" type="button" data-register-url="">
           <span class="hero-cta__label">Register</span>
           <span class="hero-cta__arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span>
         </button>
-
       </div>
 
-      <!-- Bottom Caution Tape Banner: Balanced & Full-Width with rotate-[2.00deg] -->
-      <aside class="caution-tape caution-tape-bottom" role="region" aria-label="Bottom Caution Tape Ticker">
+      <aside class="caution-tape caution-tape--bottom" role="presentation">
         <div class="marquee-wrapper">
-          <div class="marquee-track" id="bottomTrack">
-            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span>
-            <span class="tape-text" aria-hidden="true">9th Edition <span class="diamond-separator">&#10022;</span></span>
+          <div class="marquee-track" data-tape-track>
+            <span class="marquee-run"><span class="tape-text">19&ndash;20 December 2026 <span class="diamond-separator">&#10022;</span></span><span class="tape-text">CUSAT, Kochi <span class="diamond-separator">&#10022;</span></span><span class="tape-text">&#8377;1,05,000 in Prizes <span class="diamond-separator">&#10022;</span></span></span>
+            <span class="marquee-run" aria-hidden="true"><span class="tape-text">19&ndash;20 December 2026 <span class="diamond-separator">&#10022;</span></span><span class="tape-text">CUSAT, Kochi <span class="diamond-separator">&#10022;</span></span><span class="tape-text">&#8377;1,05,000 in Prizes <span class="diamond-separator">&#10022;</span></span></span>
           </div>
         </div>
       </aside>
@@ -175,8 +115,11 @@
           <h2 class="display display--panel" id="about-title">About <span class="nowrap">Make-A-Ton</span></h2>
         </header>
         <div class="about-panel__body">
-          <p>Welcome to Make-A-Ton 9.0: South India's Biggest Hackathon! The most exciting hackathon of the year is back with a bang. With a ₹1,05,000 prize pool up for grabs, we're set to make history.</p>
-          <p>Organized by CITTIC, Make-A-Ton is a coding marathon that fuels innovation. It starts with an 8-hour virtual round, and the shortlisted teams head to CUSAT, Kochi for a 24-hour final. Get ready for intense coding sessions, groundbreaking solutions and yes — plenty of coffee! Join us and leave your mark on the tech world!</p>
+          <p>Every developer&rsquo;s journey has a defining chapter &mdash; the moment an idea becomes reality and potential meets opportunity. For many, that project began at <b>Make-A-Ton</b>.</p>
+          <p>Over the past eight editions, thousands of students have come together to build, experiment, fail, rebuild and grow. Along the way came first hackathons, first prototypes, first internships, first startup ideas, and first opportunities that extended far beyond the event itself.</p>
+          <p class="about-panel__turn">This year, the story takes a new turn.</p>
+          <p>In collaboration with <b>Odoo</b>, Make-A-Ton 9.0 returns as <b>South India&rsquo;s largest hiring hackathon</b> &mdash; bringing your work in front of the people looking for the next generation of builders. Because sometimes, the project you build over a weekend becomes the one that opens the door to your first career opportunity.</p>
+          <!-- TODO: add the "Know more about Make-A-Ton" link here once the destination URL exists -->
         </div>
       </div>
       <div class="about-panel about-panel--cittic pattern pattern--asterisk">
@@ -185,8 +128,9 @@
           <h3 class="display display--panel display--yellow">CITTIC</h3>
         </header>
         <div class="about-panel__body">
-          <p>The Centre for Innovation, Technology Transfer and Industrial Collaboration (CITTIC), the technology business incubator of CUSAT, has nurtured several young startups and has supported the growth of technology in the student community.</p>
-          <p>CITTIC was set up on the campus with central and state government funding to provide a vibrant, innovative and entrepreneurial environment for faculty and students to run university-linked startup companies.</p>
+          <p class="about-panel__turn">It begins at CITTIC.</p>
+          <p>The Centre for Innovation, Technology Transfer and Industrial Collaboration (CITTIC) has spent years fostering innovation, supporting student-led startups, and creating opportunities for young builders to collaborate with industry.</p>
+          <p>The same ecosystem that has helped ideas grow into ventures continues to shape Make-A-Ton &mdash; bringing together talent, mentorship and opportunity under one roof.</p>
         </div>
 
       </div>
@@ -201,12 +145,38 @@
           <h2 class="display display--yellow" id="odoo-title">About Odoo <span class="swoosh">Hackathon</span></h2>
         </header>
         <article class="card card--white odoo__card">
-          <p class="odoo__lead">Odoo India&rsquo;s hackathons are an open challenge to all tech enthusiasts and a great tool for Odoo to hire the best coders and designers to join Odoo India&rsquo;s growing team.</p>
-          <div class="odoo__cols">
-            <p>Odoo India&rsquo;s hiring hackathon journey began in June 2024 with Odoo Combat, its first open recruitment hackathon, attracting over 3,000 students and discovering exceptional young developers. Encouraged by its success, Odoo India collaborated with leading universities to bring hackathons closer to emerging talent, transforming a simple idea into a nationwide hackathon series.</p>
-            <p class="odoo__punch">Today, Odoo India has replaced traditional campus placements with <em class="scribble">hiring hackathons</em>.</p>
-          </div>
-          <p class="odoo__tie-in"><b>At Make-A-Ton 9.0,</b> Odoo opens registrations, runs the 8-hour virtual round and announces the finalists.</p>
+          <p class="odoo__lead">You&rsquo;ve got the skills. You just haven&rsquo;t had the right chance to show them.</p>
+          <p>Odoo&rsquo;s hiring hackathons are designed around a simple idea: the best way to understand a developer is to see them build. How they think. How they solve. How they work with others. What they do when the first idea doesn&rsquo;t work.</p>
+          <p class="odoo__tie-in">This year, <b>Odoo &times; Make-A-Ton 9.0</b> brings that experience to you &mdash; opening a direct path from building to being noticed, and from being noticed to your next opportunity.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- HACK FOR CUSAT: the CUSAT-only curtain raiser -->
+    <section class="section section--hack pattern pattern--asterisk" id="hackforcusat" aria-labelledby="hack-title">
+      <div class="tape tape--divider" data-tape="HACK FOR CUSAT"></div>
+      <div class="section__inner">
+        <header class="section-head section-head--center">
+          <p class="kicker">Curtain raiser &middot; CUSAT students only</p>
+          <h2 class="display display--yellow" id="hack-title">Hack For CUSAT</h2>
+        </header>
+        <article class="card card--white hack__card">
+          <p class="hack__hook">Never hacked before? Perfect.</p>
+          <p class="odoo__lead">HackForCUSAT is where you start.</p>
+          <p>HackForCUSAT is the first step into Make-A-Ton 9.0 &mdash; a complete hackathon exclusively for CUSAT students, and a complete CUSAT experience you should never miss.</p>
+          <p>First time hackers, this one&rsquo;s especially for you.</p>
+          <ul class="hack__firsts">
+            <li>Your first team.</li>
+            <li>Your first build.</li>
+            <li>Your first hackathon.</li>
+          </ul>
+          <p class="hack__maybe">Maybe your first win, too.</p>
+          <dl class="hack__facts">
+            <div><dt>When</dt><dd><time datetime="2026-12-18">18 December 2026</time></dd></div>
+            <!-- TODO: replace with the real venue and prize pool once they are decided -->
+            <div><dt>Where</dt><dd>Venue to be announced</dd></div>
+            <div><dt>Prizes</dt><dd>To be announced</dd></div>
+          </dl>
         </article>
       </div>
     </section>
@@ -216,16 +186,15 @@
       <div class="tape tape--divider tape--white" data-tape="THE TIMELINE"></div>
       <div class="section__inner">
         <header class="section-head section-head--center">
-          <p class="kicker">A story in five chapters</p>
+          <p class="kicker">A story in six chapters</p>
           <h2 class="display" id="timeline-title">Timeline</h2>
-          <p class="timeline__hint">Keep scrolling to turn the pages</p>
         </header>
         <ol class="timeline-list">
           <li data-short="21 Sep" data-title="The Call to Arms" data-panel="panel-1.png" data-badge="ODOO PORTAL" data-dialogue="THE FORM IS LIVE! WHO'S ON THE SQUAD?" data-highlight="LIVE!">
             <time datetime="2026-09-21">21 September 2026</time>
             <h3>Registration Starts</h3>
             <p class="timeline-list__lead">In charge: <b>Odoo</b></p>
-            <p>Applications open. Teams of up to four form, argue about names, and put their idea in writing for the first time.</p>
+            <p>Applications open. Teams form, argue about names, and put their idea in writing for the first time.</p>
           </li>
           <li data-short="25 Oct" data-title="The Midnight Wire" data-panel="panel-2.png" data-badge="CUSAT INITIATIVE" data-dialogue="11:59 PM... SUBMITTED WITH 3 SECONDS TO SPARE!" data-highlight="SUBMITTED">
             <time datetime="2026-10-25">25 October 2026</time>
@@ -245,6 +214,12 @@
             <p class="timeline-list__lead">In charge: <b>Odoo</b></p>
             <p>Shortlists go out. If your name is on one, you have a month to get ready for the floor.</p>
           </li>
+          <li data-short="18 Dec" data-title="The Curtain Raiser" data-panel="panel-6.png" data-badge="CUSAT STUDENTS ONLY" data-dialogue="FIRST TEAM. FIRST BUILD. FIRST HACKATHON!" data-highlight="FIRST BUILD">
+            <time datetime="2026-12-18">18 December 2026</time>
+            <h3>HackForCUSAT &mdash; 12 hrs</h3>
+            <p class="timeline-list__lead">In charge: <b>CITTIC</b></p>
+            <p>A 12-hour hackathon for CUSAT students only. The curtain raiser for the final weekend, and the best place to hack for the very first time.</p>
+          </li>
           <li data-short="19–20 Dec" data-title="The Final Arena" data-panel="panel-5.png" data-badge="ON-SITE @ CUSAT" data-dialogue="24 HOURS OF NON-STOP SHIPPING. MAIN STAGE AWAITS!" data-highlight="SHIPPING">
             <time datetime="2026-12-19">19–20 December 2026</time>
             <h3>Final Round &mdash; 24 hrs at CUSAT</h3>
@@ -254,7 +229,6 @@
         </ol>
       </div>
       <div class="book-scroller" data-book-scroller aria-hidden="true" hidden></div>
-      <p class="timeline__note">Dates may change. Any updates will be posted here.</p>
     </section>
 
     <!-- PRIZES -->
@@ -274,13 +248,13 @@
             </div>
             <div class="prize__body">
               <div class="prize__header-top">
-                <span class="prize__badge prize__badge--second">🥈 2ND PLACE // 1ST RUNNER-UP</span>
+                <span class="prize__badge prize__badge--second">🥈 2ND PLACE</span>
               </div>
               <div class="prize__amount-wrap">
                 <span class="prize__amount-label">Bounty Check</span>
                 <p class="prize__amount">₹<span data-count="35000">35,000</span>/-</p>
               </div>
-              <h3 class="prize__label">First runner-up</h3>
+              <h3 class="prize__label">Second place</h3>
 
             </div>
           </li>
@@ -293,7 +267,7 @@
             </div>
             <div class="prize__body">
               <div class="prize__header-top">
-                <span class="prize__badge prize__badge--first">🏆 1ST PLACE // GRAND CHAMPION</span>
+                <span class="prize__badge prize__badge--first">🏆 1ST PLACE</span>
               </div>
               <div class="prize__amount-wrap">
                 <span class="prize__amount-label">Grand Prize Bag</span>
@@ -311,17 +285,18 @@
             </div>
             <div class="prize__body">
               <div class="prize__header-top">
-                <span class="prize__badge prize__badge--third">🥉 3RD PLACE // 2ND RUNNER-UP</span>
+                <span class="prize__badge prize__badge--third">🥉 3RD PLACE</span>
               </div>
               <div class="prize__amount-wrap">
                 <span class="prize__amount-label">Bounty Check</span>
                 <p class="prize__amount">₹<span data-count="25000">25,000</span>/-</p>
               </div>
-              <h3 class="prize__label">Second runner-up</h3>
+              <h3 class="prize__label">Third place</h3>
 
             </div>
           </li>
         </ol>
+        <p class="prizes-hiring">Top performers get the opportunity to be considered for <b>hiring at Odoo</b>.</p>
       </div>
 
     </section>
@@ -336,33 +311,44 @@
         </header>
         <div class="faq">
           <details class="faq__item" name="faq" open>
-            <summary>What is Make-A-Ton 9.0?</summary>
-            <div class="faq__body"><p>The ninth edition of Make-A-Ton, the hackathon run by CITTIC at CUSAT, this year with Odoo.</p></div>
+            <summary>How do I register for Make-A-Ton 9.0?</summary>
+            <!-- TODO: add the registration link here once the Odoo portal URL exists -->
+            <div class="faq__body"><p>Registrations open on 21 September 2026 and close on 25 October 2026. The registration link will be posted here and announced on our channels.</p></div>
           </details>
           <details class="faq__item" name="faq">
-            <summary>How does it work?</summary>
-            <div class="faq__body"><p>There are two rounds. The 8-hour virtual round is on 31 October 2026, with results on 19 November 2026. Shortlisted teams move on to the 24-hour final round on 19–20 December 2026.</p></div>
+            <summary>Who is eligible to participate in Make-A-Ton 9.0?</summary>
+            <!-- TODO: replace with the real eligibility rules -->
+            <div class="faq__body"><p>Eligibility details will be shared when registrations open.</p></div>
           </details>
           <details class="faq__item" name="faq">
-            <summary>When can I register?</summary>
-            <div class="faq__body"><p>Registrations open on 21 September 2026 and close on 25 October 2026.</p></div>
+            <summary>What is HackForCUSAT?</summary>
+            <div class="faq__body"><p>HackForCUSAT is a 12-hour hackathon exclusively for CUSAT students and serves as the curtain-raiser for Make-A-Ton 9.0. It runs on 18 December 2026.</p></div>
           </details>
           <details class="faq__item" name="faq">
-            <summary>Where is the final round?</summary>
-            <div class="faq__body"><p>At CUSAT, Kochi.</p></div>
+            <summary>Do I need previous hackathon experience?</summary>
+            <div class="faq__body"><p>No. HackForCUSAT in particular is built for first-time hackers &mdash; your first team, your first build, your first hackathon.</p></div>
           </details>
           <details class="faq__item" name="faq">
-            <summary>What can we win?</summary>
-            <div class="faq__body"><p>₹45,000 for the winning team, ₹35,000 for the first runner-up and ₹25,000 for the second runner-up.</p></div>
+            <summary>Is there any registration fee?</summary>
+            <!-- TODO: confirm the registration fee, if any -->
+            <div class="faq__body"><p>Fee details will be shared when registrations open.</p></div>
           </details>
           <details class="faq__item" name="faq">
-            <summary>Who can take part, and how big can teams be?</summary>
-            <!-- TODO: replace with the real eligibility and team-size rules -->
-            <div class="faq__body"><p>Eligibility and team-size details will be shared when registrations open.</p></div>
+            <summary>What is the team size?</summary>
+            <!-- TODO: confirm the team-size rules -->
+            <div class="faq__body"><p>Team-size rules will be shared when registrations open.</p></div>
           </details>
           <details class="faq__item" name="faq">
-            <summary>Could the dates change?</summary>
-            <div class="faq__body"><p>The schedule may be updated. Any changes will be posted on this page.</p></div>
+            <summary>How does the Odoo hiring opportunity work?</summary>
+            <div class="faq__body"><p>Odoo uses the hackathon to see how you build rather than how you interview. Top performers get the opportunity to be considered for hiring at Odoo.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary>Will participating guarantee a job at Odoo?</summary>
+            <div class="faq__body"><p>No. Taking part puts your work in front of Odoo and makes top performers eligible to be considered for hiring, but it is not a guarantee of a role.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary>How can I get in touch with the Make-A-Ton team?</summary>
+            <div class="faq__body"><p>Email us at <a href="mailto:makeatoncusat@gmail.com">makeatoncusat@gmail.com</a>.</p></div>
           </details>
         </div>
       </div>
@@ -371,10 +357,46 @@
   </main>
 
   <footer class="site-footer">
-    <img class="site-footer__logo" src="assets/mat9logo.png" alt="Make-A-Ton" width="1958" height="689">
-    <p>Make-A-Ton 9.0 · CITTIC, CUSAT · Kochi, Kerala</p>
-    <p>Presented with Odoo</p>
-    <a class="site-footer__top" href="#top">Back to top ↑</a>
+    <div class="site-footer__inner">
+      <div class="foot-brand">
+        <p class="foot-kicker">Innovating the future of tech</p>
+        <img class="foot-logo" src="assets/mat9logo.png" alt="Make-A-Ton 9.0" width="1958" height="689" loading="lazy">
+        <p class="foot-tagline">South India&rsquo;s largest hiring hackathon &middot; CITTIC, CUSAT &times; Odoo</p>
+        <!-- TODO: add the Instagram / LinkedIn / Discord URLs here as a .foot-social row once they exist -->
+        <a class="foot-mail" href="mailto:makeatoncusat@gmail.com">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="2"/>
+            <path d="m3.5 7.5 8.5 5.5 8.5-5.5"/>
+          </svg>
+          makeatoncusat@gmail.com
+        </a>
+      </div>
+
+      <div class="foot-card">
+        <p class="foot-card__head">Loc // Venue</p>
+        <p class="foot-card__title">Cochin University (CUSAT)</p>
+        <p class="foot-card__line">Kalamassery, Kochi, Kerala &middot; India</p>
+        <p class="foot-card__line">LAT 10.0435&deg; N &middot; LONG 76.3242&deg; E</p>
+        <p class="foot-card__line foot-card__line--date">December 19 &ndash; 20, 2026</p>
+        <p class="foot-card__banner">Official event &middot; Vol 09</p>
+      </div>
+
+      <div class="foot-marks">
+        <p class="foot-seal" aria-hidden="true">
+          <span class="foot-seal__top">CUSAT &times; Odoo</span>
+          <span class="foot-seal__name">Make-A-Ton</span>
+          <span class="foot-seal__vol">Vol 9.0 &middot; 2026</span>
+        </p>
+        <p class="foot-barcode">
+          <span class="foot-barcode__bars" aria-hidden="true"></span>
+          <span class="foot-barcode__id">MAT-9.0-ODOO-2026</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="site-footer__bar">
+      <p>&copy; 2026 Make-A-Ton &middot; Powered by Odoo &middot; Built at CUSAT</p>
+    </div>
   </footer>
 </body>
 </html>

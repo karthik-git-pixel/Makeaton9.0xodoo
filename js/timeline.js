@@ -32,6 +32,20 @@
     return safeDialogue.replace(safeHighlight, `<strong class="page__bubble-highlight">${safeHighlight}</strong>`);
   };
 
+  // A chapter with no comic yet gets a typeset panel rather than a broken image
+  const typeset = (num, title) => `<p class="page__panel-fallback"><span>Chapter ${num}</span><b>${esc(title)}</b></p>`;
+  const panel = (c) => `
+    <div class="page__panel-frame">
+      ${c.panel
+        ? `<img class="page__panel-img" src="assets/timeline/${esc(c.panel)}" alt="${esc(c.title)}" data-chapter="${c.num}">`
+        : typeset(c.num, c.title)}
+    </div>
+    ${c.dialogue ? `
+      <div class="page__bubble">
+        <p>${formatDialogue(c.dialogue, c.highlight)}</p>
+      </div>
+    ` : ''}`;
+
   // Spread k (k ≥ 1): left = art for chapter k (back of leaf k-1), right = details (front of leaf k)
   const art = (c, folio) => `
     <div class="page page--left page--art face--back">
@@ -40,21 +54,15 @@
         ${c.badge ? `<p class="page__badge">${esc(c.badge)}</p>` : ''}
       </div>
       <div class="page__panel-wrap">
-        <div class="page__panel-frame">
-          <img class="page__panel-img" src="assets/timeline/${esc(c.panel)}" alt="${esc(c.title)}">
-        </div>
-        ${c.dialogue ? `
-          <div class="page__bubble">
-            <p>${formatDialogue(c.dialogue, c.highlight)}</p>
-          </div>
-        ` : ''}
+        ${panel(c)}
       </div>
       <div class="page__foot">
-        <span class="page__stamp">${esc(c.lead)}</span>
         <p class="page__folio">${folio}</p>
       </div>
     </div>`;
 
+  // The art pages are left pages, which phones drop, so the panel rides along
+  // on the chapter page there instead — see .page__inline-art in timeline.css
   const detail = (c, folio) => `
     <div class="page page--right page--chapter">
       <div class="page__head">
@@ -63,9 +71,9 @@
       </div>
       <h3 class="page__title">${esc(c.title)}</h3>
       <p class="page__activity">${esc(c.activity)}</p>
+      <div class="page__inline-art">${panel(c)}</div>
       <dl class="page__meta">
         <div><dt>Date</dt><dd>${esc(c.date)}</dd></div>
-        <div><dt>In charge</dt><dd class="page__stamp">${esc(c.lead)}</dd></div>
       </dl>
       <p class="page__blurb">${esc(c.blurb)}</p>
       <p class="page__folio">${folio}</p>
@@ -75,17 +83,11 @@
       <p class="page__tag">Make-A-Ton 9.0</p>
       <p class="page__cover-title">The<br>Timeline</p>
       <p class="page__cover-sub">A story in ${chapters.length} chapters</p>
-      <img class="page__cover-shape" src="assets/shapes/ring.svg" alt="">
-      <p class="page__cover-hint">Scroll to open ↓</p>
     </div>`;
   const end = `
     <div class="page page--left page--end face--back">
       <p class="page__cover-title">The end?</p>
       <p class="page__blurb">Not quite. The best chapter is the one you build.</p>
-      <div class="page__mascot-wrap mascot-peeker mascot-peeker--inline" data-mascot-color="green" aria-label="Make-A-Ton Mascot">
-        <div class="mascot-bubble">BUILD WITH US!</div>
-        <img class="page__mascot-img mascot-img" src="assets/mascot/mascot-green-cheer.svg" alt="Make-A-Ton Mascot" width="242" height="325" loading="lazy">
-      </div>
     </div>`;
 
   const leaves = [cover + art(chapters[0], 2)];
@@ -94,7 +96,6 @@
     leaves.push(detail(c, 2 * i + 3) + back);
   });
   const n = leaves.length;
-  const tabLabels = ['Cover', ...chapters.map((c) => c.num), 'End'];
 
   scroller.innerHTML = `
     <div class="book-stage">
@@ -114,13 +115,16 @@
         </div>
         ${leaves.map((html) => `<div class="leaf">${html}</div>`).join('')}
       </div>
-      <div class="book-tabs" role="group" aria-label="Turn to a page of the timeline">
-        ${tabLabels.map((label, i) => {
-          const name = i === 0 ? 'Cover' : i === tabLabels.length - 1 ? 'End' : `Chapter ${label}`;
-          return `<button type="button" data-spread="${i}" aria-label="${name}">${label}</button>`;
-        }).join('')}
-      </div>
     </div>`;
+
+  // A panel file that is missing falls back to the typeset panel, so a chapter
+  // whose comic has not been drawn yet never shows a broken image
+  scroller.querySelectorAll('.page__panel-img').forEach((img) => {
+    img.addEventListener('error', () => {
+      const frame = img.closest('.page__panel-frame');
+      if (frame) frame.innerHTML = typeset(img.dataset.chapter, img.alt);
+    }, { once: true });
+  });
 
   section.classList.add('is-book');
   scroller.hidden = false;
@@ -129,7 +133,6 @@
   window.dispatchEvent(new CustomEvent('timeline-book-ready'));
 
   const leafEls = [...scroller.querySelectorAll('.leaf')];
-  const tabs = [...scroller.querySelectorAll('.book-tabs button')];
   const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
   const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
   const range = () => ({
@@ -137,7 +140,6 @@
     length: scroller.offsetHeight - window.innerHeight,
   });
 
-  let current = -1;
   let queued = false;
   const update = () => {
     queued = false;
@@ -149,11 +151,6 @@
       leaf.style.setProperty('--t', t.toFixed(4));
       leaf.style.zIndex = t === 0 ? n - i : t === 1 ? i + 1 : n + 1;
     });
-    const spread = clamp(Math.round(progress), 0, n);
-    if (spread !== current) {
-      current = spread;
-      tabs.forEach((tab, i) => tab.setAttribute('aria-current', i === spread ? 'step' : 'false'));
-    }
   };
   const requestUpdate = () => {
     if (!queued) {
@@ -164,10 +161,6 @@
 
   window.addEventListener('scroll', requestUpdate, { passive: true });
   window.addEventListener('resize', requestUpdate);
-  tabs.forEach((tab) => tab.addEventListener('click', () => {
-    const { top, length } = range();
-    window.scrollTo({ top: top + (length * Number(tab.dataset.spread)) / n, behavior: 'smooth' });
-  }));
   update();
 
   // Switching on reduced motion mid-visit drops back to the static cards

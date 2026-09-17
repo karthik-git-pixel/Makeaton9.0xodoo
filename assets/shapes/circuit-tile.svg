@@ -10,15 +10,23 @@
   </g>
 </defs>
 <g fill="none" stroke="#FCC230" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Center / corner instances -->
-  <use href="#glyph" x="-206.32" y="-216.82"/>
-  <use href="#glyph" x="206.32" y="-216.82"/>
+  <!-- Half-drop lattice. Four rows per tile, 216.825 apart (867.30 / 4), each
+       row offset half a tile width from the last, so the grid is even in both
+       directions and closes on itself when the tile repeats. The glyph art is
+       192 wide and sits 194 from each use origin. -->
+
+  <!-- Row 1 · 194.000 -->
   <use href="#glyph" x="0" y="0"/>
-  <use href="#glyph" x="412.65" y="0"/>
-  <use href="#glyph" x="0" y="867.30"/>
-  <use href="#glyph" x="412.65" y="867.30"/>
-  <use href="#glyph" x="206.32" y="433.65"/>
-  <use href="#glyph" x="-206.32" y="433.65"/>
-  <use href="#glyph" x="618.97" y="433.65"/>
+  <!-- Row 2 · 410.825, dropped half a width; the pair are each other's wrap -->
+  <use href="#glyph" x="-206.325" y="216.825"/>
+  <use href="#glyph" x="206.325" y="216.825"/>
+  <!-- Row 3 · 627.650 -->
+  <use href="#glyph" x="0" y="433.650"/>
+  <!-- Row 4 · 844.475, which the bottom edge cuts -->
+  <use href="#glyph" x="-206.325" y="650.475"/>
+  <use href="#glyph" x="206.325" y="650.475"/>
+  <!-- and the same row again above the tile, so the two halves meet -->
+  <use href="#glyph" x="-206.325" y="-216.825"/>
+  <use href="#glyph" x="206.325" y="-216.825"/>
 </g>
 </svg>
