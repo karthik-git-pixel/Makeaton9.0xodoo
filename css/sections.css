@@ -203,13 +203,13 @@
   line-height: 1.35;
   text-wrap: pretty;
 }
+/* The closing line is set off by a rule rather than a panel */
 .odoo__tie-in {
-  padding: 0.9em 1.1em;
-  font-size: 0.95em;
+  padding-top: clamp(14px, 1.8vw, 22px);
+  font-size: clamp(1.05rem, 0.98rem + 0.35vw, 1.2rem);
+  line-height: 1.5;
   color: var(--ink);
-  background: var(--tape);
-  border: var(--line) solid var(--ink);
-  border-radius: 14px;
+  border-top: 3px dashed rgba(12, 14, 15, 0.28);
 }
 .odoo__tie-in b { color: var(--red); }
 
@@ -222,23 +222,25 @@
    patterns the other light sections use, so it reads as its own band */
 .section--hack {
   --pattern-color: #FBE9B0;
+  padding-block: clamp(32px, 3.4vw, 50px) clamp(36px, 3.8vw, 56px);
   color: var(--ink);
   background: var(--paper);
 }
 .hack__card {
   display: grid;
-  gap: clamp(12px, 1.5vw, 18px);
-  padding: clamp(22px, 2.8vw, 36px);
+  gap: clamp(9px, 1.1vw, 14px);
+  padding: clamp(18px, 2.2vw, 28px);
   color: var(--ink);
   background: var(--white);
   border: var(--line) solid var(--ink);
   box-shadow: 8px 8px 0 var(--ink);
 }
+.hack__card .odoo__lead { font-size: clamp(1.05rem, 0.98rem + 0.4vw, 1.3rem); }
 .hack__hook {
   justify-self: start;
-  padding: 0.4em 0.9em;
+  padding: 0.35em 0.8em;
   font-family: var(--font-tape);
-  font-size: clamp(1.1rem, 0.95rem + 0.8vw, 1.7rem);
+  font-size: clamp(0.95rem, 0.86rem + 0.55vw, 1.35rem);
   line-height: 1.1;
   text-transform: uppercase;
   color: var(--ink);
@@ -247,37 +249,39 @@
   box-shadow: 0 4px 0 var(--tape-shadow);
   rotate: -1.5deg;
 }
+/* The three firsts run inline and wrap, rather than taking three tall lines */
 .hack__firsts {
-  display: grid;
-  gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px clamp(14px, 1.8vw, 26px);
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 1.2rem + 2vw, 2.6rem);
-  line-height: 1.05;
+  font-size: clamp(1.15rem, 0.95rem + 1vw, 1.75rem);
+  line-height: 1.15;
   text-transform: uppercase;
 }
-.hack__firsts li { display: flex; align-items: baseline; gap: 0.4em; }
+.hack__firsts li { display: flex; align-items: baseline; gap: 0.35em; }
 .hack__firsts li::before { content: "▸"; font-size: 0.6em; color: var(--red); }
 .hack__maybe {
   font-family: var(--font-tape);
-  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.3rem);
+  font-size: clamp(0.92rem, 0.86rem + 0.35vw, 1.15rem);
   color: var(--red);
 }
 .hack__facts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
-  gap: 12px;
-  margin-top: 4px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  gap: 10px;
+  margin-top: 2px;
 }
 .hack__facts div {
-  padding: 10px 14px;
+  padding: 8px 12px;
   color: var(--ink);
   background: var(--tape);
   border: var(--line) solid var(--ink);
-  border-radius: 14px;
+  border-radius: 12px;
 }
 .hack__facts dt {
   font-family: var(--font-tape);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--red);
@@ -285,7 +289,14 @@
 .hack__facts dd { margin: 0; font-weight: 700; }
 
 /* Prizes · warm paper canvas ------------------------------------------------ */
-.section--prizes { --pattern-color: #F0E2CE; background: var(--paper); }
+/* Medal tones, so the podium matches the badges it already carries */
+.section--prizes {
+  --pattern-color: #F0E2CE;
+  --gold-medal: #FCC230;
+  --silver-medal: #D8DFE6;
+  --bronze-medal: #DE9553;
+  background: var(--paper);
+}
 .prizes-hiring {
   max-width: 44ch;
   margin: clamp(22px, 2.6vw, 32px) auto 0;
@@ -395,10 +406,7 @@
   box-shadow: 2px 2px 0 var(--ink);
 }
 
-.prize__badge--first {
-  background: var(--tape);
-  font-weight: 700;
-}
+.prize__badge--first { font-weight: 700; }
 
 .prize__amount-wrap {
   display: flex;
@@ -481,7 +489,7 @@
 .prize--first {
   grid-area: first;
   min-height: clamp(330px, 35vw, 430px);
-  background: var(--yellow);
+  background: var(--gold-medal);
   z-index: 10;
   transform-origin: center center;
 }
@@ -489,14 +497,14 @@
 .prize--second {
   grid-area: second;
   min-height: clamp(280px, 30vw, 370px);
-  background: var(--purple);
+  background: var(--silver-medal);
   transform-origin: bottom right;
 }
 
 .prize--third {
   grid-area: third;
   min-height: clamp(280px, 30vw, 370px);
-  background: var(--pink);
+  background: var(--bronze-medal);
   transform-origin: bottom left;
 }
 
@@ -678,6 +686,26 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .foot-mail:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+
+/* Social marks. Placeholders are spans, so nothing looks clickable until a
+   real href is in place; the hover below only applies once they are links. */
+.foot-social { display: flex; gap: 10px; margin-top: 12px; }
+.foot-social__link {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  aspect-ratio: 1;
+  color: var(--ink);
+  background: var(--white);
+  border: var(--line) solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.foot-social__link svg { width: 17px; height: 17px; fill: currentColor; }
+a.foot-social__link { text-decoration: none; }
+a.foot-social__link:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+a.foot-social__link:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
 .foot-mail:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
 
 /* Venue card */
@@ -822,6 +850,8 @@
   .foot-kicker { font-size: 0.62rem; letter-spacing: 0.18em; }
   .foot-logo { width: min(170px, 44vw); margin-block: 8px 8px; }
   .foot-tagline { max-width: 30ch; font-size: 0.82rem; line-height: 1.35; }
+  .foot-social { gap: 8px; margin-top: 10px; }
+  .foot-social__link { width: 34px; box-shadow: 2px 2px 0 var(--ink); }
   .foot-mail { margin-top: 10px; padding: 0.42em 0.85em; font-size: 0.74rem; box-shadow: 3px 3px 0 var(--ink); }
 
   .foot-card {
@@ -854,5 +884,8 @@
   }
 }
 @media (max-width: 380px) {
-  .foot-marks { grid-auto-flow: row; }
+  .foot-seal { width: 84px; height: 84px; }
+  .foot-seal__name { font-size: 0.85rem; }
+  .foot-barcode { width: 108px; }
+  .foot-marks { gap: 10px; }
 }
