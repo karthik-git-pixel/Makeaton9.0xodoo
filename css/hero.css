@@ -917,7 +917,7 @@
   }
 
   .hero-bar__links { display: none; }
-  .hero-bar__cta { margin-left: auto; }
+  .hero-bar__cta { display: none; }
 
   .hero-main {
     align-items: center;
