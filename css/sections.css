@@ -288,14 +288,12 @@
 }
 .hack__facts dd { margin: 0; font-weight: 700; }
 
-/* Prizes · warm paper canvas ------------------------------------------------ */
+/* Prizes · red sunburst ---------------------------------------------------- */
 /* Medal tones, so the podium matches the badges it already carries */
 .section--prizes {
-  --pattern-color: #F0E2CE;
   --gold-medal: #FCC230;
   --silver-medal: #D8DFE6;
   --bronze-medal: #DE9553;
-  background: var(--paper);
 }
 .prizes-hiring {
   max-width: 44ch;
@@ -348,8 +346,8 @@
   font-family: var(--font-tape);
   font-size: clamp(0.95rem, 0.85rem + 0.35vw, 1.2rem);
   text-transform: uppercase;
-  color: var(--ink);
-  opacity: 0.8;
+  color: var(--white);
+  text-shadow: 2px 2px 0 var(--ink);
   letter-spacing: 0.03em;
 }
 
@@ -489,23 +487,52 @@
 .prize--first {
   grid-area: first;
   min-height: clamp(330px, 35vw, 430px);
-  background: var(--gold-medal);
+  background: linear-gradient(145deg, #FFE870 0%, #FCC230 45%, #F0AE0E 100%);
   z-index: 10;
   transform-origin: center center;
+}
+
+.prize--first .prize__badge {
+  background: var(--ink);
+  color: var(--tape);
+  border: 2px solid var(--ink);
 }
 
 .prize--second {
   grid-area: second;
   min-height: clamp(280px, 30vw, 370px);
-  background: var(--silver-medal);
+  background: linear-gradient(145deg, #FFFFFF 0%, #E5EFF9 45%, #C7D9EE 100%);
   transform-origin: bottom right;
+}
+
+.prize--second .prize__badge {
+  background: var(--white);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+}
+
+.prize--second .prize__label,
+.prize--second .prize__amount-label {
+  color: var(--ink);
 }
 
 .prize--third {
   grid-area: third;
   min-height: clamp(280px, 30vw, 370px);
-  background: var(--bronze-medal);
+  background: linear-gradient(145deg, #FFAF76 0%, #EA7C3A 45%, #D25E1A 100%);
   transform-origin: bottom left;
+}
+
+.prize--third .prize__badge {
+  background: var(--white);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+}
+
+.prize--third .prize__label,
+.prize--third .prize__amount-label {
+  color: var(--white);
+  text-shadow: 2px 2px 0 var(--ink);
 }
 
 /* Staggered entrance transition delays */
@@ -589,8 +616,8 @@
   }
 }
 
-/* FAQ · blue + cream asterisks --------------------------------------------- */
-.section--faq { --pattern-color: #EAD6BD; background: var(--cream); }
+/* FAQ · blue + darker tone-on-tone blue asterisks -------------------------- */
+.section--faq { --pattern-color: #2365E8; background: var(--blue); }
 .faq { display: grid; gap: 18px; }
 .faq__item {
   background: var(--white);

@@ -249,6 +249,12 @@ a { color: inherit; }
 .pattern--squiggle { --pattern-img: var(--squiggle-tile); --pattern-size: max(150px, 13.73vw); }
 .pattern--asterisk { --pattern-img: var(--asterisk-tile); --pattern-size: max(240px, 24vw); }
 
+.sunburst {
+  background: repeating-conic-gradient(from 0deg at 50% 42%, var(--ray-a) 0deg 7.5deg, var(--ray-b) 7.5deg 15deg);
+}
+.sunburst--yellow { --ray-a: var(--gold); --ray-b: #FFE55C; }
+.sunburst--red { --ray-a: var(--red); --ray-b: #F8683F; }
+
 
 /* Stickers (traced shapes from the insois sheet) ---------------------------- */
 .sticker {

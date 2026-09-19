@@ -382,24 +382,54 @@
 .page__logo { width: 82%; }
 
 /* Contents page */
-.book .page--contents .page__title { margin-bottom: 0.2em; font-size: 3.4em; }
-.book .page--contents .page__kicker,
+.book .page--contents {
+  padding: 1.4em 1.6em 1.1em;
+  gap: 0.35em;
+}
+.book .page--contents .page__kicker {
+  align-self: center;
+  font-size: 0.7em;
+  padding: 0.25em 0.75em;
+}
 .book .page--contents .page__title {
   align-self: center;
   text-align: center;
+  margin-bottom: 0.1em;
+  font-size: 2.5em;
+  line-height: 0.9;
 }
-.page__toc { display: grid; gap: 0.2em; }
+.page__toc {
+  display: grid;
+  gap: 0.1em;
+}
 .page__toc li {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: baseline;
-  gap: 0.6em;
-  padding: 0.5em 0.2em;
-  border-bottom: 2px dashed rgba(12, 14, 15, 0.3);
+  gap: 0.5em;
+  padding: 0.28em 0.15em;
+  border-bottom: 1.5px dashed rgba(12, 14, 15, 0.3);
 }
-.page__toc span:first-child { font-family: var(--font-display); font-size: 1.5em; line-height: 1; }
-.page__toc span:nth-child(2) { font-weight: 700; line-height: 1.2; }
-.page__toc span:last-child { font-family: var(--font-tape); font-size: 0.8em; text-transform: uppercase; white-space: nowrap; }
+.page__toc span:first-child {
+  font-family: var(--font-display);
+  font-size: 1.25em;
+  line-height: 1;
+}
+.page__toc span:nth-child(2) {
+  font-weight: 700;
+  font-size: 0.88em;
+  line-height: 1.15;
+}
+.page__toc span:last-child {
+  font-family: var(--font-tape);
+  font-size: 0.72em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.book .page--contents .page__folio {
+  margin-top: auto;
+  font-size: 0.75em;
+}
 
 /* Phones: a single page that flips away to the left, comic panel stacked above
    the chapter text because the facing art page is not rendered here */
