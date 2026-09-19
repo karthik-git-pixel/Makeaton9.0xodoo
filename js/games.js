@@ -1067,30 +1067,34 @@
     }
 
     function holeBack(g, h) {
+      // Drop shadow — only the bottom half so it never floats above the hole rim
       g.fillStyle = C.greenDeep;
       g.beginPath();
-      g.ellipse(h.x + 4, h.y + 8, RX + 12, RY + 9, 0, 0, Math.PI * 2);
+      g.ellipse(h.x + 4, h.y + 8, RX + 12, RY + 9, 0, 0, Math.PI);
       g.fill();
+      // Dark hole interior — bottom half only so it stays below the mascot
       g.fillStyle = C.ink;
       g.beginPath();
-      g.ellipse(h.x, h.y, RX, RY, 0, 0, Math.PI * 2);
+      g.ellipse(h.x, h.y, RX, RY, 0, 0, Math.PI);
       g.fill();
       g.fillStyle = '#1D2A24';
       g.beginPath();
-      g.ellipse(h.x, h.y + 3, RX - 9, RY - 5, 0, 0, Math.PI * 2);
+      g.ellipse(h.x, h.y + 3, RX - 9, RY - 5, 0, 0, Math.PI);
       g.fill();
     }
 
     // The near lip of the hole, drawn over whatever is climbing out of it
     function holeFront(g, h) {
+      // Fill the bottom semicircle (near lip) over the mascot
       g.fillStyle = C.ink;
       g.beginPath();
       g.ellipse(h.x, h.y, RX, RY, 0, 0, Math.PI);
       g.fill();
+      // Stroke only the bottom half of the rim — keeps the ring from appearing over the mascot
       g.strokeStyle = C.ink;
       g.lineWidth = 3;
       g.beginPath();
-      g.ellipse(h.x, h.y, RX + 1, RY + 1, 0, 0, Math.PI * 2);
+      g.ellipse(h.x, h.y, RX + 1, RY + 1, 0, 0, Math.PI);
       g.stroke();
       g.strokeStyle = 'rgba(255, 255, 255, 0.35)';
       g.lineWidth = 3;
