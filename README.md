@@ -16,11 +16,12 @@ Built with a bespoke **Pop-Art / Comic Book** visual identity:
 
 ## 🚀 Key Sections & Features
 
-1. **Hero Canvas** (`#top`):
-   - Dense, continuous SVG star grid pattern overlay with zero void gaps.
-   - Dual angled caution tape marquees (Top `-2.00°` scrolling left, Bottom `+2.00°` scrolling right).
-   - Interactive 3D pointer tilt physics tracking cursor movement across the hero logo.
-   - Floating pop-art "Explore" action badge.
+1. **Hero** (`#top`):
+   - Comic-page grid: a red sunburst title panel (wordmark, tagline, Register CTA), a blue art panel, and a fact strip.
+   - Art panel: a retro CRT whose terminal types itself (`idea.exe` → `opportunity.exe`), a sticky note, a burst sticker, a steaming mug and the interactive red mascot, all drifting with the pointer (parallax).
+   - Fact strip: date and venue, a registration countdown that counts to opening day and then to the deadline, and the ₹1,05,000 prize pool.
+   - Caution tape marquee along the bottom. On phones the panels stack: title and CTA, countdown, facts, then the art.
+   - Register buttons open `data-register-url` in a new tab once it is filled in.
 
 2. **About Make-A-Ton & CITTIC** (`#about`):
    - Dual split-panel layout (Yellow Make-A-Ton half + Cream CITTIC half) linked by custom dashed rules.
@@ -62,11 +63,11 @@ final-makeaton/
 ├── index.html              # Main website entry point
 ├── css/
 │   ├── base.css            # Design tokens, reset, typography, cards, peeker mascots
-│   ├── hero.css            # Hero canvas, marquee marquees, 3D tilt styles
+│   ├── hero.css            # Hero comic-page grid, terminal art, countdown, marquee
 │   ├── sections.css        # About, Odoo, Prizes, FAQ, Footer styles
 │   └── timeline.css        # Interactive storybook timeline styles
 ├── js/
-│   ├── main.js             # Nav observer, 3D tilt, marquees, prize count-up, mascot animations
+│   ├── main.js             # Nav observer, hero parallax & terminal, countdown, marquees, prize count-up, mascots
 │   └── timeline.js         # Interactive book flip logic, chapter tabs & controls
 ├── assets/
 │   ├── favicon.svg         # Favicon icon

@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Make-A-Ton 9.0 · Odoo x Make-A-Ton Kochi Hackathon</title>
   <meta name="description" content="Make-A-Ton 9.0 by CITTIC, CUSAT with Odoo: South India's largest hiring hackathon. An 8-hour virtual round, HackForCUSAT on 18 December and a 24-hour final in Kochi, with ₹1,05,000 in prizes. Registrations open 21 September 2026.">
-  <meta name="theme-color" content="#FFE23A">
+  <meta name="theme-color" content="#E4391D">
   <meta property="og:title" content="Make-A-Ton 9.0">
   <meta property="og:description" content="Odoo x Make-A-Ton 9.0, South India's largest hiring hackathon at CUSAT, Kochi. Registrations open 21 September 2026.">
   <link rel="icon" href="assets/matbrain.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;700&family=Titan+One&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@700&family=Titan+One&display=swap">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/hero.css">
   <link rel="stylesheet" href="css/sections.css">
@@ -38,85 +38,153 @@
   </header>
 
   <main id="main">
-    <!-- HERO · circuit board that lights up under the pointer (js/main.js) -->
-    <section class="hero viewport-stage" id="top" aria-label="Make-A-Ton 9.0" data-hero>
-      <h1 class="sr-only">Make-A-Ton 9.0: Odoo x Make-A-Ton Kochi Hackathon by CITTIC, CUSAT</h1>
+    <!-- HERO · a comic page: title panel, art panel, and a strip of facts.
+         js/main.js runs the countdown, the terminal and the pointer parallax. -->
+    <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
+      <div class="hero__page">
 
-      <!-- The board: traces sit dim, a slow sweep keeps them alive where there is
-           no pointer, and the lit layer is revealed around the cursor. -->
-      <div class="hero-board" aria-hidden="true">
-        <span class="hero-board__traces"></span>
-        <span class="hero-board__scan"></span>
-        <span class="hero-board__glow"></span>
-        <span class="hero-board__live"></span>
-      </div>
+        <header class="hero-bar">
+          <a class="hero-bar__brand" href="#top" aria-label="Odoo x Make-A-Ton 9.0, back to top">
+            <span class="hero-bar__partner">Odoo</span>
+            <span class="hero-bar__x" aria-hidden="true">&times;</span>
+            <span class="hero-bar__name">Make-A-Ton 9.0</span>
+          </a>
+          <nav class="hero-bar__links" aria-label="Sections">
+            <a href="#about">About</a>
+            <a href="#timeline">Timeline</a>
+            <a href="#prizes">Prizes</a>
+            <a href="#faq">FAQ</a>
+          </nav>
+          <!-- TODO: put the registration URL in data-register-url once it exists -->
+          <button class="hero-bar__cta" type="button" data-register-url="">
+            Register
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </button>
+        </header>
 
+        <!-- Title panel -->
+        <div class="hero-panel hero-main">
+          <span class="hero-main__rays" aria-hidden="true"></span>
 
-      <!-- Caution tape tickers. Each track holds the run twice so the -50% loop
-           is seamless; the second half is hidden from screen readers. -->
-      <aside class="caution-tape caution-tape--top" role="presentation">
-        <div class="marquee-wrapper">
-          <div class="marquee-track" data-tape-track>
-            <span class="marquee-run"><span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span><span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span><span class="tape-text">South India&rsquo;s Largest Hiring Hackathon <span class="diamond-separator">&#10022;</span></span></span>
-            <span class="marquee-run" aria-hidden="true"><span class="tape-text">Make-A-Ton <span class="tape-x">&#215;</span> Odoo <span class="diamond-separator">&#10022;</span></span><span class="tape-text">9th Edition <span class="diamond-separator">&#10022;</span></span><span class="tape-text">South India&rsquo;s Largest Hiring Hackathon <span class="diamond-separator">&#10022;</span></span></span>
+          <p class="hero-kicker">
+            <span class="hero-kicker__ed">9th edition</span>
+            <span>CITTIC, CUSAT &times; Odoo</span>
+          </p>
+
+          <h1 class="hero-title" id="hero-title">
+            <img class="hero-logo" src="assets/mat9logo.png" alt="Make-A-Ton 9.0" width="1958" height="689" fetchpriority="high">
+          </h1>
+
+          <p class="hero-tagline">South India&rsquo;s largest<br> <mark>hiring</mark> hackathon</p>
+
+          <p class="hero-sub">Build. Get noticed. Get the opportunity.</p>
+
+          <div class="hero-actions">
+            <!-- TODO: put the registration URL in data-register-url once it exists -->
+            <button class="hero-cta" type="button" data-register-url="">
+              <span class="hero-cta__label">Register now</span>
+              <svg class="hero-cta__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+            </button>
+            <a class="hero-link" href="#timeline">See the timeline</a>
           </div>
         </div>
-      </aside>
 
-      <div class="hero-stage">
-        <div class="hero-mark" data-hero-tilt>
-          <img
-            src="assets/mat9logo.png"
-            alt="Make-A-Ton 9.0"
-            class="hero-logo"
-            width="1958"
-            height="689"
-            fetchpriority="high"
-          />
+        <!-- Art panel: decorative, except the mascot, which reacts like the others on the page -->
+        <div class="hero-panel hero-art">
+          <div class="hero-art__stage">
+            <span class="hero-spark hero-spark--a" aria-hidden="true"></span>
+            <span class="hero-spark hero-spark--b" aria-hidden="true"></span>
+            <span class="hero-spark hero-spark--c" aria-hidden="true"></span>
+
+            <div class="crt" aria-hidden="true">
+              <div class="crt__body">
+                <div class="crt__screen">
+                  <ol class="crt__lines" data-terminal>
+                    <li>idea.exe</li>
+                    <li>build.exe --24h</li>
+                    <li>debug.exe</li>
+                    <li>demo.exe</li>
+                    <li>opportunity.exe</li>
+                    <li class="crt__out">&#10003; see you in Kochi</li>
+                  </ol>
+                </div>
+                <div class="crt__chin">
+                  <span class="crt__label">MAT-9000</span>
+                  <span class="crt__vents"></span>
+                  <span class="crt__led"></span>
+                </div>
+              </div>
+              <div class="crt__neck"></div>
+              <div class="crt__base"></div>
+            </div>
+
+            <div class="hero-sticky" aria-hidden="true">
+              <span class="hero-sticky__tape"></span>
+              <p>From campus <br>to <u>opportunity.</u></p>
+            </div>
+
+            <div class="hero-burst" aria-hidden="true">
+              <svg viewBox="0 0 200 200"><path d="M100 4l15 35 35-22-6 40 40 3-30 27 30 27-40 3 6 40-35-22-15 35-15-35-35 22 6-40-40-3 30-27-30-27 40-3-6-40 35 22z"/></svg>
+              <span>Ship<br>it!</span>
+            </div>
+
+            <div class="hero-mug" aria-hidden="true">
+              <svg class="hero-mug__steam" viewBox="0 0 30 34"><path d="M9 32c-5-6 5-9 0-15s4-9 1-15M21 32c-5-6 5-9 0-15s4-9 1-15"/></svg>
+              <span class="hero-mug__cup">&lt;/&gt;</span>
+            </div>
+
+            <div class="mascot-corner mascot-corner--hero">
+              <span class="mascot-bubble">Let&rsquo;s hack!</span>
+              <img class="mascot-img" src="assets/mascot/mascot-red-cheer.svg" alt="" width="242" height="325">
+            </div>
+          </div>
         </div>
 
-        <p class="hero-tagline">South India&rsquo;s largest hiring hackathon</p>
+        <!-- Fact strip -->
+        <div class="hero-strip">
+          <div class="hero-panel hero-when">
+            <p class="hero-fact">
+              <span class="hero-fact__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></svg>
+              </span>
+              <span class="hero-fact__text"><time datetime="2026-12-19">19&ndash;20 Dec</time><small>2026 &middot; 24-hr final</small></span>
+            </p>
+            <p class="hero-fact">
+              <span class="hero-fact__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+              </span>
+              <span class="hero-fact__text">CUSAT<small>Kochi, Kerala</small></span>
+            </p>
+          </div>
 
-        <p class="hero-facts">
-          <span class="hero-facts__item">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>
-            </svg>
-            <time datetime="2026-12-19">19&ndash;20 Dec 2026</time>
-          </span>
-          <span class="hero-facts__item">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/>
-            </svg>
-            CUSAT, Kochi
-          </span>
-        </p>
+          <!-- Registration countdown. Times are IST. Before data-countdown-open it counts
+               down to the opening, then to the deadline; js/main.js fills the digits. -->
+          <div class="hero-panel hero-count countdown" data-countdown-open="2026-09-21T00:00:00+05:30" data-countdown-deadline="2026-10-25T23:59:59+05:30">
+            <p class="countdown__label">Registration closes in</p>
+            <ol class="countdown__units" aria-hidden="true">
+              <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="days">--</b><span class="countdown__name">Days</span></li>
+              <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="hours">--</b><span class="countdown__name">Hrs</span></li>
+              <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="minutes">--</b><span class="countdown__name">Min</span></li>
+              <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="seconds">--</b><span class="countdown__name">Sec</span></li>
+            </ol>
+            <p class="countdown__deadline">Open <time datetime="2026-09-21">21 Sep</time> &ndash; <time datetime="2026-10-25">25 Oct 2026</time></p>
+          </div>
 
-        <!-- Registration deadline countdown. The deadline is IST; js/main.js fills the digits. -->
-        <div class="countdown" data-countdown-deadline="2026-10-25T23:59:59+05:30">
-          <p class="countdown__label">Registration closes in</p>
-          <ol class="countdown__units" aria-hidden="true">
-            <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="days">--</b><span class="countdown__name">Days</span></li>
-            <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="hours">--</b><span class="countdown__name">Hrs</span></li>
-            <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="minutes">--</b><span class="countdown__name">Min</span></li>
-            <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="seconds">--</b><span class="countdown__name">Sec</span></li>
-          </ol>
-          <p class="countdown__deadline">Deadline <time datetime="2026-10-25">25 October 2026</time></p>
+          <a class="hero-panel hero-prize" href="#prizes">
+            <span class="hero-prize__label">Prize pool</span>
+            <span class="hero-prize__amount">&#8377;1,05,000</span>
+            <span class="hero-prize__note">+ top performers considered for hiring at Odoo</span>
+          </a>
         </div>
-
-        <!-- TODO: put the registration URL in data-register-url (or swap back to an
-             <a href>) once it exists. -->
-        <button class="hero-cta" type="button" data-register-url="">
-          <span class="hero-cta__label">Register</span>
-          <span class="hero-cta__arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span>
-        </button>
       </div>
 
-      <aside class="caution-tape caution-tape--bottom" role="presentation">
+      <!-- Caution tape ticker. The track holds the run twice so the -50% loop is
+           seamless; the second half is hidden from screen readers. -->
+      <aside class="caution-tape" role="presentation">
         <div class="marquee-wrapper">
           <div class="marquee-track" data-tape-track>
-            <span class="marquee-run"><span class="tape-text">19&ndash;20 December 2026 <span class="diamond-separator">&#10022;</span></span><span class="tape-text">CUSAT, Kochi <span class="diamond-separator">&#10022;</span></span><span class="tape-text">&#8377;1,05,000 in Prizes <span class="diamond-separator">&#10022;</span></span></span>
-            <span class="marquee-run" aria-hidden="true"><span class="tape-text">19&ndash;20 December 2026 <span class="diamond-separator">&#10022;</span></span><span class="tape-text">CUSAT, Kochi <span class="diamond-separator">&#10022;</span></span><span class="tape-text">&#8377;1,05,000 in Prizes <span class="diamond-separator">&#10022;</span></span></span>
+            <span class="marquee-run"><span class="tape-text">Registrations 21 Sep &ndash; 25 Oct <span class="diamond-separator">&#10022;</span></span><span class="tape-text">8-hr virtual round <span class="diamond-separator">&#10022;</span></span><span class="tape-text">24-hr final at CUSAT, Kochi <span class="diamond-separator">&#10022;</span></span><span class="tape-text">&#8377;1,05,000 in prizes <span class="diamond-separator">&#10022;</span></span></span>
+            <span class="marquee-run" aria-hidden="true"><span class="tape-text">Registrations 21 Sep &ndash; 25 Oct <span class="diamond-separator">&#10022;</span></span><span class="tape-text">8-hr virtual round <span class="diamond-separator">&#10022;</span></span><span class="tape-text">24-hr final at CUSAT, Kochi <span class="diamond-separator">&#10022;</span></span><span class="tape-text">&#8377;1,05,000 in prizes <span class="diamond-separator">&#10022;</span></span></span>
           </div>
         </div>
       </aside>
