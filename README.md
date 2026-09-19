@@ -24,13 +24,12 @@ Built with a bespoke **Pop-Art / Comic Book** visual identity:
    - Register buttons open `data-register-url` in a new tab once it is filled in.
 
 2. **About Make-A-Ton & CITTIC** (`#about`):
-   - Dual split-panel layout (Yellow Make-A-Ton half + Cream CITTIC half) linked by custom dashed rules.
-   - Interactive pop-out sticker badges ("9th edition", "24 hr final", "CUSAT Kochi").
+   - Blue halftone ground (continuing the hero's dot texture) with two ink-bordered comic panels: yellow Make-A-Ton and paper CITTIC, headings aligned on a shared dashed rule.
+   - The green mascot peeks out of the CITTIC panel's corner.
 
-3. **About Odoo Hackathon** (`#odoo`):
-   - Vibrant `#437AEC` blue canvas with `#FCC230` repeating yellow comic asterisk pattern (from Figma design `26:2`).
-   - High-contrast white paper story card with wavy scribble highlights and Odoo hiring tie-in.
-   - 3D badge burst with continuous spinning asterisk and "3,000+ Students" stat counter.
+3. **About Odoo Hackathon** (`#odoo`) and **HackForCUSAT** (`#hackforcusat`):
+   - Odoo sits on purple (Odoo's own colour) with tone-on-tone squiggles; HackForCUSAT on the mascot green with tone-on-tone asterisks.
+   - Paper story cards with hard ink shadows; yellow caution tapes stitch each section boundary.
 
 4. **Interactive Storybook Timeline** (`#timeline`):
    - Scroll-driven 5-chapter interactive comic book interface.
@@ -46,6 +45,12 @@ Built with a bespoke **Pop-Art / Comic Book** visual identity:
    - **25% Peeking Placement**: Mascots peek in from section edges and corners (~25% concealed outside boundaries), springing fully into frame on hover.
    - **Rapid Expression Flipbook**: Hovering any mascot triggers rapid stop-motion cycling through all expressions; clicking triggers a cartoon burst, randomized comic quip ("POW!", "100K+ BAG!", "FAST-TRACK!"), and Red/Green color toggle.
    - **Subtle Idle Double-Take**: Background idle loop triggers occasional winks/double-takes across on-screen mascots.
+
+6b. **Mascot Arcade** (easter egg):
+   - Tap any mascot to open it. `js/games.js` and `css/games.css` load on first open only.
+   - **Flap-a-Ton**: a hand-drawn winged star flaps through caution-tape pillars (tap, click or Space).
+   - **Whack-a-Ton**: 30 seconds of tapping mascots as they pop up (cool ones +3, bombs −3, keys 1–9 work too).
+   - Play as red or green; best scores stay in the browser (`localStorage`); synth sound effects with a mute toggle.
 
 7. **Frequently Asked Questions** (`#faq`):
    - Accessible interactive accordion items with expandable answers.

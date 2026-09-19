@@ -76,40 +76,37 @@
   .site-nav__cta { margin-top: 6px; }
 }
 
-/* About Make-A-Ton + CITTIC · yellow and cream halves joined by a dashed rule */
+/* About Make-A-Ton + CITTIC · two comic panels on the hero's halftone blue */
 .section--about {
-  --seam: clamp(28px, 4vw, 64px);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  padding-block: 0;
+  gap: 0 clamp(18px, 2.4vw, 32px);
+  padding-inline: max(var(--gutter), calc((100% - var(--max)) / 2));
+  background-color: var(--blue);
+  background-image: radial-gradient(rgba(12, 14, 15, 0.16) 1.3px, transparent 1.7px);
+  background-size: 10px 10px;
+  border-top: var(--line) solid var(--ink);
 }
-/* Rows are shared (subgrid) so both headings sit on the same dashed rule */
+/* Rows are shared (subgrid) so both headings sit on the same line */
 .about-panel {
   position: relative;
-  isolation: isolate;
   display: grid;
   grid-row: span 2;
   grid-template-rows: subgrid;
-  padding-block: clamp(44px, 4.5vw, 64px) clamp(52px, 5.5vw, 76px);
+  padding: clamp(24px, 3vw, 40px);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
-/* Percentage padding on a grid item resolves against its column, which lines the text up with .section__inner */
-.about-panel--mat {
-  --pattern-color: #F4B41F;
-  padding-inline: max(var(--gutter), calc(100% - var(--max) / 2)) var(--seam);
-  background: var(--yellow);
-}
-.about-panel--cittic {
-  --pattern-color: #EAD6BD;
-  padding-inline: var(--seam) max(var(--gutter), calc(100% - var(--max) / 2));
-  background: var(--cream);
-}
+.about-panel--mat { background: var(--tape); }
+.about-panel--cittic { background: var(--paper); }
 .about-panel__head {
   position: relative;
   display: grid;
   align-content: end;
   justify-items: start;
   gap: 16px;
-  padding-bottom: clamp(20px, 2.4vw, 30px);
+  padding-bottom: clamp(18px, 2vw, 26px);
 }
 .about-panel__head::after {
   content: "";
@@ -118,19 +115,17 @@
   height: 4px;
   background: linear-gradient(90deg, var(--ink) 0 60%, transparent 0) 0 0 / 24px 100% repeat-x;
 }
-/* Each half of the rule runs to the seam; the dashes are anchored there so they meet cleanly */
-.about-panel--mat .about-panel__head::after { right: calc(-1 * var(--seam)); background-position: right 0; }
-.about-panel--cittic .about-panel__head::after { left: calc(-1 * var(--seam)); }
-.about-panel--cittic .about-panel__head::before {
+/* A pink star pinned to the end of the rule */
+.about-panel__head::before {
   content: "";
   position: absolute;
   bottom: 2px;
-  left: calc(-1 * var(--seam));
+  right: 0;
   z-index: 1;
-  width: clamp(40px, 3.6vw, 56px);
+  width: clamp(34px, 3vw, 46px);
   aspect-ratio: 1;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-5 -5 116 116'%3E%3Cdefs%3E%3Cpath id='s' d='M50 0C57 30 70 43 100 50C70 57 57 70 50 100C43 70 30 57 0 50C30 43 43 30 50 0Z'/%3E%3C/defs%3E%3Cg stroke='%230C0E0F' stroke-width='5' stroke-linejoin='round'%3E%3Cuse href='%23s' x='6' y='6' fill='%230C0E0F'/%3E%3Cuse href='%23s' fill='%23FA5C94'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
-  translate: -50% 50%;
+  translate: 0 50%;
 }
 .about-panel__body {
   padding-top: clamp(16px, 1.8vw, 24px);
@@ -159,18 +154,20 @@
 .sticker--pillow { width: clamp(120px, 12vw, 170px); aspect-ratio: 328 / 332; rotate: -5deg; }
 
 @media (max-width: 860px) {
-  .section--about { grid-template-columns: minmax(0, 1fr); }
-  .about-panel { display: block; grid-row: auto; padding: clamp(40px, 8vw, 56px) var(--gutter); }
-  .about-panel--mat { padding-bottom: clamp(32px, 6vw, 46px); }
-  .about-panel--cittic { padding-bottom: clamp(44px, 9vw, 64px); }
-  .about-panel .about-panel__head::after { inset-inline: 0; background-position: 0 0; }
-  .about-panel--cittic .about-panel__head::before { content: none; }
+  .section--about { grid-template-columns: minmax(0, 1fr); row-gap: 22px; }
+  .about-panel { display: block; grid-row: auto; }
+  /* Room under the text for the mascot, pulled in so its bubble stays on screen */
+  .about-panel--cittic { padding-bottom: 120px; }
+  .mascot-peeker--about { right: 30px; }
+}
+@media (max-width: 480px) {
+  .about-panel { box-shadow: 5px 5px 0 var(--ink); }
 }
 
-/* About Odoo Hackathon · blue canvas + yellow pattern (Figma node 26:2) */
+/* About Odoo Hackathon · Odoo's purple, tone-on-tone squiggles */
 .section--odoo {
-  --pattern-color: #EDE6DA;
-  background: var(--white);
+  --pattern-color: #9D57F4;
+  background: var(--purple);
 }
 /* Brush stroke under the title's last word, as on Odoo's own page */
 .swoosh { position: relative; display: inline-block; }
@@ -181,7 +178,7 @@
   left: -8%;
   right: -4%;
   height: 0.2em;
-  background: var(--pink);
+  background: var(--white);
   -webkit-mask: var(--swoosh) center / 100% 100% no-repeat;
   mask: var(--swoosh) center / 100% 100% no-repeat;
 }
@@ -217,21 +214,19 @@
   .swoosh::after { left: 2%; right: -4%; }
 }
 
-/* Hack For CUSAT · the CUSAT-only curtain raiser ---------------------------- */
-/* Near-white ground with a pale yellow mark — a lighter tint than the cream
-   patterns the other light sections use, so it reads as its own band */
+/* Hack For CUSAT · the CUSAT-only curtain raiser, on the green mascot's green */
 .section--hack {
-  --pattern-color: #FBE9B0;
+  --pattern-color: #1E9A54;
   padding-block: clamp(32px, 3.4vw, 50px) clamp(36px, 3.8vw, 56px);
   color: var(--ink);
-  background: var(--paper);
+  background: var(--green);
 }
 .hack__card {
   display: grid;
   gap: clamp(9px, 1.1vw, 14px);
   padding: clamp(18px, 2.2vw, 28px);
   color: var(--ink);
-  background: var(--white);
+  background: var(--paper);
   border: var(--line) solid var(--ink);
   box-shadow: 8px 8px 0 var(--ink);
 }
@@ -246,7 +241,8 @@
   color: var(--ink);
   background: var(--tape);
   border: var(--line) solid var(--ink);
-  box-shadow: 0 4px 0 var(--tape-shadow);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0 var(--ink);
   rotate: -1.5deg;
 }
 /* The three firsts run inline and wrap, rather than taking three tall lines */
@@ -278,6 +274,7 @@
   background: var(--tape);
   border: var(--line) solid var(--ink);
   border-radius: 12px;
+  box-shadow: 3px 3px 0 var(--ink);
 }
 .hack__facts dt {
   font-family: var(--font-tape);

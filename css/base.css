@@ -293,6 +293,8 @@ a { color: inherit; }
   pointer-events: auto;
   user-select: none;
   cursor: pointer;
+  /* A tap opens the arcade (js/main.js), so skip the double-tap zoom delay */
+  touch-action: manipulation;
   transform-origin: center bottom;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.25s ease;
 }

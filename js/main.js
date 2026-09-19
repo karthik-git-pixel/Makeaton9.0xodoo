@@ -246,6 +246,25 @@
     }).observe(list);
   }
 
+  // Arcade easter egg: js/games.js and css/games.css load on first use only
+  let arcadeReady = null;
+  function openArcade(color) {
+    if (!arcadeReady) {
+      const load = (el) => new Promise((resolve, reject) => {
+        el.onload = resolve;
+        el.onerror = reject;
+        document.head.append(el);
+      });
+      const style = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: 'css/games.css' });
+      const script = Object.assign(document.createElement('script'), { src: 'js/games.js' });
+      arcadeReady = Promise.all([load(style), load(script)]).catch((error) => {
+        arcadeReady = null;
+        throw error;
+      });
+    }
+    arcadeReady.then(() => window.MakeatonArcade.open({ color })).catch(() => {});
+  }
+
   // Mascot Rapid Expression Animator & Interactive Peeker
   function initMascots() {
     const MASCOT_SETS = {
@@ -265,11 +284,6 @@
       ]
     };
 
-    const QUIPS = [
-      "LET'S HACK!", "POW!", "100K+ BAG!", "FAST-TRACK!", "LFG!", "24 HR FINAL!",
-      "SHIP IT!", "CUSAT KOCHI!", "BOOM!", "VICTORY!", "FULL SPEED!", "HACK TIME!"
-    ];
-
     // Preload SVGs for instantaneous zero-flicker transitions
     Object.values(MASCOT_SETS).flat().forEach((src) => {
       const img = new Image();
@@ -281,13 +295,13 @@
       mascot.dataset.mascotBound = 'true';
 
       const img = mascot.querySelector('.mascot-img, .page__mascot-img');
-      const bubble = mascot.querySelector('.mascot-bubble');
       if (!img) return;
 
-      let color = mascot.dataset.mascotColor || (img.src.includes('red') ? 'red' : 'green');
+      const color = mascot.dataset.mascotColor || (img.src.includes('red') ? 'red' : 'green');
       let baseSrc = img.getAttribute('src');
       let cycleInterval = null;
       let currentIndex = 0;
+      if (!mascot.title) mascot.title = 'Tap me to play';
 
       const getSet = () => MASCOT_SETS[color] || MASCOT_SETS.green;
 
@@ -323,33 +337,13 @@
         stopCycling(0); // Settles cleanly on cheer/main pose
       });
 
-      // Click Interaction: Cartoon Burst + Color Toggle + Speech Bubble Quip!
+      // A tap bursts the mascot and opens the arcade, playing as that mascot
       mascot.addEventListener('click', () => {
         mascot.classList.remove('is-bursting');
         void mascot.offsetWidth; // Trigger reflow for restart
         mascot.classList.add('is-bursting');
-
-        // Toggle between Red and Green on click
-        color = color === 'red' ? 'green' : 'red';
-        mascot.dataset.mascotColor = color;
-        const set = getSet();
-        baseSrc = set[currentIndex % set.length];
-
-        // Rapid burst cycle
-        startCycling(65);
-        setTimeout(() => {
-          const winnerIndex = Math.floor(Math.random() * set.length);
-          stopCycling(winnerIndex);
-          baseSrc = set[winnerIndex];
-        }, 520);
-
-        if (bubble) {
-          const randomQuip = QUIPS[Math.floor(Math.random() * QUIPS.length)];
-          bubble.textContent = randomQuip;
-          bubble.style.animation = 'none';
-          void bubble.offsetWidth;
-          bubble.style.animation = '';
-        }
+        stopCycling(0);
+        openArcade(color);
       });
     };
 
