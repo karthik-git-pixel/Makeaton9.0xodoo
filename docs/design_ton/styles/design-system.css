@@ -63,4 +63,14 @@ html, body {
   .marquee-track {
     animation: none !important;
   }
+
+  /* Sound effects still play; only the movement is dropped. */
+  .comic-panel.is-flipping,
+  .sound-toggle.is-pending {
+    animation: none !important;
+  }
+
+  .has-js .comic-panel {
+    opacity: 1;
+  }
 }
