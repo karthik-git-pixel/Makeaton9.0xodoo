@@ -38,19 +38,18 @@
 .site-nav__menu a:not(.btn):hover { color: var(--tape); }
 /* Status chip, not a link. The attribute selector matches the specificity of
    .btn[aria-disabled="true"] in base.css, which would otherwise wash it out. */
-.site-nav__cta,
-.site-nav__cta[aria-disabled="true"] {
+.site-nav__cta {
   padding: 0.5em 1.05em;
   font-size: 0.82rem;
   letter-spacing: 0.04em;
   color: var(--ink);
   background: var(--tape);
   border-color: var(--ink);
+}
+.site-nav__cta[aria-disabled="true"] {
   box-shadow: none;
   cursor: default;
 }
-.site-nav__cta:hover,
-.site-nav__cta:active,
 .site-nav__cta[aria-disabled="true"]:hover,
 .site-nav__cta[aria-disabled="true"]:active { transform: none; box-shadow: none; }
 .site-nav__toggle { display: none; }
@@ -742,11 +741,22 @@ a.foot-social__link:active { transform: translate(2px, 2px); box-shadow: 1px 1px
   font-style: normal;
   line-height: 1.5;
   color: var(--ink);
+  text-decoration: none;
   background: var(--paper);
   border: var(--line) solid var(--ink);
   border-radius: 12px;
   box-shadow: 6px 6px 0 var(--ink);
   rotate: -0.6deg;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.foot-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+.foot-card:active {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--ink);
 }
 .foot-card__head {
   padding-bottom: 8px;

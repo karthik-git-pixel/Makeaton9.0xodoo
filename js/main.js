@@ -132,7 +132,7 @@
 
   // Register buttons: open data-register-url in a new tab once it is filled in
   function initRegister() {
-    document.querySelectorAll('[data-register-url]').forEach((button) => {
+    document.querySelectorAll('button[data-register-url]').forEach((button) => {
       button.addEventListener('click', () => {
         const url = button.dataset.registerUrl;
         if (url) window.open(url, '_blank', 'noopener');
