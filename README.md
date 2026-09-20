@@ -17,10 +17,10 @@ Built with a bespoke **Pop-Art / Comic Book** visual identity:
 ## 🚀 Key Sections & Features
 
 1. **Hero** (`#top`):
-   - Comic-page grid: a red sunburst title panel (wordmark, tagline, Register CTA), a blue art panel, and a fact strip.
+   - Comic-page grid: panels printed on a yellow comic sheet — a red sunburst title panel (wordmark, tagline, Register CTA), a blue art panel, and a fact strip.
    - Art panel: a retro CRT whose terminal types itself (`idea.exe` → `opportunity.exe`), a sticky note, a burst sticker, a steaming mug and the interactive red mascot, all drifting with the pointer (parallax).
    - Fact strip: date and venue, a registration countdown that counts to opening day and then to the deadline, and the ₹1,05,000 prize pool.
-   - Caution tape marquee along the bottom. On phones the panels stack: title and CTA, countdown, facts, then the art.
+   - On phones the panels stack: title and CTA, countdown, facts, then the art.
    - Register buttons open `data-register-url` in a new tab once it is filled in.
 
 2. **About Make-A-Ton & CITTIC** (`#about`):
@@ -68,7 +68,7 @@ final-makeaton/
 ├── index.html              # Main website entry point
 ├── css/
 │   ├── base.css            # Design tokens, reset, typography, cards, peeker mascots
-│   ├── hero.css            # Hero comic-page grid, terminal art, countdown, marquee
+│   ├── hero.css            # Hero comic-page grid, terminal art, countdown
 │   ├── sections.css        # About, Odoo, Prizes, FAQ, Footer styles
 │   └── timeline.css        # Interactive storybook timeline styles
 ├── js/

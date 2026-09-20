@@ -24,9 +24,13 @@
   flex-direction: column;
   min-height: 100svh;
   overflow: hidden;
-  background-color: #E4391D;
-  background-image: radial-gradient(rgba(12, 14, 15, 0.16) 1.2px, transparent 1.6px);
-  background-size: 9px 9px;
+  /* A comic page, not a red field: a yellow sheet lit from the top, with the
+     halftone dots over it, so the red and blue panels read as printed panels. */
+  background-color: var(--hero-page);
+  background-image:
+    radial-gradient(rgba(12, 14, 15, 0.10) 1.1px, transparent 1.5px),
+    radial-gradient(130% 100% at 50% 0%, var(--hero-page-lit) 0%, var(--hero-page) 58%, var(--hero-page-shade) 100%);
+  background-size: 9px 9px, cover;
 }
 
 .hero__page {
@@ -41,7 +45,7 @@
   gap: var(--gap);
   width: min(100%, 1480px);
   margin-inline: auto;
-  padding: var(--edge) var(--edge) 0;
+  padding: var(--edge);
 }
 
 .hero-panel {
@@ -721,6 +725,8 @@
   gap: 8px;
   padding: 12px 14px;
   background: var(--tape);
+  /* Yellow on a yellow page: a red keyline is what holds its edge */
+  border-color: var(--red);
 }
 .countdown__label,
 .countdown__deadline {
@@ -831,59 +837,6 @@
 .hero-prize:hover { translate: -2px -2px; box-shadow: 8px 8px 0 var(--ink); }
 .hero-prize:active { translate: 3px 3px; box-shadow: 3px 3px 0 var(--ink); }
 
-/* Caution tape ticker --------------------------------------------------------
-   Wider than the hero and tilted, so the ends run off screen. */
-.caution-tape {
-  --tape-duration: 38s;
-  position: relative;
-  z-index: 3;
-  width: 106%;
-  margin: clamp(16px, 2vw, 24px) -3% clamp(10px, 1.2vw, 16px);
-  padding-block: 0.5rem;
-  color: var(--ink);
-  background: var(--tape);
-  border-block: max(3px, 0.24vw) solid var(--ink);
-  box-shadow: 0 8px 0 rgba(12, 14, 15, 0.28);
-  rotate: -1.4deg;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.marquee-wrapper { display: flex; overflow: hidden; }
-.marquee-track {
-  display: flex;
-  flex: none;
-  align-items: center;
-  white-space: nowrap;
-  will-change: transform;
-  animation: marquee-left var(--tape-duration) linear infinite;
-}
-/* Two identical runs make the -50% loop seamless. main.js repeats the phrases
-   inside each one until a single run is wider than the tape, so the strip is
-   never caught with a gap in it. */
-.marquee-run {
-  display: flex;
-  flex: none;
-  align-items: center;
-}
-@keyframes marquee-left {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.tape-text {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  padding-inline: 0.55em;
-  font-family: var(--font-tape);
-  font-size: clamp(0.8rem, 0.7rem + 0.4vw, 1.1rem);
-  line-height: 1.2;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.diamond-separator { color: var(--red); font-size: 0.8em; }
-
 /* Responsive ---------------------------------------------------------------- */
 
 /* Laptops: the strip panels get narrow, so the date and venue stack */
@@ -902,7 +855,6 @@
   .hero-cta { font-size: clamp(1.1rem, 0.9rem + 0.8vw, 1.4rem); }
   .hero-count { gap: 6px; padding-block: 10px; }
   .countdown__value { font-size: clamp(1.5rem, 1.1rem + 1vw, 2rem); }
-  .caution-tape { margin-top: 16px; }
 }
 
 /* Tablets and phones: one column. Title first, then the facts, then the art. */
@@ -982,8 +934,7 @@
   .hero-mug__steam,
   .hero-spark,
   .crt__led,
-  .hero-cta,
-  .marquee-track { animation: none; }
+  .hero-cta { animation: none; }
 }
 
 /* Keyframes ----------------------------------------------------------------- */

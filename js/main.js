@@ -118,7 +118,7 @@
         return;
       }
       const upcoming = now < opens;
-      setLabel(upcoming ? 'Registration opens in' : 'Registration closes in');
+      setLabel(upcoming ? 'Registration opens in' : 'Registration ends in');
       const seconds = Math.floor(((upcoming ? opens : deadline) - now) / 1000);
       if (fields.days) fields.days.textContent = pad(Math.floor(seconds / 86400));
       if (fields.hours) fields.hours.textContent = pad(Math.floor(seconds / 3600) % 24);
@@ -137,27 +137,6 @@
         const url = button.dataset.registerUrl;
         if (url) window.open(url, '_blank', 'noopener');
       });
-    });
-  }
-
-  // Hero tapes: repeat the phrases inside each run until one run is wider than
-  // the tape, so the strip never shows a gap. Both runs stay identical, which
-  // is what makes the -50% loop seamless.
-  function initTapes() {
-    document.querySelectorAll('[data-tape-track]').forEach((track) => {
-      const wrapper = track.parentElement;
-      const runs = [...track.querySelectorAll('.marquee-run')];
-      if (runs.length !== 2 || !wrapper) return;
-
-      const phrases = [...runs[0].children].map((node) => node.cloneNode(true));
-      if (!phrases.length) return;
-
-      // A tape is wider than the hero and sits at an angle, so aim past both
-      let guard = 0;
-      while (runs[0].offsetWidth < wrapper.offsetWidth * 1.15 && guard < 24) {
-        runs.forEach((run) => phrases.forEach((node) => run.appendChild(node.cloneNode(true))));
-        guard += 1;
-      }
     });
   }
 
@@ -383,7 +362,6 @@
 
   initCountdown();
   initRegister();
-  initTapes();
   initHero();
   initTerminal();
   initMascots();

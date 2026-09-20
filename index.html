@@ -54,10 +54,6 @@
             <a href="#prizes">Prizes</a>
             <a href="#faq">FAQ</a>
           </nav>
-          <a class="hero-bar__cta" href="https://hackathon.odoo.com/event/odoo-x-make-a-ton-9-0-kochi-hackathon-2026-40/register" target="_blank" rel="noopener noreferrer">
-            Register
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
-          </a>
         </header>
 
         <!-- Title panel -->
@@ -82,7 +78,7 @@
               <span class="hero-cta__label">Register now</span>
               <svg class="hero-cta__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
             </a>
-            <a class="hero-link" href="#timeline">See the timeline</a>
+            <a class="hero-link" href="https://2025.makeaton.in" target="_blank" rel="noopener noreferrer">View past edition</a>
           </div>
         </div>
 
@@ -149,10 +145,9 @@
             </p>
           </div>
 
-          <!-- Registration countdown. Times are IST. Before data-countdown-open it counts
-               down to the opening, then to the deadline; js/main.js fills the digits. -->
-          <div class="hero-panel hero-count countdown" data-countdown-open="2026-09-21T00:00:00+05:30" data-countdown-deadline="2026-10-25T23:59:59+05:30">
-            <p class="countdown__label">Registration closes in</p>
+          <!-- Registration countdown. Times are IST. Counts down to data-countdown-deadline. -->
+          <div class="hero-panel hero-count countdown" data-countdown-deadline="2026-10-25T23:59:59+05:30">
+            <p class="countdown__label">Registration ends in</p>
             <ol class="countdown__units" aria-hidden="true">
               <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="days">--</b><span class="countdown__name">Days</span></li>
               <li class="countdown__unit"><b class="countdown__value" data-countdown-unit="hours">--</b><span class="countdown__name">Hrs</span></li>
@@ -169,23 +164,13 @@
           </a>
         </div>
       </div>
-
-      <!-- Caution tape ticker. The track holds the run twice so the -50% loop is
-           seamless; the second half is hidden from screen readers. -->
-      <aside class="caution-tape" role="presentation">
-        <div class="marquee-wrapper">
-          <div class="marquee-track" data-tape-track>
-            <span class="marquee-run"><span class="tape-text">Registrations 21 Sep &ndash; 25 Oct <span class="diamond-separator">&#10022;</span></span><span class="tape-text">8-hr virtual round <span class="diamond-separator">&#10022;</span></span><span class="tape-text">24-hr final at CUSAT, Kochi <span class="diamond-separator">&#10022;</span></span><span class="tape-text">&#8377;1,05,000 in prizes <span class="diamond-separator">&#10022;</span></span></span>
-            <span class="marquee-run" aria-hidden="true"><span class="tape-text">Registrations 21 Sep &ndash; 25 Oct <span class="diamond-separator">&#10022;</span></span><span class="tape-text">8-hr virtual round <span class="diamond-separator">&#10022;</span></span><span class="tape-text">24-hr final at CUSAT, Kochi <span class="diamond-separator">&#10022;</span></span><span class="tape-text">&#8377;1,05,000 in prizes <span class="diamond-separator">&#10022;</span></span></span>
-          </div>
-        </div>
-      </aside>
     </section>
 
-    <!-- ABOUT MAKE-A-TON + CITTIC: two halves joined by a dashed rule (after the Make-A-Ton 7.0 about slide) -->
+    <!-- ABOUT MAKE-A-TON + CITTIC: one section split in two, the halves joined by a dashed rule -->
     <section class="section section--about" id="about" aria-labelledby="about-title">
-      <div class="about-panel about-panel--mat">
+      <div class="about-panel about-panel--mat pattern pattern--squiggle">
         <header class="about-panel__head">
+          <p class="about-panel__kicker">The hackathon</p>
           <h2 class="display display--panel" id="about-title">About <span class="nowrap">Make-A-Ton</span></h2>
         </header>
         <div class="about-panel__body">
@@ -196,8 +181,9 @@
           <!-- TODO: add the "Know more about Make-A-Ton" link here once the destination URL exists -->
         </div>
       </div>
-      <div class="about-panel about-panel--cittic">
+      <div class="about-panel about-panel--cittic pattern pattern--asterisk">
         <header class="about-panel__head">
+          <p class="about-panel__kicker">Organized by</p>
           <h3 class="display display--panel display--yellow">CITTIC</h3>
         </header>
         <div class="about-panel__body">

@@ -75,37 +75,67 @@
   .site-nav__cta { margin-top: 6px; }
 }
 
-/* About Make-A-Ton + CITTIC · two comic panels on the hero's halftone blue */
+/* About Make-A-Ton + CITTIC · one section split down the middle: a yellow half
+   and a cream half, each bled to the edge, joined by a single dashed rule with
+   the star sitting on the seam. No card chrome — the halves are the section. */
 .section--about {
+  --about-inner: clamp(18px, 2.6vw, 44px);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 clamp(18px, 2.4vw, 32px);
-  padding-inline: max(var(--gutter), calc((100% - var(--max)) / 2));
-  background-color: var(--blue);
-  background-image: radial-gradient(rgba(12, 14, 15, 0.16) 1.3px, transparent 1.7px);
-  background-size: 10px 10px;
+  gap: 0;
+  padding: 0;
   border-top: var(--line) solid var(--ink);
 }
 /* Rows are shared (subgrid) so both headings sit on the same line */
 .about-panel {
+  /* A panel is half the section, so 200% of it is the full section width: the
+     outer padding lands on the same line as every other section's gutter. */
+  --about-outer: max(var(--gutter), calc((200% - var(--max)) / 2));
   position: relative;
+  isolation: isolate;
   display: grid;
   grid-row: span 2;
   grid-template-rows: subgrid;
-  padding: clamp(24px, 3vw, 40px);
-  border: var(--line) solid var(--ink);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
 }
-.about-panel--mat { background: var(--tape); }
-.about-panel--cittic { background: var(--paper); }
+.about-panel--mat {
+  --pattern-color: var(--gold);
+  background: var(--tape);
+  /* The seam star hangs over the cream half */
+  z-index: 1;
+}
+.about-panel--cittic {
+  --pattern-color: var(--cream);
+  background: var(--paper);
+}
+/* The padding sits on the rows rather than the panel, so each half's dashed
+   rule can run its full width and the two meet as one line at the seam. */
+.about-panel__head,
+.about-panel__body {
+  padding-inline: var(--about-outer) var(--about-inner);
+}
+.about-panel--cittic .about-panel__head,
+.about-panel--cittic .about-panel__body {
+  padding-inline: var(--about-inner) var(--about-outer);
+}
 .about-panel__head {
   position: relative;
   display: grid;
   align-content: end;
   justify-items: start;
-  gap: 16px;
+  gap: 14px;
+  padding-top: clamp(44px, 4.5vw, 68px);
   padding-bottom: clamp(18px, 2vw, 26px);
+}
+.about-panel__kicker {
+  padding: 0.42em 1.1em;
+  font-family: var(--font-tape);
+  font-size: clamp(0.7rem, 0.64rem + 0.24vw, 0.86rem);
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  border-radius: 999px;
 }
 .about-panel__head::after {
   content: "";
@@ -114,8 +144,8 @@
   height: 4px;
   background: linear-gradient(90deg, var(--ink) 0 60%, transparent 0) 0 0 / 24px 100% repeat-x;
 }
-/* A pink star pinned to the end of the rule */
-.about-panel__head::before {
+/* A pink star pinned to the seam, straddling both halves */
+.about-panel--mat .about-panel__head::before {
   content: "";
   position: absolute;
   bottom: 2px;
@@ -124,10 +154,11 @@
   width: clamp(34px, 3vw, 46px);
   aspect-ratio: 1;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-5 -5 116 116'%3E%3Cdefs%3E%3Cpath id='s' d='M50 0C57 30 70 43 100 50C70 57 57 70 50 100C43 70 30 57 0 50C30 43 43 30 50 0Z'/%3E%3C/defs%3E%3Cg stroke='%230C0E0F' stroke-width='5' stroke-linejoin='round'%3E%3Cuse href='%23s' x='6' y='6' fill='%230C0E0F'/%3E%3Cuse href='%23s' fill='%23FA5C94'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
-  translate: 0 50%;
+  translate: 50% 50%;
 }
 .about-panel__body {
   padding-top: clamp(16px, 1.8vw, 24px);
+  padding-bottom: clamp(52px, 5.5vw, 80px);
   font-size: clamp(1.05rem, 0.98rem + 0.35vw, 1.2rem);
 }
 .about-panel__body > p + p { margin-top: 1em; }
@@ -136,6 +167,20 @@
   font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
   font-weight: 700;
   line-height: 1.35;
+}
+/* There is no card edge left to hang over — the half runs to the section's
+   bottom, and anything past it would slide under the next section — so the
+   mascot stands in the corner of the cream half and keeps the same sway. */
+.mascot-peeker--about {
+  right: clamp(12px, 3vw, 56px);
+  /* Clear of the next section's tape divider, which rides up over this edge */
+  bottom: clamp(30px, 3.2vw, 56px);
+  transform: translate(0, 0) rotate(8deg);
+  animation-name: mascot-stand-sway;
+}
+@keyframes mascot-stand-sway {
+  0%, 100% { transform: translate(0, 0) rotate(8deg); }
+  50% { transform: translate(-4px, -7px) rotate(4deg); }
 }
 .about-panel__stickers {
   display: flex;
@@ -152,21 +197,27 @@
 .sticker--blob > span { color: var(--ink); text-shadow: none; }
 .sticker--pillow { width: clamp(120px, 12vw, 170px); aspect-ratio: 328 / 332; rotate: -5deg; }
 
+/* Phones: the halves stack, each still running edge to edge */
 @media (max-width: 860px) {
-  .section--about { grid-template-columns: minmax(0, 1fr); row-gap: 22px; }
-  .about-panel { display: block; grid-row: auto; }
+  .section--about { grid-template-columns: minmax(0, 1fr); }
+  .about-panel {
+    --about-outer: var(--gutter);
+    --about-inner: var(--gutter);
+    display: block;
+    grid-row: auto;
+  }
+  .about-panel--cittic .about-panel__head { padding-top: clamp(30px, 6vw, 48px); }
+  /* Back inside the half, now that there is no seam to sit on */
+  .about-panel--mat .about-panel__head::before { translate: 0 50%; }
   /* Room under the text for the mascot, pulled in so its bubble stays on screen */
-  .about-panel--cittic { padding-bottom: 120px; }
+  .about-panel--cittic .about-panel__body { padding-bottom: 120px; }
   .mascot-peeker--about { right: 30px; }
 }
-@media (max-width: 480px) {
-  .about-panel { box-shadow: 5px 5px 0 var(--ink); }
-}
 
-/* About Odoo Hackathon · Odoo's purple, tone-on-tone squiggles */
+/* About Odoo Hackathon · pink, tone-on-tone squiggles */
 .section--odoo {
-  --pattern-color: #9D57F4;
-  background: var(--purple);
+  --pattern-color: #EE6AA6;
+  background: var(--pink);
 }
 /* Brush stroke under the title's last word, as on Odoo's own page */
 .swoosh { position: relative; display: inline-block; }
@@ -249,16 +300,15 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2px clamp(14px, 1.8vw, 26px);
-  font-family: var(--font-display);
-  font-size: clamp(1.15rem, 0.95rem + 1vw, 1.75rem);
-  line-height: 1.15;
-  text-transform: uppercase;
+  font-family: var(--font-tape);
+  font-size: clamp(0.92rem, 0.86rem + 0.35vw, 1.15rem);
 }
 .hack__firsts li { display: flex; align-items: baseline; gap: 0.35em; }
 .hack__firsts li::before { content: "▸"; font-size: 0.6em; color: var(--red); }
 .hack__maybe {
-  font-family: var(--font-tape);
-  font-size: clamp(0.92rem, 0.86rem + 0.35vw, 1.15rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 0.95rem + 1vw, 1.75rem);
+  text-transform: uppercase;
   color: var(--red);
 }
 .hack__facts {
@@ -285,11 +335,12 @@
 .hack__facts dd { margin: 0; font-weight: 700; }
 
 /* Prizes · red sunburst ---------------------------------------------------- */
-/* Medal tones, so the podium matches the badges it already carries */
+/* Podium tones: brand gold, blue and pink. Each card is that tone lit from the
+   top-left and deepened at the bottom-right, so the gradient reads as a shape. */
 .section--prizes {
-  --gold-medal: #FCC230;
-  --silver-medal: #D8DFE6;
-  --bronze-medal: #DE9553;
+  --tone-first: #FCC230;
+  --tone-second: var(--blue);
+  --tone-third: var(--pink);
 }
 .prizes-hiring {
   max-width: 44ch;
@@ -477,13 +528,15 @@
   );
   animation: bounty-spin-slow var(--seal-speed, 40s) linear infinite;
 }
-.prize--second .prize__sunburst { --seal-opacity: 0.16; --seal-speed: 52s; animation-direction: reverse; }
-.prize--third .prize__sunburst { --seal-opacity: 0.16; --seal-speed: 46s; }
+/* Lighter on the saturated tones than it was on silver and bronze, so the
+   blue and pink stay the colour they are while the seal keeps turning */
+.prize--second .prize__sunburst { --seal-opacity: 0.1; --seal-speed: 52s; animation-direction: reverse; }
+.prize--third .prize__sunburst { --seal-opacity: 0.1; --seal-speed: 46s; }
 
 .prize--first {
   grid-area: first;
   min-height: clamp(330px, 35vw, 430px);
-  background: linear-gradient(145deg, #FFE870 0%, #FCC230 45%, #F0AE0E 100%);
+  background: linear-gradient(145deg, #FFE870 0%, var(--tone-first) 45%, #F0AE0E 100%);
   z-index: 10;
   transform-origin: center center;
 }
@@ -497,7 +550,7 @@
 .prize--second {
   grid-area: second;
   min-height: clamp(280px, 30vw, 370px);
-  background: linear-gradient(145deg, #FFFFFF 0%, #E5EFF9 45%, #C7D9EE 100%);
+  background: linear-gradient(145deg, #7BA9FF 0%, var(--tone-second) 45%, #2A63D8 100%);
   transform-origin: bottom right;
 }
 
@@ -509,13 +562,14 @@
 
 .prize--second .prize__label,
 .prize--second .prize__amount-label {
-  color: var(--ink);
+  color: var(--white);
+  text-shadow: 2px 2px 0 var(--ink);
 }
 
 .prize--third {
   grid-area: third;
   min-height: clamp(280px, 30vw, 370px);
-  background: linear-gradient(145deg, #FFAF76 0%, #EA7C3A 45%, #D25E1A 100%);
+  background: linear-gradient(145deg, #FFB3D6 0%, var(--tone-third) 45%, #E0589A 100%);
   transform-origin: bottom left;
 }
 
