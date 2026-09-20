@@ -1,117 +1,162 @@
-# Make-A-Ton 9.0 · Odoo × Make-A-Ton Kochi Hackathon
+<div align="center">
 
-> Official website for **Make-A-Ton 9.0**, South India's premier hackathon organized by **CITTIC, CUSAT** in collaboration with **Odoo India**. Featuring an 8-hour virtual round, a 24-hour in-person finale at CUSAT Kochi, and a ₹1,05,000 prize pool.
+<img src="assets/mat9logo.png" alt="Make-A-Ton 9.0" width="460">
 
----
+### ⚡ South India's largest **hiring** hackathon ⚡
 
-## 🎨 Theme & Aesthetic
+**Build. Get noticed. Get the opportunity.**
 
-Built with a bespoke **Pop-Art / Comic Book** visual identity:
-- **Bold Inking & Hard Shadows**: Thick solid borders (`var(--line) solid var(--ink)`) with hard isometric drop shadows (`box-shadow: 8px 8px 0 var(--ink)`).
-- **Custom Typography**: `Bangers` (display headings), `Titan One` (caution tapes & labels), `Space Grotesk` (body text), and `Space Mono` (milestones & metadata).
-- **Vibrant Palette**: Curated brand colors including Electric Yellow (`#FFE23A`), Vivid Blue (`#437AEC`), Punch Pink (`#F57EB4`), Mint Green (`#22AC5F`), Cream Paper (`#FFF8EE`), and Solid Ink (`#0C0E0F`).
-- **Zero Heavy Frameworks**: Pure semantic HTML5, modern CSS3 variables & animations, and Vanilla JavaScript.
+<img src="https://img.shields.io/badge/OFFICIAL_WEBSITE-FCC230?style=for-the-badge&labelColor=0C0E0F&color=FCC230" alt="Official Website">
+<img src="https://img.shields.io/badge/9TH_EDITION-EF4225?style=for-the-badge&labelColor=0C0E0F&color=EF4225" alt="9th Edition">
+<img src="https://img.shields.io/badge/ODOO_×_MAKE--A--TON-AD69FF?style=for-the-badge&labelColor=0C0E0F&color=AD69FF" alt="Odoo x Make-A-Ton">
+<img src="https://img.shields.io/badge/KOCHI,_KERALA-22AC5F?style=for-the-badge&labelColor=0C0E0F&color=22AC5F" alt="Kochi, Kerala">
 
----
+<br>
 
-## 🚀 Key Sections & Features
+<a href="https://hackathon.odoo.com/event/odoo-x-make-a-ton-9-0-kochi-hackathon-2026-40/register">
+<img src="https://img.shields.io/badge/★_REGISTER_NOW_★-FBD900?style=for-the-badge&labelColor=0C0E0F&color=FBD900" alt="Register Now" height="40">
+</a>
 
-1. **Hero** (`#top`):
-   - Comic-page grid: panels printed on a yellow comic sheet — a red sunburst title panel (wordmark, tagline, Register CTA), a blue art panel, and a fact strip.
-   - Art panel: a retro CRT whose terminal types itself (`idea.exe` → `opportunity.exe`), a sticky note, a burst sticker, a steaming mug and the interactive red mascot, all drifting with the pointer (parallax).
-   - Fact strip: date and venue, a registration countdown that counts to opening day and then to the deadline, and the ₹1,05,000 prize pool.
-   - On phones the panels stack: title and CTA, countdown, facts, then the art.
-   - Register buttons open `data-register-url` in a new tab once it is filled in.
-
-2. **About Make-A-Ton & CITTIC** (`#about`):
-   - Blue halftone ground (continuing the hero's dot texture) with two ink-bordered comic panels: yellow Make-A-Ton and paper CITTIC, headings aligned on a shared dashed rule.
-   - The green mascot peeks out of the CITTIC panel's corner.
-
-3. **About Odoo Hackathon** (`#odoo`) and **HackForCUSAT** (`#hackforcusat`):
-   - Odoo sits on purple (Odoo's own colour) with tone-on-tone squiggles; HackForCUSAT on the mascot green with tone-on-tone asterisks.
-   - Paper story cards with hard ink shadows; yellow caution tapes stitch each section boundary.
-
-4. **Interactive Storybook Timeline** (`#timeline`):
-   - Scroll-driven 5-chapter interactive comic book interface.
-   - Chapter progression across Registration, Deadline, Virtual Round (8h), Results & Kochi Final.
-   - High-resolution comic artwork panels, speech dialogue bubbles, and official verification seals.
-
-5. **The Victory Loot / Prizes** (`#prizes`):
-   - Dynamic 3-tier fan-out podium (-3.5° 2nd Place Silver, 1.06x Gold Champion with spinning sunburst rays, +3.5° 3rd Place Bronze).
-   - Animated count-up counters calculating prize pool amounts upon viewport intersection.
-
-6. **Interactive Animated Mascots (Red & Green)**:
-   - 10 total vectorized mascot characters in both **Red** (`#EF0808`) and **Green** (`#22AC5F`) themes across 5 distinct comic expressions: *Cheer, Excited, Star-Eyes, Cool, and Curious*.
-   - **25% Peeking Placement**: Mascots peek in from section edges and corners (~25% concealed outside boundaries), springing fully into frame on hover.
-   - **Rapid Expression Flipbook**: Hovering any mascot triggers rapid stop-motion cycling through all expressions; clicking triggers a cartoon burst, randomized comic quip ("POW!", "100K+ BAG!", "FAST-TRACK!"), and Red/Green color toggle.
-   - **Subtle Idle Double-Take**: Background idle loop triggers occasional winks/double-takes across on-screen mascots.
-
-6b. **Mascot Arcade** (easter egg):
-   - Tap any mascot to open it. `js/games.js` and `css/games.css` load on first open only.
-   - **Flap-a-Ton**: a hand-drawn winged star flaps through caution-tape pillars (tap, click or Space).
-   - **Whack-a-Ton**: 30 seconds of tapping mascots as they pop up (cool ones +3, bombs −3, keys 1–9 work too).
-   - Play as red or green; best scores stay in the browser (`localStorage`); synth sound effects with a mute toggle.
-
-7. **Frequently Asked Questions** (`#faq`):
-   - Accessible interactive accordion items with expandable answers.
-
-8. **Site Navigation & Footer**:
-   - Scroll-aware header that reveals as you scroll past the hero.
-   - Fully responsive mobile drawer menu.
+</div>
 
 ---
 
-## 📁 Directory Structure
+<div align="center">
 
-```
-final-makeaton/
-├── index.html              # Main website entry point
-├── css/
-│   ├── base.css            # Design tokens, reset, typography, cards, peeker mascots
-│   ├── hero.css            # Hero comic-page grid, terminal art, countdown
-│   ├── sections.css        # About, Odoo, Prizes, FAQ, Footer styles
-│   └── timeline.css        # Interactive storybook timeline styles
-├── js/
-│   ├── main.js             # Nav observer, hero parallax & terminal, countdown, marquees, prize count-up, mascots
-│   └── timeline.js         # Interactive book flip logic, chapter tabs & controls
-├── assets/
-│   ├── favicon.svg         # Favicon icon
-│   ├── logo.svg            # Site navigation brand logo
-│   ├── logo-hero.svg       # High-resolution hero title logo
-│   ├── mascot/             # Red & Green mascot SVGs (Cheer, Cool, Curious, Excited, Star-Eyes)
-│   ├── star_pattern.svg    # Hero SVG dense star tile
-│   ├── shapes/             # Comic badges, bursts, stickers, and icons
-│   └── timeline/           # Story panels (1–5) and timeline artwork
-├── docs/                   # Design assets, markdown exports, and reference files
-│   ├── design_ton/         # Reference design sandbox
-│   ├── mascot-green/       # Raw green vector components
-│   ├── mascot-red/         # Raw red vector components
-│   ├── prizes-animation-specs.md
-│   └── timeline-story-export.md
-├── README.md               # Project documentation
-└── .gitignore              # Git ignore rules
-```
+# ⭐ THIS IS THE OFFICIAL WEBSITE OF MAKE-A-TON 9.0 ⭐
+
+</div>
+
+> **POW!** You've found the home page of **Make-A-Ton 9.0** — the official site for the
+> ninth edition of the hackathon run by **CITTIC, CUSAT**, in collaboration with **Odoo India**.
+>
+> Everything about the event lives here: the story, the schedule, the stage, and the loot.
 
 ---
 
-## 💻 Local Development
+## 🗓 THE EVENT, IN ONE PANEL
 
-Run any static HTTP server from the project root:
-
-```bash
-# Python 3
-python3 -m http.server 8181
-
-# Node (npx)
-npx serve .
-```
-
-Open [http://localhost:8181](http://localhost:8181) in your browser.
+|  |  |
+|:--|:--|
+| 🏁 **Registrations** | 21 September — 25 October 2026 |
+| 💻 **Virtual Round** | 8 hours, online, open to all |
+| 🎓 **HackForCUSAT** | 18 December 2026 · the CUSAT-only curtain raiser |
+| 🔥 **The Grand Final** | 19 – 20 December 2026 · 24 non-stop hours |
+| 📍 **The Arena** | CUSAT, Kochi, Kerala |
+| 🤝 **Presented with** | Odoo India |
 
 ---
 
-## 🌿 Git Branching
+## 🏆 THE VICTORY LOOT
 
-- **`main`**: Production release branch.
-- **`updates`**: Active development and design iteration branch.
+<div align="center">
 
+| 🥈 **SECOND PLACE** | 🏆 **CHAMPIONS** | 🥉 **THIRD PLACE** |
+|:---:|:---:|:---:|
+| **₹35,000** | **₹45,000** | **₹25,000** |
+
+### 💰 ₹1,05,000 TOTAL PRIZE POOL
+
+**Plus the real prize:** top performers get the opportunity to be considered for **hiring at Odoo.**
+
+</div>
+
+---
+
+## 📖 WHAT'S INSIDE
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### 🎬 The Hero
+A comic page in print — sunburst title panel, a retro CRT that types itself, and a live countdown ticking down to the flag drop.
+
+</td>
+<td width="33%" valign="top">
+
+### 📚 The Storybook
+A scroll-driven, five-chapter comic that walks you through the journey from registration to the Kochi finale.
+
+</td>
+<td width="33%" valign="top">
+
+### 🏅 The Podium
+A fanned-out three-tier stage with spinning sunburst rays and prize counters that spin up as you arrive.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🟢 The Mascots
+Ten hand-drawn characters peeking in from the edges — hover them, click them, and they'll talk back.
+
+</td>
+<td valign="top">
+
+### 🕹 The Arcade
+A hidden easter egg tucked behind the mascots, for when the countdown feels too slow.
+
+</td>
+<td valign="top">
+
+### ❓ The Answers
+Everything you're about to ask — eligibility, teams, travel, judging — in one place.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🎨 THE LOOK
+
+Hand-inked **pop-art comic**: thick black outlines, hard drop shadows, halftone dots,
+caution tape, and paper that looks like it just came off the press.
+
+<div align="center">
+
+<img src="https://img.shields.io/badge/Electric_Yellow-FCC230?style=for-the-badge&labelColor=0C0E0F" alt="#FCC230">
+<img src="https://img.shields.io/badge/Vivid_Blue-4080FB?style=for-the-badge&labelColor=0C0E0F" alt="#4080FB">
+<img src="https://img.shields.io/badge/Punch_Pink-F57EB4?style=for-the-badge&labelColor=0C0E0F" alt="#F57EB4">
+<br>
+<img src="https://img.shields.io/badge/Mascot_Green-22AC5F?style=for-the-badge&labelColor=0C0E0F" alt="#22AC5F">
+<img src="https://img.shields.io/badge/Comic_Red-EF4225?style=for-the-badge&labelColor=0C0E0F" alt="#EF4225">
+<img src="https://img.shields.io/badge/Odoo_Purple-AD69FF?style=for-the-badge&labelColor=0C0E0F" alt="#AD69FF">
+<br>
+<img src="https://img.shields.io/badge/Cream_Paper-F2E3D0?style=for-the-badge&labelColor=0C0E0F" alt="#F2E3D0">
+<img src="https://img.shields.io/badge/Solid_Ink-0C0E0F?style=for-the-badge&labelColor=F2E3D0&color=0C0E0F" alt="#0C0E0F">
+
+**BANGERS** for the shouting · **Titan One** for the tape · *Space Grotesk* for the talking
+
+</div>
+
+---
+
+## 📡 FIND US
+
+<div align="center">
+
+[![Instagram](https://img.shields.io/badge/Instagram-F57EB4?style=for-the-badge&logo=instagram&logoColor=0C0E0F&labelColor=0C0E0F)](https://www.instagram.com/makeaton.in/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-4080FB?style=for-the-badge&logo=linkedin&logoColor=0C0E0F&labelColor=0C0E0F)](https://www.linkedin.com/company/makeaton/)
+[![Discord](https://img.shields.io/badge/Discord-AD69FF?style=for-the-badge&logo=discord&logoColor=0C0E0F&labelColor=0C0E0F)](https://discord.gg/qkw7rdVR)
+[![Telegram](https://img.shields.io/badge/Telegram-4080FB?style=for-the-badge&logo=telegram&logoColor=0C0E0F&labelColor=0C0E0F)](https://t.me/+iMqdZkcEeM42MTU9)
+[![X](https://img.shields.io/badge/X-FCC230?style=for-the-badge&logo=x&logoColor=0C0E0F&labelColor=0C0E0F)](https://x.com/MakeaTonCusat)
+
+📬 **makeatoncusat@gmail.com** · 🗺 **CUSAT, Kochi** · 🕘 [**Past edition**](https://2025.makeaton.in)
+
+</div>
+
+---
+
+<div align="center">
+
+### ✦ SEE YOU IN KOCHI ✦
+
+**From campus to _opportunity._**
+
+<sub>Make-A-Ton 9.0 · An initiative by <b>CITTIC, Cochin University of Science and Technology</b><br>
+In collaboration with <b>Odoo India</b></sub>
+
+</div>
