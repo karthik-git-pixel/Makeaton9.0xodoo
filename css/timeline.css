@@ -434,39 +434,102 @@
 /* Phones: a single page that flips away to the left, comic panel stacked above
    the chapter text because the facing art page is not rendered here */
 @media (max-width: 760px) {
-  .book {
-    --page-w: min(90vw, 420px);
-    --page-h: min(640px, calc(100svh - 130px));
-    width: var(--page-w);
+  .book-stage {
+    gap: 16px;
+    padding-top: 40px;
+    padding-inline: 16px;
   }
-  .book::before { inset: -10px -10px -12px; }
+
+  .book {
+    --page-w: min(90vw, 400px);
+    --page-h: min(580px, calc(100svh - 130px), calc(var(--page-w) * 1.42));
+    width: var(--page-w);
+    font-size: max(13px, calc(var(--page-w) * 0.04));
+  }
+  .book::before {
+    inset: -10px -10px -12px;
+    border-radius: 18px;
+    box-shadow: 10px 10px 0 var(--ink);
+  }
   .book .page--base.page--left,
   .leaf > .face--back { display: none; }
   .book .page--base.page--right,
   .leaf { left: 0; }
   .book .page--right { border-radius: 14px; }
 
+  .book .page {
+    padding: clamp(16px, 4vw, 22px) clamp(15px, 3.8vw, 18px);
+    gap: clamp(8px, 1.6svh, 12px);
+    justify-content: space-between;
+  }
+
+  .page__head {
+    margin-bottom: 0;
+  }
+
+  .page__title {
+    font-size: clamp(2rem, 6.2vw, 2.5rem);
+    line-height: 0.92;
+    margin-top: 0.05em;
+  }
+
+  .page__activity {
+    font-size: clamp(0.92rem, 2.7vw, 1.05rem);
+    margin-block: 0;
+    padding: 0.35em 0.7em;
+  }
+
   .page__inline-art {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-top: 0.2em;
+    margin-top: 0.05em;
+    flex: 1;
+    min-height: 0;
+    justify-content: center;
   }
   .page__inline-art .page__panel-frame {
     width: min(100%, calc(clamp(160px, 28svh, 230px) * 4 / 3));
+    aspect-ratio: 4 / 3;
     max-height: clamp(160px, 28svh, 230px);
     box-shadow: 4px 4px 0 var(--ink);
   }
-  .page__inline-art .page__bubble { width: 100%; margin-top: -12px; }
+  .page__inline-art .page__bubble {
+    width: 100%;
+    margin-top: -12px;
+    padding: 0.45em 0.8em;
+    font-size: clamp(0.74rem, 2.2vw, 0.84rem);
+    line-height: 1.25;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
   /* The bubble is wider than the panel here, so its tail points at the middle */
   .page__inline-art .page__bubble::before { left: calc(50% - 6px); }
+
+  .page__blurb {
+    font-size: clamp(0.98rem, 2.9vw, 1.1rem);
+    font-weight: 500;
+    line-height: 1.48;
+    margin-top: 0;
+    color: var(--ink);
+  }
+
   /* The head already carries the date as a pill, so the meta row is redundant
      on a page that now has to fit the panel too */
   .page--chapter .page__meta { display: none; }
-  .page--chapter .page__title { font-size: 2.1em; }
 
   /* The stack reads from the top so the title lands high on the page. Folios
      are a spread convention, so they go rather than sit under a single page. */
   .book .page__folio { display: none; }
+
+  .book .page--cover,
+  .book .page--backcover,
+  .book .page--end {
+    justify-content: center;
+    gap: 1.2em;
+  }
+  .book .page--contents {
+    padding: clamp(16px, 4vw, 22px);
+    justify-content: space-between;
+  }
 }
