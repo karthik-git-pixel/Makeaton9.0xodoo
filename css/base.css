@@ -22,9 +22,9 @@
   --paper: #FFF8EE;
 
   /* Hero page stock: the sheet the comic panels are printed on */
-  --hero-page: #FBC93E;
-  --hero-page-lit: #FFE071;
-  --hero-page-shade: #F0AC16;
+  --hero-page: #22AC5F;
+  --hero-page-lit: #48CE81;
+  --hero-page-shade: #168748;
 
   --font-display: "Bangers", Impact, "Arial Narrow", sans-serif;
   --font-tape: "Titan One", "Arial Black", system-ui, sans-serif;

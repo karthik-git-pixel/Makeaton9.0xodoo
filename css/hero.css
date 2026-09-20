@@ -725,8 +725,6 @@
   gap: 8px;
   padding: 12px 14px;
   background: var(--tape);
-  /* Yellow on a yellow page: a red keyline is what holds its edge */
-  border-color: var(--red);
 }
 .countdown__label,
 .countdown__deadline {
