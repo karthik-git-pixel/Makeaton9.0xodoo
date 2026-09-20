@@ -389,14 +389,14 @@ function initSoundToggle() {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'sound-toggle is-pending';
-  button.innerHTML = \
+  button.innerHTML = `
     <svg viewBox="0 0 24 24" aria-hidden="true" class="sound-icon">
       <path class="sound-body" d="M4 9h3.5L12 4.8v14.4L7.5 15H4z"/>
       <path class="sound-wave sound-wave-1" d="M15.2 9.4a3.6 3.6 0 0 1 0 5.2"/>
       <path class="sound-wave sound-wave-2" d="M17.8 6.9a7.2 7.2 0 0 1 0 10.2"/>
       <path class="sound-slash" d="M15.6 9.2l5.2 5.6M20.8 9.2l-5.2 5.6"/>
     </svg>
-  \;
+  `;
 
   sfx.onChange(state => {
     button.classList.toggle('is-muted', state.muted);
