@@ -98,25 +98,18 @@
   grid-template-rows: subgrid;
 }
 .about-panel--mat {
-  /* Squiggle strip pinned to the left edge, ink-coloured so it reads on yellow */
-  --pattern-color: var(--ink);
+  /* Squiggles run the full half, tone-on-tone as in every other section, so the
+     tiles meet at the edges instead of being sliced by a strip */
+  --pattern-color: #F0B01E;
   background: var(--yellow);
   /* The seam star hangs over the cream half */
   z-index: 1;
 }
-/* Clip the squiggle mask to a narrow left-edge strip */
-.about-panel--mat.pattern::before {
-  inset: 0 auto 0 0;
-  width: max(80px, 7vw);
-  opacity: 0.18;
-}
 .about-panel--cittic {
-  --pattern-color: var(--ink);
+  /* The palette's cream, one shade under the paper it sits on */
+  --pattern-color: var(--cream);
   --pattern-size: max(200px, 18vw);
   background: var(--paper);
-}
-.about-panel--cittic.pattern::before {
-  opacity: 0.07;
 }
 /* The padding sits on the rows rather than the panel, so each half's dashed
    rule can run its full width and the two meet as one line at the seam. */
