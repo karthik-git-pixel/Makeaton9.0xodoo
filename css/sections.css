@@ -99,7 +99,7 @@
 }
 .about-panel--mat {
   --pattern-color: var(--gold);
-  background: var(--tape);
+  background: var(--yellow);
   /* The seam star hangs over the cream half */
   z-index: 1;
 }
