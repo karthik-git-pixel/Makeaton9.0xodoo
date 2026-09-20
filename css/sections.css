@@ -217,10 +217,10 @@
   .mascot-peeker--about { right: 30px; }
 }
 
-/* About Odoo Hackathon · pink, tone-on-tone squiggles */
+/* About Odoo Hackathon · violet (Odoo's own colour), tone-on-tone squiggles */
 .section--odoo {
-  --pattern-color: #EE6AA6;
-  background: var(--pink);
+  --pattern-color: #A655F1;
+  background: var(--purple);
 }
 /* Brush stroke under the title's last word, as on Odoo's own page */
 .swoosh { position: relative; display: inline-block; }
