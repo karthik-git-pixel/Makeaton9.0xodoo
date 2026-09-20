@@ -28,6 +28,15 @@ html.arcade-open { overflow: hidden; }
   background-size: 10px 10px;
 }
 
+/* Safari below 15.4 has no <dialog>, so there is no top layer and ::backdrop
+   never paints. js/games.js adds this class instead when it opens by hand. */
+.arcade--fallback {
+  z-index: 300;
+  background-color: rgba(12, 14, 15, 0.78);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.2px, transparent 1.6px);
+  background-size: 10px 10px;
+}
+
 .arcade__frame {
   display: flex;
   flex-direction: column;

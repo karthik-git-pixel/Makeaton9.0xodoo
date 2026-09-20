@@ -54,7 +54,12 @@
       } catch { this.ctx = null; }
     },
     tone(from, to, dur, type = 'square', gain = 0.05, delay = 0) {
-      if (this.muted || !this.ctx) return;
+      if (this.muted) return;
+      // Autoplay rules can leave the context suspended even after unlock(), and
+      // a note scheduled into a suspended context is silent now and then fires
+      // in a burst when it wakes. Nudge it, and skip the note if it is not up.
+      this.unlock();
+      if (!this.ctx || this.ctx.state !== 'running') return;
       const t = this.ctx.currentTime + delay;
       const osc = this.ctx.createOscillator();
       const amp = this.ctx.createGain();
@@ -245,9 +250,24 @@
   }
 
   // Drawing helpers · the site's look: ink outlines, hard shadows ------------
+  // Safari only shipped ctx.roundRect in 16.4, and every panel in both games
+  // is drawn through here, so older WebKit traces the same corners by hand.
+  const hasRoundRect = typeof CanvasRenderingContext2D !== 'undefined' &&
+    typeof CanvasRenderingContext2D.prototype.roundRect === 'function';
+
   function path(ctx, x, y, w, h, r) {
     ctx.beginPath();
-    ctx.roundRect(x, y, w, h, r);
+    if (hasRoundRect) {
+      ctx.roundRect(x, y, w, h, r);
+      return;
+    }
+    const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + w, y, x + w, y + h, radius);
+    ctx.arcTo(x + w, y + h, x, y + h, radius);
+    ctx.arcTo(x, y + h, x, y, radius);
+    ctx.arcTo(x, y, x + w, y, radius);
+    ctx.closePath();
   }
 
   function panel(ctx, x, y, w, h, fill, { r = 14, shadow = 5, line = 3 } = {}) {
@@ -380,6 +400,27 @@
   const ICON_SOUND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path class="arcade__waves" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="arcade__slash" d="m16 9 6 6m0-6-6 6"/></svg>';
   const ICON_CLOSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
 
+  // <dialog> only landed in Safari 15.4. Older WebKit gets the same panel
+  // shown by hand: .arcade is already fixed + inset:0, so only the top-layer
+  // ::backdrop is missing, which .arcade--fallback paints instead.
+  const hasDialog = typeof HTMLDialogElement !== 'undefined' &&
+    typeof HTMLDialogElement.prototype.showModal === 'function';
+
+  const isOpen = () => (hasDialog ? dialog.open : dialog.hasAttribute('open'));
+
+  function openDialog() {
+    if (hasDialog) { dialog.showModal(); return; }
+    dialog.classList.add('arcade--fallback');
+    dialog.setAttribute('open', '');
+  }
+
+  function closeDialog() {
+    if (hasDialog) { dialog.close(); return; }
+    dialog.removeAttribute('open');
+    dialog.classList.remove('arcade--fallback');
+    dialog.dispatchEvent(new Event('close'));
+  }
+
   function build() {
     dialog = document.createElement('dialog');
     dialog.className = 'arcade';
@@ -432,13 +473,18 @@
     title = dialog.querySelector('.arcade__title');
     live = dialog.querySelector('[data-arcade-live]');
 
-    dialog.querySelector('[data-arcade-close]').addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-arcade-close]').addEventListener('click', closeDialog);
     // A click on the dimmed page around the frame closes it too
-    dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+    dialog.addEventListener('click', (event) => { if (event.target === dialog) closeDialog(); });
     dialog.addEventListener('close', () => {
       stop();
       document.documentElement.classList.remove('arcade-open');
     });
+    if (!hasDialog) {
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && isOpen()) closeDialog();
+      });
+    }
     backButton.addEventListener('click', showMenu);
     muteButton.addEventListener('click', () => {
       sound.muted = !sound.muted;
@@ -596,7 +642,7 @@
       : 'Whack-a-Ton. Tap or click the mascots as they pop up, or press 1 to 9 for the holes. Avoid the bombs.');
     fit();
     await Promise.all([loadSprites(), document.fonts.load(`40px ${FONT_DISPLAY}`), document.fonts.load(`14px ${FONT_TAPE}`)]).catch(() => {});
-    if (stage.hidden || !dialog.open) return;
+    if (stage.hidden || !isOpen()) return;
     game = name === 'flap' ? createFlap() : createWhack();
     canvas.focus({ preventScroll: true });
     last = performance.now();
@@ -611,7 +657,7 @@
     title.textContent = 'Make-A-Ton Arcade';
     syncBest();
     const first = dialog.querySelector('[data-game]');
-    if (dialog.open) first.focus();
+    if (isOpen()) first.focus();
   }
 
   function open(options = {}) {
@@ -619,8 +665,8 @@
     color = options.color === 'green' ? 'green' : 'red';
     syncColor();
     showMenu();
-    if (!dialog.open) {
-      dialog.showModal();
+    if (!isOpen()) {
+      openDialog();
       document.documentElement.classList.add('arcade-open');
     }
     dialog.querySelector('[data-game]').focus();

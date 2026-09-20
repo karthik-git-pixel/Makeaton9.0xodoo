@@ -331,12 +331,12 @@
 .hack__facts dd { margin: 0; font-weight: 700; }
 
 /* Prizes · red sunburst ---------------------------------------------------- */
-/* Podium tones: brand gold, blue and pink. Each card is that tone lit from the
+/* Podium tones: gold, silver and bronze. Each card is that metal lit from the
    top-left and deepened at the bottom-right, so the gradient reads as a shape. */
 .section--prizes {
   --tone-first: #FCC230;
-  --tone-second: var(--blue);
-  --tone-third: var(--pink);
+  --tone-second: #E5EFF9;
+  --tone-third: #EA7C3A;
 }
 .prizes-hiring {
   max-width: 44ch;
@@ -524,10 +524,9 @@
   );
   animation: bounty-spin-slow var(--seal-speed, 40s) linear infinite;
 }
-/* Lighter on the saturated tones than it was on silver and bronze, so the
-   blue and pink stay the colour they are while the seal keeps turning */
-.prize--second .prize__sunburst { --seal-opacity: 0.1; --seal-speed: 52s; animation-direction: reverse; }
-.prize--third .prize__sunburst { --seal-opacity: 0.1; --seal-speed: 46s; }
+/* The metals are light enough to carry the turning seal at full strength */
+.prize--second .prize__sunburst { --seal-opacity: 0.16; --seal-speed: 52s; animation-direction: reverse; }
+.prize--third .prize__sunburst { --seal-opacity: 0.16; --seal-speed: 46s; }
 
 .prize--first {
   grid-area: first;
@@ -546,7 +545,7 @@
 .prize--second {
   grid-area: second;
   min-height: clamp(280px, 30vw, 370px);
-  background: linear-gradient(145deg, #7BA9FF 0%, var(--tone-second) 45%, #2A63D8 100%);
+  background: linear-gradient(145deg, #FFFFFF 0%, var(--tone-second) 45%, #C7D9EE 100%);
   transform-origin: bottom right;
 }
 
@@ -558,14 +557,13 @@
 
 .prize--second .prize__label,
 .prize--second .prize__amount-label {
-  color: var(--white);
-  text-shadow: 2px 2px 0 var(--ink);
+  color: var(--ink);
 }
 
 .prize--third {
   grid-area: third;
   min-height: clamp(280px, 30vw, 370px);
-  background: linear-gradient(145deg, #FFB3D6 0%, var(--tone-third) 45%, #E0589A 100%);
+  background: linear-gradient(145deg, #FFAF76 0%, var(--tone-third) 45%, #D25E1A 100%);
   transform-origin: bottom left;
 }
 
