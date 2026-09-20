@@ -80,11 +80,60 @@
    the star sitting on the seam. No card chrome — the halves are the section. */
 .section--about {
   --about-inner: clamp(18px, 2.6vw, 44px);
+  /* The wave that replaces the ruled seam: --seam-h is how deep it runs, and
+     --seam-w one tile of it. The tile is 480x80, so six times the depth is
+     what keeps the curve undistorted. */
+  --seam-h: clamp(40px, 4.6vw, 64px);
+  --seam-w: calc(var(--seam-h) * 6);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0;
   padding: 0;
-  border-top: var(--line) solid var(--ink);
+}
+
+/* Seam · the hero sheet doesn't stop at a ruled line: its bottom edge rolls
+   over both About halves as a wave, inked underneath like every other edge
+   here. Two masked layers of the same shape — the sheet colour, and the same
+   wave one line-weight lower in ink showing out below it — so the line follows
+   the curve and thins where the wave runs steep, the way a brush would. The
+   host section sets --seam-h / --seam-w. Where mask is unsupported both layers
+   stay rectangles: a band of sheet over an ink rule, i.e. the old straight
+   seam. */
+.seam {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  /* A tile of slack each side so the drift never runs out of wave; main clips */
+  left: calc(-1 * var(--seam-w));
+  right: calc(-1 * var(--seam-w));
+  height: var(--seam-h);
+  pointer-events: none;
+}
+.seam::before,
+.seam::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 100%;
+  -webkit-mask: var(--seam-wave) 0 0 / var(--seam-w) 100% repeat-x;
+  mask: var(--seam-wave) 0 0 / var(--seam-w) 100% repeat-x;
+  /* Exactly one tile per cycle, so it loops without a jump */
+  animation: seam-drift 34s linear infinite;
+}
+/* The line: the same wave, dropped a shade more than the line weight, since
+   the drop is vertical and the curve eats into it wherever it runs steep */
+.seam::before {
+  top: calc(var(--line) + 1px);
+  background: var(--ink);
+}
+/* The sheet: the hero's shaded bottom edge, carried over the seam */
+.seam::after {
+  top: 0;
+  background: var(--hero-page-shade);
+}
+@keyframes seam-drift {
+  to { translate: var(--seam-w); }
 }
 /* Rows are shared (subgrid) so both headings sit on the same line */
 .about-panel {
@@ -127,7 +176,9 @@
   align-content: end;
   justify-items: start;
   gap: 14px;
-  padding-top: clamp(44px, 4.5vw, 68px);
+  /* Clear of the seam: 0.72 of the band is the wave's deepest dip, and the
+     rest is the breathing room the ruled line used to have */
+  padding-top: calc(var(--seam-h, 0px) * 0.72 + clamp(34px, 3.4vw, 52px));
   padding-bottom: clamp(18px, 2vw, 26px);
 }
 .about-panel__kicker {
