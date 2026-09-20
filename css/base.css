@@ -22,7 +22,7 @@
   --paper: #FFF8EE;
 
   /* Hero page stock: the sheet the comic panels are printed on */
-  --hero-page: #22AC5F;
+  --hero-page: #FFE23A;
   --hero-page-lit: #48CE81;
   --hero-page-shade: #168748;
 
@@ -477,3 +477,236 @@ a { color: inherit; }
 }
 
 
+  letter-spacing: 0.03em;
+}
+
+/* --------------------------------------------------------------------------
+   COMIC PAGE-FLIP REVEAL
+   Panels turn in like pages of a book: hinged on the outer edge of their
+   column, they swing open as the timeline scrolls into view, and again on
+   click. Hidden only when JS is running, so the grid still reads without it.
+   -------------------------------------------------------------------------- */
+.comic-grid {
+  perspective: 1600px;
+  perspective-origin: 50% 40%;
+}
+
+.has-js .comic-panel {
+  opacity: 0;
+}
+
+.has-js .comic-panel.is-revealed {
+  opacity: 1;
+}
+
+.comic-panel.is-flipping {
+  animation: panelPageTurn 0.62s cubic-bezier(0.22, 0.85, 0.3, 1) both;
+  transform-origin: left center;
+  z-index: 8;
+}
+
+/* Right-hand column hinges on its own outer edge, like a facing page. */
+.comic-panel:nth-child(2n).is-flipping {
+  transform-origin: right center;
+}
+
+.comic-panel:focus-visible {
+  outline: 4px solid var(--color-red-accent);
+  outline-offset: 3px;
+}
+
+@keyframes panelPageTurn {
+  0% {
+    opacity: 0;
+    transform: rotateY(-84deg) scale(0.95);
+    box-shadow: 0px 0px 0px var(--color-black);
+  }
+  55% {
+    opacity: 1;
+  }
+  80% {
+    transform: rotateY(7deg) scale(1.012);
+    box-shadow: 9px 9px 0px var(--color-black);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+    box-shadow: 4px 4px 0px var(--color-black);
+  }
+}
+
+.comic-panel:nth-child(2n).is-flipping {
+  animation-name: panelPageTurnMirror;
+}
+
+@keyframes panelPageTurnMirror {
+  0% {
+    opacity: 0;
+    transform: rotateY(84deg) scale(0.95);
+    box-shadow: 0px 0px 0px var(--color-black);
+  }
+  55% {
+    opacity: 1;
+  }
+  80% {
+    transform: rotateY(-7deg) scale(1.012);
+    box-shadow: 9px 9px 0px var(--color-black);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+    box-shadow: 4px 4px 0px var(--color-black);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   SOUND TOGGLE
+   -------------------------------------------------------------------------- */
+.sound-toggle {
+  position: fixed;
+  right: clamp(14px, 2vw, 28px);
+  bottom: clamp(14px, 2vw, 28px);
+  z-index: 200;
+  width: clamp(46px, 4.4vw, 58px);
+  height: clamp(46px, 4.4vw, 58px);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background-color: var(--color-yellow-badge);
+  border: 3px solid var(--color-black);
+  border-radius: 999px;
+  box-shadow: 4px 4px 0px var(--color-black);
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.4, 1),
+              box-shadow 0.18s ease,
+              background-color 0.18s ease;
+}
+
+.sound-toggle:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--color-black);
+}
+
+.sound-toggle:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--color-black);
+}
+
+.sound-toggle:focus-visible {
+  outline: 3px solid var(--color-red-accent);
+  outline-offset: 3px;
+}
+
+.sound-toggle.is-muted {
+  background-color: var(--color-white);
+}
+
+/* Nudges until the browser has actually let the audio through. */
+.sound-toggle.is-pending {
+  animation: soundNudge 2.6s ease-in-out infinite;
+}
+
+@keyframes soundNudge {
+  0%, 68%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  74% {
+    transform: translate(-2px, -2px) rotate(-7deg);
+  }
+  82% {
+    transform: translate(-2px, -2px) rotate(7deg);
+  }
+  90% {
+    transform: translate(-2px, -2px) rotate(-4deg);
+  }
+}
+
+.sound-icon {
+  width: 56%;
+  height: 56%;
+  display: block;
+  pointer-events: none;
+}
+
+.sound-body {
+  fill: var(--color-black);
+}
+
+.sound-wave,
+.sound-slash {
+  fill: none;
+  stroke: var(--color-black);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+}
+
+.sound-slash {
+  stroke-width: 2.4;
+  opacity: 0;
+}
+
+.sound-toggle.is-muted .sound-wave {
+  opacity: 0;
+}
+
+.sound-toggle.is-muted .sound-slash {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE MEDIA QUERIES
+   -------------------------------------------------------------------------- */
+@media (max-width: 860px) {
+  :root {
+    --tape-border-width: 6px;
+    --tape-shadow: 0px 10px 0px 0px rgba(0, 0, 0, 0.35);
+  }
+
+  .caution-tape-top {
+    top: clamp(8px, 1.8vh, 22px);
+  }
+
+  .caution-tape-bottom {
+    bottom: clamp(12px, 2.2vh, 26px);
+  }
+
+  .comic-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .timeline-header {
+    margin-bottom: -16px;
+    margin-left: 0;
+  }
+
+  .timeline-title-img {
+    width: clamp(200px, 50vw, 320px);
+  }
+
+  .panel-speech-bubble {
+    white-space: normal;
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --tape-border-width: 5px;
+    --tape-shadow: 0px 8px 0px 0px rgba(0, 0, 0, 0.35);
+  }
+
+  .center-title-img {
+    max-height: 180px;
+  }
+
+  .timeline-section {
+    padding: 40px 12px;
+  }
+
+  .comic-board {
+    padding: 12px;
+    box-shadow: 5px 5px 0px var(--color-black);
+  }
+}
