@@ -527,8 +527,8 @@
 
 .prize--third .prize__label,
 .prize--third .prize__amount-label {
-  color: var(--white);
-  text-shadow: 2px 2px 0 var(--ink);
+  color: var(--ink);
+  text-shadow: none;
 }
 
 /* Staggered entrance transition delays */
@@ -773,16 +773,43 @@ a.foot-social__link:active { transform: translate(2px, 2px); box-shadow: 1px 1px
   line-height: 1.15;
   text-transform: uppercase;
 }
-.foot-card__line--date { font-weight: 700; text-transform: uppercase; }
-.foot-card__banner {
-  margin-top: 8px;
-  padding: 0.45em 0.8em;
+.foot-card__coords {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  opacity: 0.78;
+}
+
+.foot-transit {
+  display: grid;
+  gap: 5px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1.5px dashed rgba(12, 14, 15, 0.25);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+.foot-transit__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+}
+.foot-transit__icon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  fill: var(--red);
+}
+.foot-transit__label {
   font-weight: 700;
-  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--white);
-  background: var(--red);
-  border-radius: 6px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+.foot-transit__val {
+  color: rgba(12, 14, 15, 0.85);
+  white-space: nowrap;
 }
 
 /* Seal and barcode */
@@ -899,8 +926,8 @@ a.foot-social__link:active { transform: translate(2px, 2px); box-shadow: 1px 1px
     box-shadow: 4px 4px 0 var(--ink);
   }
   .foot-card__head { padding-bottom: 6px; }
-  .foot-card__title { margin-top: 4px; font-size: 1rem; }
-  .foot-card__banner { margin-top: 6px; padding: 0.4em 0.7em; }
+  .foot-transit { gap: 4px; margin-top: 5px; padding-top: 6px; font-size: 0.68rem; }
+  .foot-transit__icon { width: 12px; height: 12px; }
 
   .foot-marks { grid-auto-flow: column; align-items: center; gap: 14px; }
   .foot-seal { width: 96px; height: 96px; padding: 7px; }
