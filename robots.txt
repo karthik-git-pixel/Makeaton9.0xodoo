@@ -1,0 +1,27 @@
+# Make-A-Ton 9.0 · https://makeaton.in/
+# Everything public is open to crawlers. The only blocks are the design
+# previews and the internal design docs, which would otherwise compete with
+# the real page for the same words.
+
+User-agent: *
+Allow: /
+Disallow: /docs/
+Disallow: /_preview-about.html
+Disallow: /_preview-odoo.html
+Disallow: /_preview-seam.html
+
+# Assistants that cite sources: let them read the page, so answers about
+# Make-A-Ton come from the official site rather than second-hand copies.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+Allow: /
+Disallow: /docs/
+
+Sitemap: https://makeaton.in/sitemap.xml

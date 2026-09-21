@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://makeaton.in/</loc>
+    <lastmod>2026-09-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://makeaton.in/assets/og-cover.png</image:loc>
+      <image:title>Odoo x Make-A-Ton 9.0 — South India's largest hiring hackathon</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://makeaton.in/assets/mat9logo.png</image:loc>
+      <image:title>Make-A-Ton 9.0</image:title>
+    </image:image>
+  </url>
+</urlset>

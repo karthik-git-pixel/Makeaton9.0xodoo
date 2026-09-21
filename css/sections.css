@@ -508,15 +508,6 @@
   margin-block: 4px;
 }
 
-.prize__amount-label {
-  font-family: var(--font-tape);
-  font-size: clamp(0.74rem, 3.4cqi, 0.88rem);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.9;
-  color: var(--ink);
-}
-
 .prize__amount {
   max-width: 100%;
   font-family: var(--font-display);
@@ -606,8 +597,7 @@
   border: 2px solid var(--ink);
 }
 
-.prize--second .prize__label,
-.prize--second .prize__amount-label {
+.prize--second .prize__label {
   color: var(--ink);
 }
 
@@ -624,8 +614,7 @@
   border: 2px solid var(--ink);
 }
 
-.prize--third .prize__label,
-.prize--third .prize__amount-label {
+.prize--third .prize__label {
   color: var(--ink);
   text-shadow: none;
 }

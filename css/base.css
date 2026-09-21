@@ -60,6 +60,8 @@ body {
 main { display: block; overflow-x: clip; background: var(--white); }
 ::selection { color: var(--white); background: var(--ink); }
 img, svg { display: block; max-width: 100%; }
+/* <picture> only picks the file format; the <img> stays the layout box */
+picture { display: contents; }
 h1, h2, h3, p, ol, ul { margin: 0; }
 ol, ul { padding: 0; list-style: none; }
 a { color: inherit; }

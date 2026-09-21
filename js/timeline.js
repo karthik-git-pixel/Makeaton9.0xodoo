@@ -37,7 +37,10 @@
   const panel = (c) => `
     <div class="page__panel-frame">
       ${c.panel
-        ? `<img class="page__panel-img" src="assets/timeline/${esc(c.panel)}" alt="${esc(c.title)}" data-chapter="${c.num}">`
+        ? `<picture>
+             <source type="image/webp" srcset="assets/timeline/${esc(c.panel.replace(/\.[a-z]+$/i, '.webp'))}">
+             <img class="page__panel-img" src="assets/timeline/${esc(c.panel)}" alt="${esc(c.title)}" data-chapter="${c.num}" loading="lazy" decoding="async">
+           </picture>`
         : typeset(c.num, c.title)}
     </div>
     ${c.dialogue ? `
