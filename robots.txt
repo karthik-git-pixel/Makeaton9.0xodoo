@@ -1,4 +1,4 @@
-# Make-A-Ton 9.0 · https://makeaton.in/
+# Make-A-Ton 9.0 · https://www.makeaton.in/
 # Everything public is open to crawlers. The only blocks are the design
 # previews and the internal design docs, which would otherwise compete with
 # the real page for the same words.
@@ -24,4 +24,4 @@ User-agent: CCBot
 Allow: /
 Disallow: /docs/
 
-Sitemap: https://makeaton.in/sitemap.xml
+Sitemap: https://www.makeaton.in/sitemap.xml
