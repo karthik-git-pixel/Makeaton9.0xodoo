@@ -619,3 +619,54 @@ a { color: inherit; }
     box-shadow: 5px 5px 0px var(--ink);
   }
 }
+
+/* WhatsApp group invite · a small fixed pill, below the nav in the stack ---- */
+.join-pill {
+  position: fixed;
+  right: clamp(12px, 2vw, 22px);
+  bottom: clamp(12px, 2vw, 22px);
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 15px 6px 6px;
+  font-family: var(--font-tape);
+  font-size: 0.76rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--white);
+  border: var(--line) solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition: translate 0.15s ease, box-shadow 0.15s ease;
+}
+.join-pill:hover { translate: -2px -2px; box-shadow: 6px 6px 0 var(--ink); }
+.join-pill__label b { font-weight: 400; color: #128C4A; }
+.join-pill__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  color: var(--white);
+  background: #25D366;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  animation: join-pulse 2.8s ease-out infinite;
+}
+/* Sizing the icon here too, so a missing stylesheet can never leave it full-page */
+.join-pill__icon svg { width: 17px; height: 17px; fill: currentColor; }
+/* Only the ring moves, so the pill never jitters under the pointer */
+@keyframes join-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.65); }
+  70% { box-shadow: 0 0 0 11px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+@media (max-width: 420px) {
+  .join-pill { gap: 7px; padding: 5px 12px 5px 5px; font-size: 0.68rem; }
+  .join-pill__icon { width: 26px; height: 26px; }
+  .join-pill__icon svg { width: 15px; height: 15px; }
+}
