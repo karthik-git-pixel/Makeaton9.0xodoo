@@ -342,22 +342,6 @@
   box-shadow: 4px 4px 0 var(--ink);
   rotate: -1.5deg;
 }
-/* The three firsts run inline and wrap, rather than taking three tall lines */
-.hack__firsts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px clamp(14px, 1.8vw, 26px);
-  font-family: var(--font-tape);
-  font-size: clamp(0.92rem, 0.86rem + 0.35vw, 1.15rem);
-}
-.hack__firsts li { display: flex; align-items: baseline; gap: 0.35em; }
-.hack__firsts li::before { content: "▸"; font-size: 0.6em; color: var(--red); }
-.hack__maybe {
-  font-family: var(--font-display);
-  font-size: clamp(1.15rem, 0.95rem + 1vw, 1.75rem);
-  text-transform: uppercase;
-  color: var(--red);
-}
 .hack__facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
