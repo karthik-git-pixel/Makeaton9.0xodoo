@@ -311,77 +311,79 @@
   .swoosh::after { left: 2%; right: -4%; }
 }
 
-/* Hack For CUSAT · the CUSAT-only curtain raiser, on the green mascot's green */
+/* Make-Her Hack · a split panel: the pitch and the link, with the mascot
+   cheering alongside. Everything else about the event lives on its own site. */
 .section--hack {
-  --pattern-color: #1E9A54;
+  --pattern-color: #8E4DE0;
   padding-block: clamp(32px, 3.4vw, 50px) clamp(36px, 3.8vw, 56px);
   color: var(--ink);
-  background: var(--green);
+  background: var(--purple);
+}
+.hack__eyebrow {
+  padding: 0.35em 1em;
+  font-family: var(--font-tape);
+  font-size: clamp(0.72rem, 0.68rem + 0.2vw, 0.86rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tape);
+  background: var(--ink);
+  border-radius: 999px;
 }
 .hack__card {
   display: grid;
-  gap: clamp(9px, 1.1vw, 14px);
-  padding: clamp(18px, 2.2vw, 28px);
+  grid-template-columns: minmax(0, 1fr) clamp(140px, 17vw, 210px);
+  align-items: center;
+  gap: clamp(14px, 2.4vw, 36px);
+  padding: clamp(18px, 2.4vw, 30px) clamp(18px, 2.6vw, 34px);
   color: var(--ink);
   background: var(--paper);
   border: var(--line) solid var(--ink);
-  box-shadow: 8px 8px 0 var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 10px 10px 0 var(--ink);
 }
-.hack__card .odoo__lead { font-size: clamp(1.05rem, 0.98rem + 0.4vw, 1.3rem); }
+.hack__text { display: grid; justify-items: start; gap: clamp(7px, 0.9vw, 12px); }
 .hack__hook {
-  justify-self: start;
   padding: 0.35em 0.8em;
   font-family: var(--font-tape);
-  font-size: clamp(0.95rem, 0.86rem + 0.55vw, 1.35rem);
+  font-size: clamp(0.88rem, 0.8rem + 0.4vw, 1.12rem);
   line-height: 1.1;
   text-transform: uppercase;
+  /* Ink, not white: white on --star-pink is only 2.6:1 */
   color: var(--ink);
-  background: var(--tape);
+  background: var(--star-pink);
   border: var(--line) solid var(--ink);
   border-radius: 8px;
   box-shadow: 4px 4px 0 var(--ink);
   rotate: -1.5deg;
 }
-.hack__facts {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
-  gap: 10px;
-  margin-top: 2px;
+.hack__lead {
+  font-size: clamp(1.08rem, 1rem + 0.5vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.25;
+  text-wrap: balance;
 }
-.hack__facts div {
-  padding: 8px 12px;
-  color: var(--ink);
-  background: var(--tape);
-  border: var(--line) solid var(--ink);
-  border-radius: 12px;
-  box-shadow: 3px 3px 0 var(--ink);
-}
-.hack__facts dt {
-  font-family: var(--font-tape);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--red);
-}
-.hack__facts dd { margin: 0; font-weight: 700; }
+.hack__lead b { color: var(--red); }
+.hack__body { max-width: 56ch; font-size: clamp(0.95rem, 0.92rem + 0.2vw, 1.05rem); line-height: 1.45; }
 .hack__action {
-  margin-top: 6px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 10px clamp(14px, 1.6vw, 22px);
+  margin-top: clamp(2px, 0.6vw, 8px);
 }
+.hack__note { max-width: 32ch; font-size: 0.84rem; line-height: 1.35; }
+.hack__note b { font-family: var(--font-mono, monospace); font-size: 0.95em; }
 .hack__cta {
   display: inline-flex;
   align-items: center;
   gap: 0.5em;
-  padding: 0.6em 1.25em;
+  padding: 0.62em 1.3em;
   font-family: var(--font-tape);
   font-size: clamp(0.92rem, 0.85rem + 0.35vw, 1.15rem);
   text-transform: uppercase;
   text-decoration: none;
   color: var(--ink);
-  background: var(--yellow);
+  background: var(--tape);
   border: var(--line) solid var(--ink);
   border-radius: 999px;
   box-shadow: 4px 4px 0 var(--ink);
@@ -395,17 +397,53 @@
   fill: none;
   transition: transform 0.2s ease;
 }
-.hack__cta:hover {
-  translate: -2px -2px;
-  box-shadow: 6px 6px 0 var(--ink);
-  background: #FFE866;
+.hack__cta:hover { translate: -2px -2px; box-shadow: 6px 6px 0 var(--ink); background: #FFE866; }
+.hack__cta:hover svg { transform: translate(2px, -2px); }
+.hack__cta:active { translate: 2px 2px; box-shadow: 2px 2px 0 var(--ink); }
+
+/* The mascot stands on a pink disc, with one star spinning off the corner */
+.hack__art {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  align-self: stretch;
+  min-height: clamp(130px, 16vw, 190px);
 }
-.hack__cta:hover svg {
-  transform: translate(2px, -2px);
+.hack__art::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--star-pink);
+  border: var(--line) solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 5px 5px 0 var(--ink);
 }
-.hack__cta:active {
-  translate: 2px 2px;
-  box-shadow: 2px 2px 0 var(--ink);
+.hack__art::after {
+  content: "";
+  position: absolute;
+  top: -2%;
+  left: -6%;
+  width: 26%;
+  aspect-ratio: 1;
+  background: var(--tape);
+  -webkit-mask: var(--star) center / contain no-repeat;
+  mask: var(--star) center / contain no-repeat;
+  animation: spin 9s linear infinite;
+}
+.hack__mascot {
+  position: relative;
+  width: 76%;
+  height: auto;
+  margin-bottom: 6%;
+  filter: drop-shadow(5px 5px 0 var(--ink));
+}
+
+/* Phones: drop the art, so the section stays one short panel */
+@media (max-width: 720px) {
+  .hack__card { grid-template-columns: minmax(0, 1fr); box-shadow: 8px 8px 0 var(--ink); }
+  .hack__art { display: none; }
 }
 
 /* Prizes · red sunburst ---------------------------------------------------- */
