@@ -364,6 +364,49 @@
   color: var(--red);
 }
 .hack__facts dd { margin: 0; font-weight: 700; }
+.hack__action {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.hack__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.6em 1.25em;
+  font-family: var(--font-tape);
+  font-size: clamp(0.92rem, 0.85rem + 0.35vw, 1.15rem);
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--yellow);
+  border: var(--line) solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition: translate 0.15s cubic-bezier(0.2, 1.4, 0.4, 1), box-shadow 0.15s cubic-bezier(0.2, 1.4, 0.4, 1), background 0.15s ease;
+}
+.hack__cta svg {
+  width: 1em;
+  height: 1em;
+  stroke: currentColor;
+  stroke-width: 2.8;
+  fill: none;
+  transition: transform 0.2s ease;
+}
+.hack__cta:hover {
+  translate: -2px -2px;
+  box-shadow: 6px 6px 0 var(--ink);
+  background: #FFE866;
+}
+.hack__cta:hover svg {
+  transform: translate(2px, -2px);
+}
+.hack__cta:active {
+  translate: 2px 2px;
+  box-shadow: 2px 2px 0 var(--ink);
+}
 
 /* Prizes · red sunburst ---------------------------------------------------- */
 /* Podium tones: gold, silver and bronze. Each card is that metal lit from the
