@@ -89,6 +89,7 @@
     </div>`;
   const end = `
     <div class="page page--left page--end face--back">
+      <img class="page__logo page__logo--end" src="assets/mat9logo.png" alt="Make-A-Ton 9.0" width="2160" height="728" loading="lazy">
       <p class="page__cover-title">The end?</p>
       <p class="page__blurb">Not quite. The best chapter is the one you build.</p>
     </div>`;
@@ -112,7 +113,7 @@
           <p class="page__folio">1</p>
         </div>
         <div class="page page--right page--base page--backcover">
-          <img class="page__logo" src="assets/logo.svg" alt="">
+          <img class="page__logo" src="assets/mat9logo.png" alt="Make-A-Ton 9.0" width="2160" height="728" loading="lazy">
           <p class="page__cover-sub">See you at the final</p>
           <p class="page__tag">${esc(last.short)} · ${esc(last.lead)}</p>
         </div>

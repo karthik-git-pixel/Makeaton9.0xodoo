@@ -379,7 +379,9 @@
   text-shadow: 0.05em 0.06em 0 var(--ink);
 }
 .page__cover-sub { font-family: var(--font-tape); font-size: 1.1em; text-transform: uppercase; text-shadow: 2px 2px 0 var(--ink); }
-.page__logo { width: 82%; }
+.page__logo { width: 82%; height: auto; }
+/* On the cream end page the logo is the sign-off, above the line of type */
+.page__logo--end { width: 62%; margin-bottom: -0.2em; }
 
 /* Contents page */
 .book .page--contents {

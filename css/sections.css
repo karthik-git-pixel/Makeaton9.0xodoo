@@ -215,20 +215,6 @@
   font-weight: 700;
   line-height: 1.35;
 }
-/* There is no card edge left to hang over — the half runs to the section's
-   bottom, and anything past it would slide under the next section — so the
-   mascot stands in the corner of the cream half and keeps the same sway. */
-.mascot-peeker--about {
-  right: clamp(12px, 3vw, 56px);
-  /* Clear of the next section's tape divider, which rides up over this edge */
-  bottom: clamp(30px, 3.2vw, 56px);
-  transform: translate(0, 0) rotate(8deg);
-  animation-name: mascot-stand-sway;
-}
-@keyframes mascot-stand-sway {
-  0%, 100% { transform: translate(0, 0) rotate(8deg); }
-  50% { transform: translate(-4px, -7px) rotate(4deg); }
-}
 .about-panel__stickers {
   display: flex;
   flex-wrap: wrap;
@@ -256,9 +242,6 @@
   .about-panel--cittic .about-panel__head { padding-top: clamp(30px, 6vw, 48px); }
   /* Back inside the half, now that there is no seam to sit on */
   .about-panel--mat .about-panel__head::before { translate: 0 50%; }
-  /* Room under the text for the mascot, pulled in so its bubble stays on screen */
-  .about-panel--cittic .about-panel__body { padding-bottom: 120px; }
-  .mascot-peeker--about { right: 30px; }
 }
 
 /* About Odoo Hackathon · violet (Odoo's own colour), tone-on-tone squiggles */
