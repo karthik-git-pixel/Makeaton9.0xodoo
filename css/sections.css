@@ -314,10 +314,10 @@
 /* Make-Her Hack · a split panel: the pitch and the link, with the mascot
    cheering alongside. Everything else about the event lives on its own site. */
 .section--hack {
-  --pattern-color: #8E4DE0;
+  --pattern-color: #1E9A54;
   padding-block: clamp(32px, 3.4vw, 50px) clamp(36px, 3.8vw, 56px);
   color: var(--ink);
-  background: var(--purple);
+  background: var(--green);
 }
 .hack__eyebrow {
   padding: 0.35em 1em;
