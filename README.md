@@ -40,7 +40,6 @@
 |:--|:--|
 | 🏁 **Registrations** | 21 September — 25 October 2026 |
 | 💻 **Virtual Round** | 8 hours, online, open to all |
-| 🎓 **HackForCUSAT** | 18 December 2026 · the CUSAT-only curtain raiser |
 | 🔥 **The Grand Final** | 19 – 20 December 2026 · 24 non-stop hours |
 | 📍 **The Arena** | CUSAT, Kochi, Kerala |
 | 🤝 **Presented with** | Odoo India |
