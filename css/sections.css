@@ -1134,3 +1134,192 @@ a.foot-social__link:active { transform: translate(2px, 2px); box-shadow: 1px 1px
   .foot-barcode { width: 108px; }
   .foot-marks { gap: 10px; }
 }
+
+/* 404 Error Page · Comic Stage & Panel -------------------------------------- */
+.section--error {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: clamp(80px, 10vw, 120px) clamp(60px, 8vw, 100px);
+  background-color: var(--yellow);
+  --pattern-color: #E2A81B;
+}
+
+.error-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: clamp(24px, 4vw, 48px);
+  max-width: 960px;
+  margin-inline: auto;
+  padding: clamp(28px, 4vw, 56px);
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 12px 12px 0 var(--ink);
+  position: relative;
+  overflow: visible;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 2;
+}
+
+.error-badge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 0.35em 0.9em;
+  font-family: var(--font-tape);
+  font-size: clamp(0.9rem, 1.2vw, 1.15rem);
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--star-pink);
+  border: var(--line) solid var(--ink);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0 var(--ink);
+  rotate: -2deg;
+}
+
+.error-title {
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 8vw, 6.4rem);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--red);
+  -webkit-text-stroke: 0.08em var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0.05em 0.06em 0 var(--ink);
+  margin: 0;
+}
+
+.error-lead {
+  font-family: var(--font-tape);
+  font-size: clamp(1.15rem, 1.8vw, 1.6rem);
+  line-height: 1.2;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
+.error-text {
+  font-size: clamp(1rem, 1.1vw, 1.15rem);
+  line-height: 1.6;
+  max-width: 50ch;
+  color: var(--ink);
+  margin: 0;
+}
+
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.error-actions .btn--home {
+  background: var(--tape);
+  font-size: 1.1rem;
+  padding: 0.7em 1.5em;
+}
+.error-actions .btn--home:hover {
+  background: #FFE866;
+}
+
+.error-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.error-links a {
+  padding: 5px 12px;
+  background: var(--white);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--ink);
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.error-links a:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+  background: var(--tape);
+}
+
+.error-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: 220px;
+}
+
+.error-mascot {
+  width: clamp(160px, 20vw, 240px);
+  height: auto;
+  filter: drop-shadow(8px 8px 0 var(--ink));
+  animation: error-mascot-float 3.5s ease-in-out infinite;
+}
+
+.error-bubble {
+  position: relative;
+  padding: 8px 16px;
+  margin-bottom: 12px;
+  font-family: var(--font-tape);
+  font-size: clamp(0.82rem, 1vw, 1rem);
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--tape);
+  border: var(--line) solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 4px 4px 0 var(--ink);
+  text-align: center;
+  animation: mascot-bubble-pulse 2.8s ease-in-out infinite;
+}
+.error-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--ink);
+}
+
+@keyframes error-mascot-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+@media (max-width: 768px) {
+  .error-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+    box-shadow: 8px 8px 0 var(--ink);
+  }
+  .error-badge {
+    align-self: center;
+  }
+  .error-actions {
+    justify-content: center;
+  }
+  .error-links {
+    justify-content: center;
+  }
+  .error-visual {
+    order: -1;
+  }
+}
+
