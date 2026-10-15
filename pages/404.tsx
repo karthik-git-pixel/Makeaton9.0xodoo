@@ -12,34 +12,32 @@ export default function Custom404() {
       </Head>
 
       <main className="section section--error pattern pattern--squiggle">
-        <div className="tape tape--divider" data-tape="ERROR 404 · PAGE NOT FOUND · CHAPTER MISSING"></div>
+        <div className="tape tape--strike" data-tape="ERROR 404 · PAGE NOT FOUND · CHAPTER MISSING"></div>
         <div className="section__inner">
           <article className="card card--white error-card">
             <div className="error-content">
-              <span className="error-badge">Chapter 404</span>
               <h1 className="error-title">Lost in the Multiverse!</h1>
               <p className="error-lead">Oops! This panel never got drawn.</p>
               <p className="error-text">
-                Looks like this page slipped into another dimension, got eaten by a compile error, or was lost in a merge conflict.
-                Don&apos;t worry builder&mdash;the main arena is still open and shipping non-stop!
+                This page slipped into another dimension. Let&apos;s get you back to the build!
               </p>
 
               <div className="error-actions">
                 <Link href="/" className="btn btn--big btn--home">
                   Back to Home
                 </Link>
-                <Link href="/#timeline" className="btn">
-                  View Timeline
-                </Link>
               </div>
 
-              <div className="error-links">
-                <span>Quick jumps:</span>
-                <Link href="/#about">About</Link>
-                <Link href="/#odoo">Odoo</Link>
-                <Link href="/#prizes">Prizes</Link>
-                <Link href="/#faq">FAQ</Link>
-                <a href="/wa" target="_blank" rel="noopener noreferrer">WhatsApp Group</a>
+              <div className="error-socials">
+                <span className="error-socials__label">Follow along:</span>
+                <ul className="error-socials__list">
+                  <li><a className="error-socials__link" href="/insta" target="_blank" rel="noopener noreferrer" aria-label="Instagram">IG</a></li>
+                  <li><a className="error-socials__link" href="/linkedin" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">IN</a></li>
+                  <li><a className="error-socials__link" href="/discord" target="_blank" rel="noopener noreferrer" aria-label="Discord">DC</a></li>
+                  <li><a className="error-socials__link" href="/telegram" target="_blank" rel="noopener noreferrer" aria-label="Telegram">TG</a></li>
+                  <li><a className="error-socials__link" href="/x" target="_blank" rel="noopener noreferrer" aria-label="X">X</a></li>
+                  <li><a className="error-socials__link" href="/wa" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">WA</a></li>
+                </ul>
               </div>
             </div>
 
@@ -55,6 +53,7 @@ export default function Custom404() {
             </div>
           </article>
         </div>
+        <div className="tape tape--strike-bottom" data-tape="ERROR 404 · PAGE NOT FOUND · CHAPTER MISSING" data-reverse></div>
       </main>
     </>
   );
