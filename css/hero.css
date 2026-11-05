@@ -773,12 +773,71 @@
   opacity: 0.8;
 }
 
-/* Once the deadline passes, the digits go and the label says so */
+/* Once the deadline passes, the clock is swapped for a caution-taped
+   "Registrations CLOSED" headline */
+.countdown__closed { display: none; }
+.countdown.is-over .countdown__label,
 .countdown.is-over .countdown__units,
 .countdown.is-over .countdown__deadline { display: none; }
-.countdown.is-over .countdown__label {
-  padding: 0.5em 1.1em;
-  font-size: clamp(0.8rem, 0.7rem + 0.4vw, 1rem);
+
+.countdown.is-over {
+  --stripes: repeating-linear-gradient(-45deg, var(--ink) 0 8px, var(--tape) 8px 16px);
+  padding: 20px clamp(12px, 1.4vw, 20px);
+  background:
+    var(--stripes) top / 100% 9px no-repeat,
+    var(--stripes) bottom / 100% 9px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) 0 9px / 100% 2px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) 0 calc(100% - 9px) / 100% 2px no-repeat,
+    radial-gradient(rgba(12, 14, 15, 0.13) 1px, transparent 1.6px) 0 0 / 9px 9px,
+    var(--tape);
+  overflow: hidden;
+}
+.countdown.is-over .countdown__closed {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.countdown__closed-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1em 0.3em;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 1.3rem + 1.7vw, 3.1rem);
+  line-height: 0.9;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-shadow: 0.045em 0.045em 0 var(--white);
+}
+.countdown__closed-stamp {
+  display: inline-block;
+  padding: 0.1em 0.3em 0.04em;
+  color: var(--white);
+  background: var(--red);
+  border: var(--line) solid var(--ink);
+  border-radius: 10px;
+  box-shadow: 4px 4px 0 var(--ink);
+  -webkit-text-stroke: 0.07em var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0.04em 0.05em 0 var(--ink);
+  rotate: -4deg;
+  animation: hero-stamp 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) 0.9s both;
+}
+.countdown__closed-note {
+  font-family: var(--font-tape);
+  font-size: clamp(0.7rem, 0.64rem + 0.2vw, 0.84rem);
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.countdown__closed-note time {
+  font: inherit;
+  padding: 0.15em 0.5em;
   color: var(--tape);
   background: var(--ink);
   border-radius: 999px;
@@ -853,6 +912,9 @@
   .hero-cta { font-size: clamp(1.1rem, 0.9rem + 0.8vw, 1.4rem); }
   .hero-count { gap: 6px; padding-block: 10px; }
   .countdown__value { font-size: clamp(1.5rem, 1.1rem + 1vw, 2rem); }
+  .countdown.is-over { padding-block: 17px; }
+  .countdown.is-over .countdown__closed { gap: 8px; }
+  .countdown__closed-title { font-size: clamp(1.9rem, 1.2rem + 1.4vw, 2.6rem); }
 }
 
 /* Tablets and phones: one column. Title first, then the facts, then the art. */
@@ -920,6 +982,9 @@
   .countdown__unit { flex: 1; min-width: 0; }
   .countdown__value { font-size: 2rem; }
   .hero-count { padding: 12px; }
+  .countdown.is-over { padding: 19px 10px; }
+  .countdown__closed-title { font-size: clamp(1.75rem, 8.6vw, 2.3rem); }
+  .countdown__closed-stamp { box-shadow: 3px 3px 0 var(--ink); }
   .hero-prize { padding: 12px; }
   .hero-prize__amount { font-size: 1.85rem; }
   .hero-prize__note { font-size: 0.7rem; }
@@ -932,6 +997,7 @@
   .hero-mug__steam,
   .hero-spark,
   .crt__led,
+  .countdown__closed-stamp,
   .hero-cta { animation: none; }
 }
 
@@ -962,6 +1028,10 @@
 }
 @keyframes hero-drop {
   from { opacity: 0; translate: 0 -14px; }
+}
+/* The CLOSED stamp slams down onto the panel */
+@keyframes hero-stamp {
+  from { opacity: 0; scale: 1.8; rotate: -14deg; }
 }
 @keyframes hero-pop {
   from { opacity: 0; scale: 0.7; rotate: -4deg; }
