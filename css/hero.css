@@ -321,6 +321,8 @@
 .hero-cta:hover .hero-cta__arrow { translate: 3px -3px; }
 .hero-cta:active { translate: 4px 4px; box-shadow: 2px 2px 0 var(--ink); }
 .hero-cta:focus-visible { outline: 3px solid var(--white); outline-offset: 4px; }
+/* Registration closed: same badge, but static and not clickable */
+.hero-cta--closed { pointer-events: none; animation: none; }
 
 .hero-link {
   font-family: var(--font-tape);
