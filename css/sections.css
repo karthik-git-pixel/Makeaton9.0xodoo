@@ -36,22 +36,6 @@
   border-radius: 8px;
 }
 .site-nav__menu a:not(.btn):hover { color: var(--tape); }
-/* Status chip, not a link. The attribute selector matches the specificity of
-   .btn[aria-disabled="true"] in base.css, which would otherwise wash it out. */
-.site-nav__cta {
-  padding: 0.5em 1.05em;
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-  background: var(--tape);
-  border-color: var(--ink);
-}
-.site-nav__cta[aria-disabled="true"] {
-  box-shadow: none;
-  cursor: default;
-}
-.site-nav__cta[aria-disabled="true"]:hover,
-.site-nav__cta[aria-disabled="true"]:active { transform: none; box-shadow: none; }
 .site-nav__toggle { display: none; }
 
 @media (max-width: 760px) {
@@ -72,7 +56,6 @@
   .site-nav__menu { display: none; flex-basis: 100%; flex-direction: column; align-items: stretch; gap: 2px; padding: 8px 0 6px; }
   .site-nav.is-open .site-nav__menu { display: flex; }
   .site-nav__menu a:not(.btn) { padding: 0.7em 0.6em; font-size: 1.1rem; }
-  .site-nav__cta { margin-top: 6px; }
 }
 
 /* About Make-A-Ton + CITTIC · one section split down the middle: a yellow half
