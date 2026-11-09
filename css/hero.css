@@ -773,187 +773,60 @@
   opacity: 0.8;
 }
 
-/* Once the deadline passes, the clock is swapped for a "Closed" shop sign that
-   drops onto a nail and swings itself still, beside what happens next. */
+/* Once the deadline passes, the clock is swapped for a plain, bold
+   "Registrations closed" headline and a link to the event page for updates */
 .countdown__closed { display: none; }
 .countdown.is-over .countdown__label,
 .countdown.is-over .countdown__units,
 .countdown.is-over .countdown__deadline { display: none; }
 
 .countdown.is-over {
-  align-content: stretch;
-  justify-items: stretch;
-  padding: 0 clamp(14px, 1.6vw, 24px);
+  padding: 14px clamp(14px, 1.6vw, 24px);
   background:
     radial-gradient(rgba(12, 14, 15, 0.13) 1px, transparent 1.6px) 0 0 / 9px 9px,
     var(--tape);
-  /* Hides the sign while it is still above the panel, before it drops */
-  overflow: hidden;
 }
 .countdown.is-over .countdown__closed {
-  display: flex;
-  justify-content: center;
-  gap: clamp(14px, 1.8vw, 28px);
-}
-
-/* The sign. The nail sits near the panel's top edge; .closed-sign pivots on it
-   for the idle sway and the poke (js/main.js adds .is-poked), while
-   .closed-sign__hang does the one-off drop and settling swing. */
-.closed-sign {
-  --nail: 12px;
-  --nail-top: 9px;
-  --cord: clamp(18px, 1.6vw, 24px);
   display: grid;
   justify-items: center;
-  align-content: start;
-  padding: var(--nail-top) 6px 16px 0;
-  transform-origin: 50% calc(var(--nail-top) + var(--nail) / 2);
-  cursor: grab;
-  animation: sign-sway 6s ease-in-out 3.7s infinite;
-}
-.closed-sign.is-poked { animation: sign-poke 1.7s ease-in-out; }
-
-.closed-sign__nail {
-  position: relative;
-  z-index: 2;
-  width: var(--nail);
-  height: var(--nail);
-  background: radial-gradient(circle at 35% 35%, var(--white) 0 18%, var(--ink) 24%);
-  border-radius: 50%;
-  box-shadow: 2px 2px 0 rgba(12, 14, 15, 0.3);
-  animation: sign-nail 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) 0.85s both;
-}
-
-.closed-sign__hang {
-  position: relative;
-  /* Start at the nail's centre, so the cords meet under it */
-  margin-top: calc(var(--nail) / -2);
-  padding-top: var(--cord);
-  transform-origin: 50% 0;
-  animation:
-    sign-drop 0.6s linear 1.05s both,
-    sign-swing 2.4s ease-in-out 1.41s both;
-}
-/* Two cords from the nail down to the eyelets */
-.closed-sign__hang::before {
-  --cord-line: transparent calc(50% - 1.1px), var(--ink) calc(50% - 1.1px) calc(50% + 1.1px), transparent calc(50% + 1.1px);
-  content: "";
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  left: 24%;
-  right: 24%;
-  height: calc(var(--cord) + 9px);
-  background:
-    linear-gradient(to top left, var(--cord-line)) left / 50% 100% no-repeat,
-    linear-gradient(to top right, var(--cord-line)) right / 50% 100% no-repeat;
-}
-
-.closed-sign__board {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 0.3em;
-  padding: 0.95em 0.85em 0.45em;
+  gap: 14px;
   text-align: center;
-  background: var(--red);
-  border: var(--line) solid var(--ink);
-  border-radius: 10px;
-  /* A thin white trim inside the edge, like a painted shop sign */
-  box-shadow:
-    inset 0 0 0 3px var(--red),
-    inset 0 0 0 5px rgba(255, 255, 255, 0.85),
-    4px 4px 0 var(--ink);
 }
-/* Eyelets the cords run through */
-.closed-sign__board::before,
-.closed-sign__board::after {
-  content: "";
-  position: absolute;
-  top: 6px;
-  left: 24%;
-  width: 9px;
-  height: 9px;
-  translate: -50% -50%;
-  background: var(--paper);
-  border: 2px solid var(--ink);
-  border-radius: 50%;
-}
-.closed-sign__board::after { left: 76%; }
 
-.closed-sign__kicker {
-  font-family: var(--font-tape);
-  font-size: clamp(0.6rem, 0.55rem + 0.18vw, 0.74rem);
-  line-height: 1;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--white);
-}
-.closed-sign__word {
+.countdown__closed-title {
   font-family: var(--font-display);
-  font-size: clamp(2.1rem, 1.45rem + 1.4vw, 2.9rem);
-  line-height: 0.88;
-  letter-spacing: 0.06em;
+  font-size: clamp(2rem, 1.3rem + 1.5vw, 2.9rem);
+  line-height: 0.9;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--white);
   -webkit-text-stroke: 0.07em var(--ink);
   paint-order: stroke fill;
   text-shadow: 0.05em 0.06em 0 var(--ink);
 }
+.countdown__closed-title span { color: var(--red); }
 
-/* What happens next, and where to follow it */
-.closed-next {
-  display: grid;
-  align-content: center;
-  justify-items: start;
-  gap: 5px;
-  margin-block: 14px;
-  padding-left: clamp(14px, 1.8vw, 28px);
-  border-left: 2px dashed rgba(12, 14, 15, 0.4);
-  animation: sign-next 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) 1.9s both;
-}
-.closed-next__label {
-  font-family: var(--font-tape);
-  font-size: clamp(0.62rem, 0.58rem + 0.15vw, 0.74rem);
-  line-height: 1;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-.closed-next__date {
-  font-family: var(--font-display);
-  font-size: clamp(1.7rem, 1.25rem + 0.9vw, 2.3rem);
-  line-height: 0.9;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ink);
-  text-shadow: 0.05em 0.05em 0 var(--white);
-}
-.closed-next__date time { font: inherit; }
-.closed-next__link {
+.countdown__closed-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.35em;
-  margin-top: 4px;
-  padding: 0.5em 0.9em 0.45em;
+  gap: 0.45em;
+  padding: 0.65em 1.35em 0.6em;
   font-family: var(--font-tape);
-  font-size: clamp(0.64rem, 0.58rem + 0.2vw, 0.78rem);
+  font-size: clamp(0.9rem, 0.8rem + 0.3vw, 1.1rem);
   line-height: 1;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
   text-decoration: none;
   color: var(--tape);
   background: var(--ink);
   border-radius: 999px;
-  box-shadow: 3px 3px 0 var(--pink);
+  box-shadow: 4px 4px 0 var(--pink);
   transition: translate 0.15s ease, box-shadow 0.15s ease;
 }
-.closed-next__link span { transition: translate 0.15s ease; }
-.closed-next__link:hover { translate: -1px -1px; box-shadow: 4px 4px 0 var(--pink); }
-.closed-next__link:hover span { translate: 2px -2px; }
-.closed-next__link:active { translate: 2px 2px; box-shadow: 1px 1px 0 var(--pink); }
-.closed-next__link:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.countdown__closed-link:hover { translate: -1px -1px; box-shadow: 5px 5px 0 var(--pink); }
+.countdown__closed-link:active { translate: 3px 3px; box-shadow: 1px 1px 0 var(--pink); }
+.countdown__closed-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
 /* Prize --------------------------------------------------------------------- */
 .hero-prize {
@@ -1024,7 +897,8 @@
   .hero-cta { font-size: clamp(1.1rem, 0.9rem + 0.8vw, 1.4rem); }
   .hero-count { gap: 6px; padding-block: 10px; }
   .countdown__value { font-size: clamp(1.5rem, 1.1rem + 1vw, 2rem); }
-  .closed-sign__word { font-size: clamp(1.9rem, 1.3rem + 1.2vw, 2.5rem); }
+  .countdown.is-over { padding-block: 10px; }
+  .countdown.is-over .countdown__closed { gap: 10px; }
 }
 
 /* Tablets and phones: one column. Title first, then the facts, then the art. */
@@ -1092,13 +966,9 @@
   .countdown__unit { flex: 1; min-width: 0; }
   .countdown__value { font-size: 2rem; }
   .hero-count { padding: 12px; }
-  .countdown.is-over { padding-inline: 10px; }
-  .countdown.is-over .countdown__closed { gap: 12px; }
-  .closed-sign { padding-right: 4px; }
-  .closed-sign__board { padding-inline: 0.7em; box-shadow: inset 0 0 0 3px var(--red), inset 0 0 0 5px rgba(255, 255, 255, 0.85), 3px 3px 0 var(--ink); }
-  .closed-sign__word { font-size: clamp(1.8rem, 9vw, 2.2rem); }
-  .closed-next { padding-left: 12px; }
-  .closed-next__date { font-size: 1.7rem; }
+  .countdown.is-over { padding: 16px 10px; }
+  .countdown__closed-title { font-size: clamp(1.6rem, 7.6vw, 2.1rem); }
+  .countdown__closed-link { box-shadow: 3px 3px 0 var(--pink); }
   .hero-prize { padding: 12px; }
   .hero-prize__amount { font-size: 1.85rem; }
   .hero-prize__note { font-size: 0.7rem; }
@@ -1111,10 +981,6 @@
   .hero-mug__steam,
   .hero-spark,
   .crt__led,
-  .closed-sign,
-  .closed-sign__nail,
-  .closed-sign__hang,
-  .closed-next,
   .hero-cta { animation: none; }
 }
 
@@ -1145,46 +1011,6 @@
 }
 @keyframes hero-drop {
   from { opacity: 0; translate: 0 -14px; }
-}
-/* The "Closed" sign: the nail goes in, the sign falls onto it tilted, bounces
-   on its cords and swings itself still, then sways gently for good */
-@keyframes sign-nail {
-  from { opacity: 0; scale: 2.4; }
-}
-@keyframes sign-drop {
-  0% { translate: 0 -190%; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
-  60% { translate: 0 0; animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
-  76% { translate: 0 -7px; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
-  90% { translate: 0 0; animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
-  95% { translate: 0 -2px; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
-  100% { translate: 0 0; }
-}
-@keyframes sign-swing {
-  0% { rotate: -10deg; }
-  17% { rotate: 9deg; }
-  34% { rotate: -6deg; }
-  51% { rotate: 3.6deg; }
-  68% { rotate: -1.8deg; }
-  84% { rotate: 0.7deg; }
-  100% { rotate: 0deg; }
-}
-@keyframes sign-sway {
-  0%, 100% { rotate: 0deg; }
-  25% { rotate: 1.6deg; }
-  75% { rotate: -1.6deg; }
-}
-/* A poke knocks it swinging again */
-@keyframes sign-poke {
-  0% { rotate: 0deg; }
-  14% { rotate: 11deg; }
-  32% { rotate: -8deg; }
-  50% { rotate: 5deg; }
-  67% { rotate: -2.6deg; }
-  84% { rotate: 1deg; }
-  100% { rotate: 0deg; }
-}
-@keyframes sign-next {
-  from { opacity: 0; translate: 16px 0; }
 }
 @keyframes hero-pop {
   from { opacity: 0; scale: 0.7; rotate: -4deg; }

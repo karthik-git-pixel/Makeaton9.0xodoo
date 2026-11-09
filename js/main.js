@@ -130,22 +130,6 @@
     timer = setInterval(tick, 1000);
   }
 
-  // The "Closed" sign in the hero swings again when it is hovered or tapped.
-  // The class comes off when that swing ends, so a half-done swing never snaps back.
-  function initClosedSign() {
-    const sign = document.querySelector('[data-closed-sign]');
-    if (!sign || reduceMotion.matches) return;
-
-    const poke = () => sign.classList.add('is-poked');
-    sign.addEventListener('pointerenter', poke);
-    sign.addEventListener('click', poke);
-    sign.addEventListener('animationend', (event) => {
-      if (event.target === sign && event.animationName === 'sign-poke') {
-        sign.classList.remove('is-poked');
-      }
-    });
-  }
-
   // Register buttons: open data-register-url in a new tab once it is filled in
   function initRegister() {
     document.querySelectorAll('button[data-register-url]').forEach((button) => {
@@ -377,7 +361,6 @@
   }
 
   initCountdown();
-  initClosedSign();
   initRegister();
   initHero();
   initTerminal();
