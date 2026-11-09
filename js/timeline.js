@@ -85,7 +85,6 @@
     <div class="page page--right page--cover">
       <p class="page__tag">Make-A-Ton 9.0</p>
       <p class="page__cover-title">The<br>Timeline</p>
-      <img class="page__cover-emblem" src="assets/shapes/timeline-emblem.svg" alt="" width="220" height="220" loading="lazy">
       <p class="page__cover-sub">A story in ${chapters.length} chapters</p>
     </div>`;
   const end = `

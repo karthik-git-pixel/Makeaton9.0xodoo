@@ -354,7 +354,6 @@
 .book .page--cover,
 .book .page--backcover,
 .book .page--end { align-items: center; justify-content: center; gap: 1em; text-align: center; }
-.book .page--cover { gap: 0.62em; }
 .book .page--cover,
 .book .page--backcover { color: var(--white); background-color: var(--blue); }
 .book .page--end { background-color: var(--cream); }
@@ -378,22 +377,6 @@
   -webkit-text-stroke: 0.08em var(--ink);
   paint-order: stroke fill;
   text-shadow: 0.05em 0.06em 0 var(--ink);
-}
-/* The medallion on the cover: a route of chapter markers under a clock rim.
-   It breathes rather than spins, so the route stays the right way up. */
-.page__cover-emblem {
-  /* Capped against the page height too: the book's type scales with page width,
-     so on a short screen a width-only size pushes the cover's last line out. */
-  width: min(38%, 7.4em);
-  height: auto;
-  max-height: 22svh;
-  object-fit: contain;
-  margin-block: 0.1em -0.1em;
-  animation: cover-emblem-float 5.5s ease-in-out infinite;
-}
-@keyframes cover-emblem-float {
-  0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50% { transform: translateY(-6px) rotate(3deg); }
 }
 .page__cover-sub { font-family: var(--font-tape); font-size: 1.1em; text-transform: uppercase; text-shadow: 2px 2px 0 var(--ink); }
 .page__logo { width: 82%; height: auto; }
@@ -473,7 +456,6 @@
   .book .page--base.page--right,
   .leaf { left: 0; }
   .book .page--right { border-radius: 14px; }
-  .page__cover-emblem { width: min(50%, 8em); max-height: 20svh; }
 
   .book .page {
     padding: clamp(16px, 4vw, 22px) clamp(15px, 3.8vw, 18px);
