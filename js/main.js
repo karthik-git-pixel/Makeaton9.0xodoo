@@ -113,7 +113,7 @@
       const now = Date.now();
       if (now >= deadline) {
         root.classList.add('is-over');
-        setLabel('Registrations are closed');
+        setLabel('Virtual round results are out');
         clearInterval(timer);
         return;
       }
