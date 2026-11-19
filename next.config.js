@@ -3,6 +3,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/faq',
+        destination: '/#faq',
+        permanent: false,
+      },
+      {
         source: '/insta',
         destination: 'https://www.instagram.com/makeaton.in/',
         permanent: false,

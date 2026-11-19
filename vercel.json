@@ -4,6 +4,11 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/faq",
+      "destination": "/#faq",
+      "permanent": false
+    },
+    {
       "source": "/insta",
       "destination": "https://www.instagram.com/makeaton.in/",
       "permanent": false

@@ -733,6 +733,23 @@
 
 /* FAQ · blue + darker tone-on-tone blue asterisks -------------------------- */
 .section--faq { --pattern-color: #2365E8; background: var(--blue); }
+.faq-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--white);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: translate 0.15s ease, box-shadow 0.15s ease;
+}
+.faq-pdf:hover { translate: -1px -1px; box-shadow: 4px 4px 0 var(--ink); background: var(--tape); }
+.faq-pdf:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .faq { display: grid; gap: 18px; }
 .faq__item {
   background: var(--white);
