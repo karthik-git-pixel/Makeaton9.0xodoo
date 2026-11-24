@@ -629,13 +629,16 @@
    it along the desk to the pointer (or to a tap) and back home, writes its
    gaze to --gx / --gy (-1 to 1, in the mascot's own facing) and blinks it.
    Layers, outside in: .desk-pet takes the parallax (translate) and the walk
-   (transform, from JS); __figure casts the ink shadow, so it stays
-   bottom-right when the mascot turns; __turn faces left or right (scale) and
-   flips on the jump (rotate); __bob carries the hip bob, hop and jump.
-   The body is assets/mascot/mascot-red-pet.svg (the cheer mascot without its
-   legs, open eye and wink); the legs are mascot-leg.svg boots swung from the
+   (transform, from JS); __figure holds the soft shadow on the desk, which
+   doesn't spin with the jump; __turn faces left or right (scale) and flips on
+   the jump (rotate); __bob carries the hip bob, hop and jump.
+   The body is assets/mascot/mascot-red-pet.svg (the cheer mascot's body with
+   one even 9-unit outline and the two-tone red of the organizers' sunglasses
+   star, no legs or eyes); the legs are mascot-leg.svg boots swung from the
    hips, placed in the body's 242x325 units; the two eyes are inline SVG on top
-   (the left one a little smaller, as the face is turned slightly). */
+   (the left one a little smaller, as the face is turned slightly). No hard
+   ink drop shadow on the figure (dropped 2026-11-24): a soft shadow on the
+   desk grounds it instead. */
 .desk-pet {
   --depth: 1.6;
   --gx: 0.5;
@@ -663,7 +666,21 @@
   -webkit-tap-highlight-color: transparent;
 }
 .desk-pet__hit:focus-visible { outline: 3px solid var(--tape); outline-offset: 4px; }
-.desk-pet__figure { display: block; filter: drop-shadow(1.1cqw 1.1cqw 0 var(--ink)); }
+.desk-pet__figure { position: relative; display: block; }
+/* Soft shadow under the boots (they span 32% to 89.5% of the body, mirrored
+   when it faces left); it shrinks while the mascot is in the air */
+.desk-pet__figure::before {
+  content: "";
+  position: absolute;
+  left: 28.75%;
+  bottom: -1.6%;
+  width: 64%;
+  height: 4.5%;
+  background: rgba(12, 14, 15, 0.3);
+  border-radius: 50%;
+  transition: left 0.22s ease-out;
+}
+.desk-pet.is-facing-left .desk-pet__figure::before { left: 7.25%; }
 .desk-pet__turn {
   display: block;
   transform-origin: 50% 58%;
@@ -741,6 +758,9 @@
   .desk-pet:not([data-gait], .is-leaping) .desk-pet__hit:hover .desk-pet__bob {
     animation: pet-hop 0.5s ease-out, pet-bounce 0.34s ease-in-out 0.5s infinite;
   }
+  .desk-pet:not([data-gait], .is-leaping) .desk-pet__hit:hover .desk-pet__figure::before {
+    animation: pet-shadow-hop 0.5s ease-out, pet-shadow-bounce 0.34s ease-in-out 0.5s infinite;
+  }
   .desk-pet:not([data-gait], .is-leaping) .desk-pet__hit:hover .desk-pet__leg { animation: pet-tap 0.34s ease-in-out 0.5s infinite; }
   .desk-pet:not([data-gait], .is-leaping) .desk-pet__hit:hover .desk-pet__leg--near { animation-delay: 0.67s; }
   .desk-pet__hit:hover .desk-pet__say { display: none; }
@@ -752,6 +772,7 @@
 /* Clicked: crouch, leap with a flip, land; then the arcade opens */
 .desk-pet.is-leaping .desk-pet__bob { animation: pet-leap 0.64s ease-in-out both; }
 .desk-pet.is-leaping .desk-pet__turn { animation: pet-flip 0.64s ease-in-out both; }
+.desk-pet.is-leaping .desk-pet__figure::before { animation: pet-shadow-leap 0.64s ease-in-out both; }
 
 @keyframes pet-stride {
   0% { rotate: -26deg; translate: 0 0; animation-timing-function: linear; }
@@ -789,6 +810,25 @@
 @keyframes pet-flip {
   0%, 26% { rotate: 0deg; }
   80%, 100% { rotate: 360deg; }
+}
+/* The desk shadow follows pet-hop, pet-bounce and pet-leap: wider on the
+   squash, smaller and fainter the higher it goes */
+@keyframes pet-shadow-hop {
+  0%, 100% { scale: 1; opacity: 1; }
+  20% { scale: 1.08 1; opacity: 1; }
+  50% { scale: 0.78; opacity: 0.6; }
+  80% { scale: 1.05 1; opacity: 1; }
+}
+@keyframes pet-shadow-bounce {
+  0%, 100% { scale: 1; opacity: 1; }
+  50% { scale: 0.93; opacity: 0.85; }
+}
+@keyframes pet-shadow-leap {
+  0%, 100% { scale: 1; opacity: 1; }
+  18% { scale: 1.12 1; opacity: 1; }
+  32% { scale: 0.86; opacity: 0.8; }
+  58% { scale: 0.5; opacity: 0.4; }
+  84% { scale: 1.1 1; opacity: 1; }
 }
 
 /* Twinkles */
@@ -1138,7 +1178,8 @@
   .hero-cta { animation: none; }
   /* The desk mascot just stands there (js/main.js doesn't walk or blink it) */
   .desk-pet,
-  .desk-pet * { animation: none !important; transition: none !important; }
+  .desk-pet *,
+  .desk-pet *::before { animation: none !important; transition: none !important; }
 }
 
 /* Keyframes ----------------------------------------------------------------- */
