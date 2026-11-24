@@ -13,7 +13,6 @@
     short: li.dataset.short,
     title: li.dataset.title,
     panel: li.dataset.panel,
-    badge: li.dataset.badge,
     dialogue: li.dataset.dialogue,
     highlight: li.dataset.highlight,
     date: li.querySelector('time').textContent.trim(),
@@ -54,7 +53,6 @@
     <div class="page page--left page--art face--back">
       <div class="page__head">
         <p class="page__kicker">Chapter ${c.num}</p>
-        ${c.badge ? `<p class="page__badge">${esc(c.badge)}</p>` : ''}
       </div>
       <div class="page__panel-wrap">
         ${panel(c)}

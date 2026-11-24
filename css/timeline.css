@@ -160,21 +160,6 @@
   white-space: nowrap;
 }
 
-.page__badge {
-  padding: 0.25em 0.7em;
-  font-family: var(--font-tape);
-  font-size: 0.7em;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--ink);
-  background: var(--tape);
-  border: 2px solid var(--ink);
-  border-radius: 6px;
-  box-shadow: 2px 2px 0 var(--ink);
-  rotate: -3deg;
-  white-space: nowrap;
-}
-
 .page__date-pill {
   padding: 0.25em 0.7em;
   font-family: var(--font-tape);
