@@ -2,7 +2,8 @@
    Hero · a comic page. A title panel on a sunburst, an art panel with a
    terminal and the mascot, and a strip of facts with the countdown.
    js/main.js feeds --px / --py (pointer, -1 to 1) for the parallax, types
-   the terminal and runs the countdown; everything else is CSS.
+   the terminal, runs the countdown and drives the desk mascot (initDeskPet);
+   everything else is CSS.
    ========================================================================== */
 
 /* Registered so the sunburst can turn */
@@ -383,7 +384,7 @@
 .hero-sticky,
 .hero-burst,
 .hero-mug,
-.mascot-corner--hero {
+.desk-pet {
   translate: calc(var(--px) * var(--depth, 1) * 1.4cqw) calc(var(--py) * var(--depth, 1) * 1cqw);
 }
 
@@ -624,18 +625,171 @@
   animation: hero-steam 2.8s ease-in-out infinite;
 }
 
-/* Mascot, standing on the desk. The shared .mascot-corner styles and
-   js/main.js handle its hover flipbook and click quips. */
-.mascot-corner--hero {
+/* Desk buddy · the mascot lives on the desk. js/main.js (initDeskPet) walks
+   it along the desk to the pointer (or to a tap) and back home, writes its
+   gaze to --gx / --gy (-1 to 1, in the mascot's own facing) and blinks it.
+   Layers, outside in: .desk-pet takes the parallax (translate) and the walk
+   (transform, from JS); __figure casts the ink shadow, so it stays
+   bottom-right when the mascot turns; __turn faces left or right (scale) and
+   flips on the jump (rotate); __bob carries the hip bob, hop and jump.
+   The body is assets/mascot/mascot-red-pet.svg (the cheer mascot without its
+   legs, open eye and wink); the legs are mascot-leg.svg boots swung from the
+   hips, placed in the body's 242x325 units; the two eyes are inline SVG on top
+   (the left one a little smaller, as the face is turned slightly). */
+.desk-pet {
   --depth: 1.6;
+  --gx: 0.5;
+  --gy: 0.05;
+  position: absolute;
   left: 3cqw;
   bottom: 3cqw;
-  transition: translate 0.5s cubic-bezier(0.2, 0.8, 0.3, 1), transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 15;
+  width: 29cqw;
+  transition: translate 0.5s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
-.mascot-corner--hero { align-items: flex-start; }
-.mascot-corner--hero .mascot-img { width: 29cqw; }
-.mascot-corner--hero .mascot-bubble { font-size: max(0.66rem, 2.8cqw); rotate: -4deg; }
-.mascot-corner--hero:hover { transform: rotate(-4deg) scale(1.05); }
+.desk-pet__hit {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  background: none;
+  border: 0;
+  border-radius: 3cqw;
+  cursor: pointer;
+  /* A tap opens the arcade, so skip the double-tap zoom delay */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.desk-pet__hit:focus-visible { outline: 3px solid var(--tape); outline-offset: 4px; }
+.desk-pet__figure { display: block; filter: drop-shadow(1.1cqw 1.1cqw 0 var(--ink)); }
+.desk-pet__turn {
+  display: block;
+  transform-origin: 50% 58%;
+  transition: scale 0.22s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.desk-pet.is-facing-left .desk-pet__turn { scale: -1 1; }
+.desk-pet__bob { position: relative; display: block; aspect-ratio: 242 / 325; transform-origin: 50% 100%; }
+.desk-pet__body,
+.desk-pet__eye { position: absolute; inset: 0; width: 100%; height: 100%; }
+.desk-pet__eye { overflow: visible; fill: var(--ink); }
+.desk-pet__eye path { fill: none; stroke: var(--ink); stroke-width: 6.5; stroke-linecap: round; }
+.desk-pet__white { fill: var(--white); }
+/* The pupil slides inside the white (clipped to it) toward the gaze */
+.desk-pet__pupil {
+  translate: calc(var(--gx) * 8.5px) calc(var(--gy) * 8px);
+  transition: translate 0.14s ease-out;
+}
+/* Each eye shuts on its own middle (the box includes the lash, hence 55%) */
+.desk-pet__lid {
+  transform-box: fill-box;
+  transform-origin: 50% 55%;
+  transition: scale 0.07s ease-in;
+}
+.desk-pet.is-blinking .desk-pet__lid { scale: 1 0.1; }
+.desk-pet.is-blinking .desk-pet__white { fill: var(--ink); } /* shut eyes read as plain lines */
+.desk-pet__leg {
+  position: absolute;
+  width: 35.95%; /* 87 of 242 */
+  height: auto;
+  transform-origin: 31.03% 14.71%; /* the hip, at (27, 15) of the boot's 87x102 */
+}
+.desk-pet__leg--far { left: 31.82%; top: 68.62%; } /* hip at (104, 238) */
+.desk-pet__leg--near { left: 54.96%; top: 69.23%; } /* hip at (160, 240) */
+
+/* Speech bubble over its head; it stays upright when the mascot turns */
+.desk-pet__bubble {
+  position: absolute;
+  left: -1cqw;
+  bottom: calc(100% + 1.2cqw);
+  padding: 0.35em 0.9em;
+  font-family: var(--font-tape);
+  font-size: max(0.66rem, 2.8cqw);
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+  background: var(--tape);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--ink);
+  rotate: -4deg;
+  animation: mascot-bubble-pulse 2.8s ease-in-out infinite;
+}
+.desk-pet__bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 42%;
+  border-style: solid;
+  border-width: 6px 6px 0;
+  border-color: var(--ink) transparent transparent;
+}
+.desk-pet__say--play { display: none; }
+
+/* Walking: legs swing from the hips and the hips dip as each foot lands.
+   js/main.js moves it 1.3 body widths a second, which is what one 0.48s
+   stride sweeps, so the planted foot doesn't skate. */
+.desk-pet[data-gait] .desk-pet__leg { animation: pet-stride 0.48s infinite; }
+.desk-pet[data-gait] .desk-pet__leg--near { animation-delay: -0.24s; }
+.desk-pet[data-gait] .desk-pet__bob { animation: pet-hip 0.48s infinite; }
+
+/* Pointed at: a hop, then a happy tippy-tap dance, and the bubble asks for the click */
+@media (hover: hover) {
+  .desk-pet:not([data-gait], .is-leaping) .desk-pet__hit:hover .desk-pet__bob {
+    animation: pet-hop 0.5s ease-out, pet-bounce 0.34s ease-in-out 0.5s infinite;
+  }
+  .desk-pet:not([data-gait], .is-leaping) .desk-pet__hit:hover .desk-pet__leg { animation: pet-tap 0.34s ease-in-out 0.5s infinite; }
+  .desk-pet:not([data-gait], .is-leaping) .desk-pet__hit:hover .desk-pet__leg--near { animation-delay: 0.67s; }
+  .desk-pet__hit:hover .desk-pet__say { display: none; }
+  .desk-pet__hit:hover .desk-pet__say--play { display: inline; }
+}
+.desk-pet__hit:focus-visible .desk-pet__say { display: none; }
+.desk-pet__hit:focus-visible .desk-pet__say--play { display: inline; }
+
+/* Clicked: crouch, leap with a flip, land; then the arcade opens */
+.desk-pet.is-leaping .desk-pet__bob { animation: pet-leap 0.64s ease-in-out both; }
+.desk-pet.is-leaping .desk-pet__turn { animation: pet-flip 0.64s ease-in-out both; }
+
+@keyframes pet-stride {
+  0% { rotate: -26deg; translate: 0 0; animation-timing-function: linear; }
+  50% { rotate: 26deg; translate: 0 0; animation-timing-function: ease-in-out; }
+  75% { rotate: 0deg; translate: 0 -9%; animation-timing-function: ease-in-out; }
+  100% { rotate: -26deg; translate: 0 0; }
+}
+@keyframes pet-hip {
+  0%, 50%, 100% { translate: 0 2.6%; animation-timing-function: ease-in-out; }
+  25%, 75% { translate: 0 0; animation-timing-function: ease-in-out; }
+}
+@keyframes pet-hop {
+  0% { translate: 0 0; scale: 1 1; }
+  20% { translate: 0 0; scale: 1.1 0.88; }
+  50% { translate: 0 -16%; scale: 0.94 1.08; }
+  80% { translate: 0 0; scale: 1.06 0.94; }
+  100% { translate: 0 0; scale: 1 1; }
+}
+@keyframes pet-bounce {
+  0%, 100% { translate: 0 0; scale: 1 1; }
+  50% { translate: 0 -3%; scale: 0.98 1.02; }
+}
+@keyframes pet-tap {
+  0%, 50%, 100% { rotate: 0deg; translate: 0 0; }
+  25% { rotate: -14deg; translate: 0 -10%; }
+}
+@keyframes pet-leap {
+  0% { translate: 0 0; scale: 1 1; }
+  18% { translate: 0 0; scale: 1.15 0.8; }
+  32% { translate: 0 -12%; scale: 0.9 1.14; }
+  58% { translate: 0 -48%; scale: 1 1; }
+  84% { translate: 0 0; scale: 1.14 0.84; }
+  100% { translate: 0 0; scale: 1 1; }
+}
+@keyframes pet-flip {
+  0%, 26% { rotate: 0deg; }
+  80%, 100% { rotate: 360deg; }
+}
 
 /* Twinkles */
 .hero-spark {
@@ -982,6 +1136,9 @@
   .hero-spark,
   .crt__led,
   .hero-cta { animation: none; }
+  /* The desk mascot just stands there (js/main.js doesn't walk or blink it) */
+  .desk-pet,
+  .desk-pet * { animation: none !important; transition: none !important; }
 }
 
 /* Keyframes ----------------------------------------------------------------- */

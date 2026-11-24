@@ -403,6 +403,7 @@
       <a href="#timeline">Timeline</a>
       <a href="#prizes">Prizes</a>
       <a href="#faq">FAQ</a>
+      <a href="team.html">Team</a>
       <a href="assets/Odoo_Hackathon_Participant_Document.pdf" target="_blank">Registration Guidelines</a>
     </nav>
   </header>
@@ -424,6 +425,7 @@
             <a href="#timeline">Timeline</a>
             <a href="#prizes">Prizes</a>
             <a href="#faq">FAQ</a>
+            <a href="team.html">Team</a>
             <a href="assets/Odoo_Hackathon_Participant_Document.pdf" target="_blank">Registration Guidelines</a>
           </nav>
         </header>
@@ -489,9 +491,41 @@
               <span class="hero-mug__cup">&lt;/&gt;</span>
             </div>
 
-            <div class="mascot-corner mascot-corner--hero">
-              <span class="mascot-bubble">Let&rsquo;s hack!</span>
-              <img class="mascot-img" src="assets/mascot/mascot-red-cheer.svg" alt="" width="242" height="325">
+            <!-- Desk buddy: the mascot lives on the desk. js/main.js (initDeskPet)
+                 walks it over to the pointer, moves its eyes and makes it blink;
+                 clicking it opens the arcade. Body, legs and eyes are separate
+                 parts so it can move instead of swapping pictures. -->
+            <div class="desk-pet" data-desk-pet>
+              <button class="desk-pet__hit" type="button" aria-label="Play the Make-A-Ton arcade">
+                <span class="desk-pet__bubble" aria-hidden="true"><span class="desk-pet__say">Let&rsquo;s hack!</span><span class="desk-pet__say desk-pet__say--play">Tap to play!</span></span>
+                <span class="desk-pet__figure" aria-hidden="true">
+                  <span class="desk-pet__turn">
+                    <span class="desk-pet__bob">
+                      <img class="desk-pet__leg desk-pet__leg--far" src="assets/mascot/mascot-leg.svg" alt="" width="87" height="102">
+                      <img class="desk-pet__leg desk-pet__leg--near" src="assets/mascot/mascot-leg.svg" alt="" width="87" height="102">
+                      <img class="desk-pet__body" src="assets/mascot/mascot-red-pet.svg" alt="" width="242" height="325">
+                      <svg class="desk-pet__eye" viewBox="0 0 242 325" focusable="false">
+                        <defs>
+                          <clipPath id="desk-pet-eye-l"><ellipse cx="104" cy="129.3" rx="19.5" ry="25"/></clipPath>
+                          <clipPath id="desk-pet-eye-r"><ellipse cx="170.7" cy="132.3" rx="22" ry="27.2"/></clipPath>
+                        </defs>
+                        <g class="desk-pet__lid">
+                          <ellipse cx="104" cy="129" rx="25.5" ry="31"/>
+                          <path d="M99.6 100 94.4 91.3"/>
+                          <ellipse class="desk-pet__white" cx="104" cy="129.3" rx="19.5" ry="25"/>
+                          <g clip-path="url(#desk-pet-eye-l)"><ellipse class="desk-pet__pupil" cx="104" cy="129.3" rx="14" ry="20.8"/></g>
+                        </g>
+                        <g class="desk-pet__lid">
+                          <ellipse cx="170.7" cy="132" rx="28" ry="33.2"/>
+                          <path d="M175.5 101 181.2 91.6"/>
+                          <ellipse class="desk-pet__white" cx="170.7" cy="132.3" rx="22" ry="27.2"/>
+                          <g clip-path="url(#desk-pet-eye-r)"><ellipse class="desk-pet__pupil" cx="170.7" cy="132.3" rx="16.5" ry="23"/></g>
+                        </g>
+                      </svg>
+                    </span>
+                  </span>
+                </span>
+              </button>
             </div>
           </div>
         </div>
@@ -767,6 +801,34 @@
         </div>
       </div>
 
+      <!-- CREW CALL: the mascot walking the footer's top edge with a "Meet the
+           organizers" sign, on its way to the team page. css/sections.css
+           draws it, js/main.js walks it in when it comes into view. One link. -->
+      <div class="crew-call" data-crew-call>
+        <a class="crew-call__link" href="team.html" aria-label="Meet the organizers: the crew behind the scenes of Make-A-Ton 9.0">
+          <span class="crew-call__group">
+            <span class="crew-call__speed" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="crew-call__skid" aria-hidden="true">Skrrt!</span>
+            <span class="crew-call__walker crew-call__walker--lead">
+              <span class="crew-call__bob">
+                <span class="crew-call__placard" aria-hidden="true">
+                  <span class="crew-call__stick"></span>
+                  <span class="crew-call__board">
+                    <span class="crew-call__side crew-call__side--a"><b>Meet the<br><em>organizers</em> <svg viewBox="0 0 24 24"><path d="M3 12h16M13 6l6 6-6 6"/></svg></b><small>Behind the scenes</small></span>
+                    <span class="crew-call__side crew-call__side--b"><b>Meet the<br><em>organizers</em> <svg viewBox="0 0 24 24"><path d="M3 12h16M13 6l6 6-6 6"/></svg></b><small>Behind the scenes</small></span>
+                  </span>
+                </span>
+                <span class="crew-call__mascot">
+                  <img class="crew-call__leg crew-call__leg--far" src="assets/mascot/mascot-leg.svg" alt="" width="87" height="102" loading="lazy" decoding="async">
+                  <img class="crew-call__leg crew-call__leg--near" src="assets/mascot/mascot-leg.svg" alt="" width="87" height="102" loading="lazy" decoding="async">
+                  <img class="crew-call__body" src="assets/mascot/mascot-cool-walker.png" alt="" width="560" height="530" loading="lazy" decoding="async">
+                </span>
+              </span>
+              <span class="crew-call__bubble" aria-hidden="true"><span class="crew-call__psst">Psst!</span><span class="crew-call__click">Click me!</span></span>
+            </span>
+          </span>
+        </a>
+      </div>
     </section>
   </main>
 
@@ -865,6 +927,7 @@
 
     <div class="site-footer__bar">
       <p>&copy; 2026 Make-A-Ton &middot; Powered by Odoo &middot; Built at CUSAT</p>
+      <a class="site-footer__link" href="team.html">Organizing team</a>
     </div>
   </footer>
   <!-- WhatsApp group invite: small fixed pill (styles in css/base.css) -->

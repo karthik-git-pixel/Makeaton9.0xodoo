@@ -7,7 +7,9 @@
  *
  * Public API (window.MakeatonSound):
  *   play(name, options)  -> fire an effect: 'pageFlip' | 'pop' | 'pow' |
- *                           'boing' | 'whoosh' | 'zip' | 'chime'
+ *                           'boing' | 'whoosh' | 'zip' | 'chime', and for the
+ *                           team page's card deck: 'riffle' | 'thwip' |
+ *                           'snap' | 'fanfare'
  *   unlock()             -> resume the AudioContext (needs a user gesture)
  *   toggle()             -> mute / unmute, remembered in localStorage
  */
@@ -27,7 +29,11 @@ window.MakeatonSound = (function () {
     boing: 220,
     whoosh: 600,
     zip: 260,
-    chime: 120
+    chime: 120,
+    riffle: 350,
+    thwip: 28,
+    snap: 28,
+    fanfare: 600
   };
 
   const AudioCtor = window.AudioContext || window.webkitAudioContext;
@@ -306,6 +312,100 @@ window.MakeatonSound = (function () {
 
       notes.forEach(function (freq, i) {
         tone('sine', at + i * 0.065, freq, freq, 0.16, 0.16 * level);
+      });
+    },
+
+    /**
+     * Riffle shuffle: a run of card clicks that starts slow, rushes through
+     * the middle and settles, over a soft bed of air. `duration` stretches it.
+     */
+    riffle: function (at, options) {
+      const level = levelOf(options);
+      const duration = options.duration || 0.6;
+      const count = options.count || 26;
+
+      for (let i = 0; i < count; i++) {
+        const p = i / (count - 1);
+        const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        // Jitter only forwards: on a fresh context `at` is ~0, and a click
+        // scheduled before time 0 throws, which would silence the whole riffle
+        const t = at + eased * duration + Math.random() * 0.006;
+
+        const click = noiseSource(1.3);
+        const band = ctx.createBiquadFilter();
+        const gain = ctx.createGain();
+
+        band.type = 'bandpass';
+        band.Q.value = 3;
+        band.frequency.value = 2400 + Math.random() * 2200;
+
+        shape(gain, t, 0.0015, (0.2 + Math.random() * 0.12) * level, 0.022);
+        click.connect(band).connect(gain).connect(master);
+        startNoise(click, t, 0.03);
+      }
+
+      const air = noiseSource(0.9);
+      const airBand = ctx.createBiquadFilter();
+      const airGain = ctx.createGain();
+
+      airBand.type = 'bandpass';
+      airBand.Q.value = 0.8;
+      airBand.frequency.value = 1700;
+
+      shape(airGain, at, 0.12, 0.08 * level, duration);
+      air.connect(airBand).connect(airGain).connect(master);
+      startNoise(air, at, duration + 0.15);
+    },
+
+    /** Card flick: a short airy swish as a card leaves the deck. `rate` pitches it. */
+    thwip: function (at, options) {
+      const level = levelOf(options);
+      const rate = (options.rate || 1) * vary(0.06);
+
+      const src = noiseSource(1);
+      const band = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+
+      band.type = 'bandpass';
+      band.Q.value = 1.4;
+      band.frequency.setValueAtTime(1100 * rate, at);
+      band.frequency.exponentialRampToValueAtTime(5200 * rate, at + 0.06);
+      band.frequency.exponentialRampToValueAtTime(2600 * rate, at + 0.13);
+
+      shape(gain, at, 0.018, 0.3 * level, 0.11);
+      src.connect(band).connect(gain).connect(master);
+      startNoise(src, at, 0.15);
+    },
+
+    /** A card landing on the table: a dry paper slap over a soft thud. */
+    snap: function (at, options) {
+      const level = levelOf(options);
+
+      const slap = noiseSource(1);
+      const high = ctx.createBiquadFilter();
+      const slapGain = ctx.createGain();
+
+      high.type = 'highpass';
+      high.frequency.value = 1500 * vary(0.1);
+
+      shape(slapGain, at, 0.002, 0.3 * level, 0.04);
+      slap.connect(high).connect(slapGain).connect(master);
+      startNoise(slap, at, 0.06);
+
+      tone('sine', at, 180 * vary(0.08), 70, 0.08, 0.14 * level);
+    },
+
+    /** The reveal: a rising arpeggio with a bright edge, then a held shimmer. */
+    fanfare: function (at, options) {
+      const level = levelOf(options);
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+
+      notes.forEach(function (freq, i) {
+        tone('triangle', at + i * 0.08, freq, freq, 0.2, 0.14 * level);
+        tone('square', at + i * 0.08, freq * 2, freq * 2, 0.05, 0.02 * level);
+      });
+      [1046.5, 1318.51, 1567.98].forEach(function (freq) {
+        tone('sine', at + 0.34, freq, freq * 1.002, 0.6, 0.06 * level);
       });
     }
   };

@@ -1,0 +1,66 @@
+[
+  {
+    "id": "ruvais-p",
+    "name": "Ruvais P",
+    "team": "Core",
+    "position": "Team Lead",
+    "linkedin": "https://www.linkedin.com/in/ruvais-p/",
+    "photo": "assets/organizers/ruvais-p.webp"
+  },
+  {
+    "id": "afnash-ali-p",
+    "name": "Afnash Ali P",
+    "team": "Core",
+    "position": "Core Team Member",
+    "linkedin": "https://www.linkedin.com/in/afnash-ali",
+    "photo": "assets/organizers/afnash-ali-p.webp"
+  },
+  {
+    "id": "muhsina-beegum",
+    "name": "Muhsina Beegum",
+    "team": "Core",
+    "position": "Core Team Member",
+    "linkedin": "https://www.linkedin.com/in/muhsina-beegum/",
+    "photo": "assets/organizers/muhsina-beegum.webp"
+  },
+  {
+    "id": "sajad-hussain",
+    "name": "Sajad Hussain",
+    "team": "Tech",
+    "position": "Tech Team Member",
+    "linkedin": "https://www.linkedin.com/in/sajad-hussain-malla-983854274",
+    "photo": "assets/organizers/sajad-hussain.webp"
+  },
+  {
+    "id": "amrutha-m",
+    "name": "Amrutha M",
+    "team": "Finance Team",
+    "position": "Finance",
+    "linkedin": "https://www.linkedin.com/in/amrutha-m-738a78272",
+    "photo": "assets/organizers/amrutha-m.webp"
+  },
+  {
+    "id": "samir-navas",
+    "name": "Samir Navas",
+    "team": "Design",
+    "position": "Design Team Member",
+    "linkedin": "https://www.linkedin.com/in/samir-navas-a6128633b",
+    "photo": "assets/organizers/samir-navas.webp"
+  },
+  {
+    "id": "jude-thomas",
+    "name": "Jude Thomas",
+    "team": "Events",
+    "position": "Ambience Lead",
+    "linkedin": "https://www.linkedin.com/in/jude-thomas-3884502b8",
+    "photo": "assets/organizers/jude-thomas.webp"
+  },
+  {
+    "id": "kamesh-singh",
+    "name": "Kamesh Singh",
+    "team": "Outreach",
+    "position": "Outreach",
+    "linkedin": "https://www.linkedin.com/in/kamesh-singh-6a5923307",
+    "photo": "assets/organizers/kamesh-singh.webp"
+  }
+]

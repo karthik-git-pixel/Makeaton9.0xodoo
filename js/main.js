@@ -27,13 +27,18 @@
     });
   });
 
-  // Nav: show after the hero, mobile menu toggle
+  // Nav: show after the hero (on pages without one, e.g. /team, it is always
+  // shown), mobile menu toggle
   const nav = document.querySelector('[data-nav]');
   const hero = document.querySelector('.hero');
-  if (nav && hero) {
-    new IntersectionObserver(([entry]) => {
-      nav.classList.toggle('is-visible', !entry.isIntersecting);
-    }, { rootMargin: '-80px 0px 0px 0px' }).observe(hero);
+  if (nav) {
+    if (hero) {
+      new IntersectionObserver(([entry]) => {
+        nav.classList.toggle('is-visible', !entry.isIntersecting);
+      }, { rootMargin: '-80px 0px 0px 0px' }).observe(hero);
+    } else {
+      nav.classList.add('is-visible');
+    }
 
     const toggle = nav.querySelector('.site-nav__toggle');
     const setOpen = (open) => {
@@ -244,127 +249,340 @@
     arcadeReady.then(() => window.MakeatonArcade.open({ color })).catch(() => {});
   }
 
-  // Mascot Rapid Expression Animator & Interactive Peeker
-  function initMascots() {
-    const MASCOT_SETS = {
-      red: [
-        'assets/mascot/mascot-red-cheer.svg',
-        'assets/mascot/mascot-red-excited.svg',
-        'assets/mascot/mascot-red-star-eyes.svg',
-        'assets/mascot/mascot-red-cool.svg',
-        'assets/mascot/mascot-red-curious.svg'
-      ],
-      green: [
-        'assets/mascot/mascot-green-cheer.svg',
-        'assets/mascot/mascot-green-excited.svg',
-        'assets/mascot/mascot-green-star-eyes.svg',
-        'assets/mascot/mascot-green-cool.svg',
-        'assets/mascot/mascot-green-curious.svg'
-      ]
+  // Desk buddy: the hero mascot (css/hero.css, .desk-pet). Its eyes follow the
+  // pointer and it blinks now and then. Point anywhere on the art panel (or
+  // tap it) and it walks along the desk to you, then strolls back to its spot
+  // once you leave. Pointing at it gets a hop and a little dance; clicking it
+  // makes it leap, then opens the arcade. With reduced motion it stands still
+  // and a click opens the arcade straight away.
+  function initDeskPet() {
+    const pet = document.querySelector('[data-desk-pet]');
+    if (!pet) return;
+    const hit = pet.querySelector('.desk-pet__hit');
+    const eye = pet.querySelector('.desk-pet__eye');
+    const panel = pet.closest('.hero-art') || pet.parentElement;
+    const stage = pet.offsetParent || pet.parentElement;
+    const still = reduceMotion.matches;
+    const sound = (name) => { if (window.MakeatonSound) window.MakeatonSound.play(name, {}); };
+
+    // Walking: css/hero.css swings the legs while [data-gait] is set; one
+    // 0.48s stride sweeps 0.62 body widths, hence this speed.
+    const SPEED = 1.3; // body widths per second
+    let x = 0; // px along the desk from the home spot
+    let target = 0;
+    let facing = 1;
+    let walking = null;
+    let last = 0;
+    let hovered = false;
+    let leaping = false;
+    let visible = true;
+    let homeTimer = null;
+    let pointer = null;
+    let lastMove = 0;
+
+    const setGaze = (gx, gy) => {
+      pet.style.setProperty('--gx', gx.toFixed(2));
+      pet.style.setProperty('--gy', gy.toFixed(2));
+    };
+    // Gaze toward the pointer, in the mascot's own facing (+x is where it faces)
+    const look = () => {
+      if (walking) {
+        setGaze(0.85, 0.1); // eyes on the road ahead
+        return;
+      }
+      if (!pointer) return;
+      // Measured from between the two eyes, at (137.4, 130.5) of the 242x325 body
+      const r = eye.getBoundingClientRect();
+      const ex = r.left + r.width * (facing > 0 ? 137.4 / 242 : 1 - 137.4 / 242);
+      const ey = r.top + r.height * (130.5 / 325);
+      const dx = pointer.x - ex;
+      const dy = pointer.y - ey;
+      const dist = Math.hypot(dx, dy) || 1;
+      const reach = Math.min(1, dist / (r.width * 1.2));
+      setGaze((dx / dist) * reach * facing, (dy / dist) * reach);
     };
 
-    // Preload SVGs for instantaneous zero-flicker transitions
-    Object.values(MASCOT_SETS).flat().forEach((src) => {
-      const img = new Image();
-      img.src = src;
+    const place = () => { pet.style.transform = x ? `translateX(${x.toFixed(1)}px)` : ''; };
+    const face = (dir) => {
+      if (!dir || dir === facing) return;
+      facing = dir;
+      pet.classList.toggle('is-facing-left', dir < 0);
+    };
+    const halt = () => {
+      if (walking) cancelAnimationFrame(walking);
+      walking = null;
+      target = x;
+      delete pet.dataset.gait;
+    };
+    const stride = (now) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const ahead = target - x;
+      const move = SPEED * pet.offsetWidth * dt;
+      face(Math.sign(ahead));
+      if (Math.abs(ahead) <= move) {
+        x = target;
+        place();
+        halt();
+        if (x === 0) face(1); // back home: facing the screen again
+        look();
+        return;
+      }
+      x += Math.sign(ahead) * move;
+      place();
+      walking = requestAnimationFrame(stride);
+    };
+    const start = () => {
+      if (walking || Math.abs(target - x) < 1) return;
+      pet.dataset.gait = 'walk';
+      last = performance.now();
+      walking = requestAnimationFrame(stride);
+      look();
+    };
+    // Walk so the mascot's middle ends up under clientX, staying on the desk
+    const walkTo = (clientX) => {
+      const s = stage.getBoundingClientRect();
+      const w = pet.offsetWidth;
+      const home = pet.offsetLeft;
+      const spot = clientX - s.left - home - w / 2;
+      const next = Math.round(Math.min(s.width * 0.97 - w - home, Math.max(s.width * 0.01 - home, spot)));
+      if (!walking && Math.abs(next - x) < w * 0.15) return; // near enough: no shuffling on the spot
+      target = next;
+      start();
+    };
+    const goHome = () => {
+      target = 0;
+      start();
+    };
+
+    hit.addEventListener('click', () => {
+      if (leaping) return;
+      if (still) {
+        openArcade('red');
+        return;
+      }
+      leaping = true;
+      halt();
+      pet.classList.add('is-leaping');
+      sound('boing');
+      setTimeout(() => {
+        pet.classList.remove('is-leaping');
+        leaping = false;
+        openArcade('red');
+      }, 640);
+    });
+    if (still) return;
+
+    hit.addEventListener('pointerenter', (event) => {
+      if (event.pointerType !== 'mouse') return;
+      hovered = true;
+      clearTimeout(homeTimer);
+      halt();
+      look();
+      sound('pop');
+    });
+    hit.addEventListener('pointerleave', (event) => {
+      if (event.pointerType === 'mouse') hovered = false;
     });
 
-    const bindMascot = (mascot) => {
-      if (mascot.dataset.mascotBound === 'true') return;
-      mascot.dataset.mascotBound = 'true';
+    // Mouse: follow the pointer around the panel; head home after it leaves
+    panel.addEventListener('pointermove', (event) => {
+      if (event.pointerType !== 'mouse' || hovered || leaping) return;
+      clearTimeout(homeTimer);
+      walkTo(event.clientX);
+    });
+    panel.addEventListener('pointerleave', (event) => {
+      if (event.pointerType !== 'mouse') return;
+      clearTimeout(homeTimer);
+      homeTimer = setTimeout(goHome, 1600);
+    });
+    // A tap (or click) on the scene: walk over there, and home again later
+    panel.addEventListener('click', (event) => {
+      if (hit.contains(event.target) || leaping) return;
+      pointer = { x: event.clientX, y: event.clientY };
+      clearTimeout(homeTimer);
+      walkTo(event.clientX);
+      if (event.pointerType !== 'mouse') homeTimer = setTimeout(goHome, 6000);
+    });
 
-      const img = mascot.querySelector('.mascot-img, .page__mascot-img');
-      if (!img) return;
-
-      const color = mascot.dataset.mascotColor || (img.src.includes('red') ? 'red' : 'green');
-      let baseSrc = img.getAttribute('src');
-      let cycleInterval = null;
-      let currentIndex = 0;
-      if (!mascot.title) mascot.title = 'Tap me to play';
-
-      const getSet = () => MASCOT_SETS[color] || MASCOT_SETS.green;
-
-      // Rapid Comic Flipbook Cycle
-      const startCycling = (speedMs = 105) => {
-        if (cycleInterval) clearInterval(cycleInterval);
-        const set = getSet();
-        cycleInterval = setInterval(() => {
-          currentIndex = (currentIndex + 1) % set.length;
-          img.src = set[currentIndex];
-        }, speedMs);
-      };
-
-      const stopCycling = (landOnIndex = null) => {
-        if (cycleInterval) {
-          clearInterval(cycleInterval);
-          cycleInterval = null;
-        }
-        const set = getSet();
-        if (landOnIndex !== null && set[landOnIndex]) {
-          img.src = set[landOnIndex];
-        } else {
-          img.src = baseSrc;
-        }
-      };
-
-      // Hover Interaction: Rapid Expression Reel!
-      mascot.addEventListener('mouseenter', () => {
-        startCycling(95);
-      });
-
-      mascot.addEventListener('mouseleave', () => {
-        stopCycling(0); // Settles cleanly on cheer/main pose
-      });
-
-      // A tap bursts the mascot and opens the arcade, playing as that mascot
-      mascot.addEventListener('click', () => {
-        mascot.classList.remove('is-bursting');
-        void mascot.offsetWidth; // Trigger reflow for restart
-        mascot.classList.add('is-bursting');
-        stopCycling(0);
-        openArcade(color);
-      });
-    };
-
-    const scanAndBind = () => {
-      document.querySelectorAll('.mascot-peeker, .mascot-corner, .page__mascot-wrap').forEach(bindMascot);
-    };
-
-    scanAndBind();
-    window.addEventListener('timeline-book-ready', scanAndBind);
-
-    // Idle Subtle Double-Take: every 4.5s, a visible mascot briefly blinks an expression
-    if (!reduceMotion.matches) {
-      setInterval(() => {
-        const visibleMascots = [...document.querySelectorAll('.mascot-peeker, .mascot-corner, .page__mascot-wrap')].filter((m) => {
-          const rect = m.getBoundingClientRect();
-          return rect.top < window.innerHeight && rect.bottom > 0;
+    // The eyes follow the pointer anywhere on the page while the hero is in view
+    let gazeFrame = null;
+    document.addEventListener('pointermove', (event) => {
+      if (!visible) return;
+      pointer = { x: event.clientX, y: event.clientY };
+      lastMove = performance.now();
+      if (!gazeFrame) {
+        gazeFrame = requestAnimationFrame(() => {
+          gazeFrame = null;
+          look();
         });
-        if (visibleMascots.length === 0) return;
-        const target = visibleMascots[Math.floor(Math.random() * visibleMascots.length)];
-        const img = target.querySelector('.mascot-img, .page__mascot-img');
-        if (!img) return;
+      }
+    }, { passive: true });
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(pet);
 
-        const color = target.dataset.mascotColor || (img.src.includes('red') ? 'red' : 'green');
-        const set = MASCOT_SETS[color] || MASCOT_SETS.green;
-        const orig = img.getAttribute('src');
-        const flipPose = set[Math.floor(Math.random() * set.length)];
+    // Blinks (sometimes a double), and when nobody's pointing, it looks around
+    const blink = () => {
+      pet.classList.add('is-blinking');
+      setTimeout(() => pet.classList.remove('is-blinking'), 110);
+    };
+    const blinkLater = () => {
+      setTimeout(() => {
+        if (visible && !leaping) {
+          blink();
+          if (Math.random() < 0.25) setTimeout(blink, 240);
+        }
+        blinkLater();
+      }, 2200 + Math.random() * 3200);
+    };
+    blinkLater();
+    const GLANCES = [[0.9, 0.1], [0, 0], [-0.8, -0.5], [0.5, 0.9], [0.6, -0.8]];
+    setInterval(() => {
+      if (!visible || walking || hovered || leaping || performance.now() - lastMove < 4000) return;
+      const [gx, gy] = GLANCES[Math.floor(Math.random() * GLANCES.length)];
+      setGaze(gx, gy);
+    }, 2600);
 
-        img.src = flipPose;
-        setTimeout(() => {
-          if (!target.matches(':hover')) {
-            img.src = orig;
-          }
-        }, 550);
-      }, 4500);
+    // The desk is sized in cqw: after a width change, start again from home
+    let width = window.innerWidth;
+    window.addEventListener('resize', () => {
+      if (window.innerWidth === width) return;
+      width = window.innerWidth;
+      halt();
+      x = 0;
+      target = 0;
+      place();
+      face(1);
+    });
+  }
+
+  // Crew call: the mascot with the "Meet the organizers" sign above the footer
+  // (css/sections.css). The first time the end of the FAQ comes into view it
+  // runs in and skids to a stop; then, on a loop, it presents (the sign
+  // spins), strolls off to the right and back in from the left.
+  // Its legs swing only while it travels ([data-gait]), and it travels as fast
+  // as its feet sweep, so it walks rather than skates. Hovering or focusing
+  // it, or scrolling it away, freezes the whole show mid-step.
+  function initCrewCall() {
+    const call = document.querySelector('[data-crew-call]');
+    if (!call) return;
+    const group = call.querySelector('.crew-call__group');
+    const link = call.querySelector('.crew-call__link');
+    if (!group || !link) return;
+    if (reduceMotion.matches || !group.animate || !('IntersectionObserver' in window)) {
+      call.classList.add('is-standing');
+      return;
     }
+
+    // stride: one full step cycle in seconds (matches --stride in the CSS);
+    // speed: how far a planted foot sweeps per half stride, in em per second
+    const GAITS = { walk: { stride: 0.56, speed: 6.2 }, run: { stride: 0.28, speed: 15 } };
+    const em = () => parseFloat(getComputedStyle(call).fontSize) || 16;
+    let visible = false;
+    let pointerOver = false;
+    let focused = false;
+    let started = false;
+    let travel = null;
+    const frozen = () => !visible || pointerOver || focused;
+
+    const syncFreeze = () => {
+      call.classList.toggle('is-frozen', frozen());
+      if (!travel) return;
+      if (frozen()) travel.pause();
+      else travel.play();
+    };
+
+    // A timeout that stands still while the show is frozen
+    const hold = (ms) => new Promise((resolve) => {
+      let left = ms;
+      let last = performance.now();
+      const tick = (now) => {
+        if (!frozen()) left -= now - last;
+        last = now;
+        if (left <= 0) resolve();
+        else requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+
+    // Offsets that put the whole parade just off the left or right edge
+    const edges = () => {
+      const rest = link.getBoundingClientRect();
+      const trail = em() * 4; // the speed lines and the skid text trail behind it
+      return { left: -(rest.right + trail), right: window.innerWidth - rest.left + trail };
+    };
+
+    // Travel with the legs going. It lasts a whole number of strides plus a
+    // quarter, which ends with both legs hanging straight, so stopping doesn't
+    // snap them. Returns once arrived; `travel` is set as soon as it starts.
+    const go = async (from, to, gait, keyframes) => {
+      const { stride, speed } = GAITS[gait];
+      const strides = Math.max(1, Math.round(Math.abs(to - from) / em() / speed / stride)) + 0.25;
+      call.dataset.gait = gait;
+      travel = group.animate(keyframes || [
+        { transform: `translateX(${from}px)` },
+        { transform: `translateX(${to}px)` },
+      ], { duration: strides * stride * 1000, easing: 'linear', fill: 'forwards' });
+      syncFreeze();
+      await travel.finished;
+      travel.commitStyles();
+      travel.cancel();
+      travel = null;
+      delete call.dataset.gait;
+    };
+
+    const show = async () => {
+      started = true;
+      call.classList.add('is-started', 'is-entering');
+      const k = em();
+      let edge = edges();
+      // The first entrance is a run, leaning back into a skid at the end
+      const arrived = go(edge.left, 0, 'run', [
+        { transform: `translateX(${edge.left}px)` },
+        { transform: `translateX(${k * 1.4}px) rotate(-6deg)`, offset: 0.88, easing: 'ease-out' },
+        { transform: `translateX(${-k * 0.4}px) rotate(2deg)`, offset: 0.95 },
+        { transform: 'none' },
+      ]);
+      hold(travel.effect.getTiming().duration * 0.86).then(() => {
+        call.classList.remove('is-entering');
+        call.classList.add('is-skidding');
+        return hold(1300);
+      }).then(() => call.classList.remove('is-skidding'));
+      await arrived;
+      for (;;) {
+        call.classList.add('is-presenting');
+        await hold(4800);
+        call.classList.remove('is-presenting');
+        edge = edges();
+        await go(0, edge.right, 'walk');
+        await hold(1200);
+        edge = edges();
+        await go(edge.left, 0, 'walk');
+      }
+    };
+
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      syncFreeze();
+      if (visible && !started) show();
+    }, { threshold: 0.3 }).observe(call);
+
+    link.addEventListener('pointerenter', (event) => {
+      if (event.pointerType !== 'mouse') return;
+      pointerOver = true;
+      syncFreeze();
+      if (window.MakeatonSound) window.MakeatonSound.play('pop', {});
+    });
+    link.addEventListener('pointerleave', () => { pointerOver = false; syncFreeze(); });
+    link.addEventListener('focus', () => { focused = true; syncFreeze(); });
+    link.addEventListener('blur', () => { focused = false; syncFreeze(); });
   }
 
   initCountdown();
   initRegister();
   initHero();
   initTerminal();
-  initMascots();
+  initDeskPet();
+  initCrewCall();
 })();
 
 

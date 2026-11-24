@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Make-A-Ton 9.0 organizers",
+  "description": "The organizing team, one trading card per entry, read by js/team.js for the /team page. The file is a plain list. Teams become columns in the order they first appear, and cards keep the file's order within a team. The maxLength values are what fits on a card.",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/organizer"
+  },
+  "definitions": {
+    "organizer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "team",
+        "position",
+        "linkedin",
+        "photo"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique slug, lowercase words joined by hyphens. Also the photo's file name.",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Shown on the name plate. Long names shrink to fit.",
+          "minLength": 1,
+          "maxLength": 22
+        },
+        "team": {
+          "type": "string",
+          "description": "The column the card is dealt into, shown as written on the column's tab (e.g. Core, Finance Team, Outreach). Core, Finance, Tech, Design, Events, Outreach, Content, PR and Faculty have their own colours, mascots and icons (a trailing \"Team\" doesn't matter); any other team gets a column too.",
+          "minLength": 1,
+          "maxLength": 16
+        },
+        "position": {
+          "type": "string",
+          "description": "Shown as written above the name, e.g. Team Lead or Design Team Member.",
+          "minLength": 1,
+          "maxLength": 28
+        },
+        "linkedin": {
+          "type": "string",
+          "description": "Full LinkedIn profile URL. The sticker on the card opens it in a new tab.",
+          "pattern": "^https://([a-z]{2,3}\\.)?linkedin\\.com/"
+        },
+        "photo": {
+          "type": "string",
+          "description": "Relative path to a transparent WebP (or PNG) cutout, 800x1000, shoulders touching the bottom edge and about 15-20% headroom above the head.",
+          "pattern": "^assets/organizers/[^/]+\\.(webp|png)$"
+        },
+        "theme": {
+          "description": "Optional colour override. Without it the card takes its team's colour.",
+          "enum": [
+            "orange",
+            "yellow",
+            "blue",
+            "pink"
+          ]
+        }
+      }
+    }
+  }
+}

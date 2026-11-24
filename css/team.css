@@ -1,0 +1,1020 @@
+/* ==========================================================================
+   Organizing team · /team
+   A deck of trading cards on the hero's mustard sheet. js/team.js builds the
+   cards from data/organizers.json. Every length inside a card is in cqw of
+   that card, so one card scales as a single piece, from a phone thumbnail to
+   the focused view, and stays crisp because nothing is an image of a card.
+   ========================================================================== */
+
+.crew-page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  padding-block: clamp(84px, 8vw, 100px) clamp(48px, 6vw, 80px);
+  /* The hero's sheet: mustard lit from the top, with the halftone over it */
+  background-color: var(--hero-page);
+  background-image:
+    radial-gradient(rgba(12, 14, 15, 0.10) 1.1px, transparent 1.5px),
+    radial-gradient(130% 70% at 50% 0%, var(--hero-page-lit) 0%, var(--hero-page) 62%, var(--hero-page-shade) 100%);
+  background-size: 9px 9px, 100% 100%;
+}
+
+/* The nav's current page, and the footer's link to this page ---------------- */
+.site-nav__menu a[aria-current="page"] { color: var(--tape); }
+
+/* Shared card artwork (team.html): out of the flow, but still rendered so the
+   symbols resolve */
+.crew-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* Header: kicker, the title, and a cream sticky note slapped beside it ------ */
+.crew-head {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas:
+    "kicker kicker"
+    "title  note";
+  justify-content: center;
+  align-items: center;
+  gap: 10px clamp(16px, 2.4vw, 32px);
+  width: min(calc(100% - 2 * var(--gutter)), var(--max));
+  margin: 0 auto clamp(18px, 2.6vw, 34px);
+  text-align: center;
+}
+.crew-kicker {
+  grid-area: kicker;
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.3em 0.9em 0.3em 0.3em;
+  font-family: var(--font-tape);
+  font-size: clamp(0.7rem, 0.62rem + 0.3vw, 0.88rem);
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: var(--ink);
+  border-radius: 999px;
+}
+.crew-kicker__ed {
+  padding: 0.35em 0.75em;
+  color: var(--ink);
+  background: var(--tape);
+  border-radius: 999px;
+}
+.crew-title {
+  grid-area: title;
+  font-size: clamp(2.8rem, 1.6rem + 4.4vw, 5.2rem);
+  rotate: -1.5deg;
+}
+.crew-title span { color: var(--red); }
+.crew-note {
+  grid-area: note;
+  position: relative;
+  padding: 0.85em 1.1em 0.75em;
+  font-family: var(--font-tape);
+  font-size: clamp(0.86rem, 0.78rem + 0.35vw, 1.08rem);
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  rotate: 3deg;
+}
+.crew-note__tape {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 52px;
+  height: 18px;
+  translate: -50% 0;
+  rotate: -5deg;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(12, 14, 15, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   The card table · green felt (a nod to the classic Solitaire table), drawn
+   as one of the site's panels: ink border, hard shadow, halftone dots.
+   States on .crew-table[data-state]: loading → placing → stacked → dealing
+   → dealt → gathering → stacked …
+   -------------------------------------------------------------------------- */
+.crew-stage {
+  width: min(calc(100% - 2 * var(--gutter)), var(--max));
+  margin-inline: auto;
+}
+.crew-noscript {
+  padding: 2em 1em;
+  font-family: var(--font-tape);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.crew-table {
+  --cols: 4;
+  --card-max: 236px;
+  --col-gap: clamp(12px, 2.6vw, 36px);
+  --felt: #1E9A54;
+  position: relative;
+  isolation: isolate;
+  /* Keeps the deck's spotlight on the felt */
+  overflow: hidden;
+  padding: clamp(12px, 1.6vw, 20px) clamp(14px, 2.4vw, 30px) clamp(12px, 1.6vw, 20px);
+  background-color: var(--felt);
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.1) 1.3px, transparent 1.7px),
+    radial-gradient(90% 70% at 50% 42%, rgba(255, 255, 255, 0.16), transparent 70%),
+    radial-gradient(150% 120% at 50% 40%, transparent 50%, rgba(12, 14, 15, 0.26) 100%);
+  background-size: 12px 12px, 100% 100%, 100% 100%;
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+/* The bar across the top: a comic caption box with the instructions, and
+   the sound and reshuffle buttons */
+.crew-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  margin-bottom: clamp(14px, 1.8vw, 22px);
+}
+.crew-caption {
+  padding: 0.55em 1em 0.5em;
+  font-family: var(--font-tape);
+  font-size: clamp(0.74rem, 0.66rem + 0.32vw, 0.95rem);
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--tape);
+  border: var(--line) solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  rotate: -1deg;
+}
+.crew-caption b { font-weight: 400; color: var(--red); }
+.crew-caption.is-error { color: var(--red); background: var(--paper); }
+.crew-say--touch { display: none; }
+@media (hover: none) {
+  .crew-say--touch { display: inline; }
+  .crew-say--mouse { display: none; }
+}
+
+.crew-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-left: auto;
+}
+.crew-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.55em 1em 0.5em 0.8em;
+  font-family: var(--font-tape);
+  font-size: clamp(0.72rem, 0.66rem + 0.25vw, 0.88rem);
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: translate 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.crew-btn[hidden] { display: none; }
+.crew-btn:hover { translate: -1px -1px; box-shadow: 4px 4px 0 var(--ink); background-color: var(--white); }
+.crew-btn:active { translate: 2px 2px; box-shadow: 1px 1px 0 var(--ink); }
+.crew-btn:focus-visible { outline: 3px solid var(--tape); outline-offset: 3px; }
+.crew-btn--reshuffle { background: var(--tape); }
+.crew-btn--reshuffle:hover { background-color: #FFEB6E; }
+.crew-btn__icon {
+  flex: none;
+  width: 1.3em;
+  height: 1.3em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.crew-btn--sound[aria-pressed="false"] .crew-btn__waves,
+.crew-btn--sound[aria-pressed="true"] .crew-btn__mute { display: none; }
+.crew-btn--sound[aria-pressed="false"] { background: var(--cream); }
+
+/* Surface: the tableau, with the deck laid over it. Until the deal it is only
+   as tall as the deck (--stack-h, measured in js/team.js; the min-height
+   holds about that much before the cards are built, so nothing jumps on
+   load). Dealing unfolds it to the tableau's full height, and a reshuffle
+   folds it back. */
+.crew-surface {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(330px, 16vw + 230px, 440px);
+}
+.crew-surface.is-built { min-height: 0; }
+.crew-table:is([data-state="loading"], [data-state="placing"], [data-state="stacked"]) .crew-surface.is-built {
+  height: var(--stack-h, auto);
+}
+.crew-table:is([data-state="loading"], [data-state="placing"], [data-state="stacked"]) .crew-tableau { visibility: hidden; }
+
+/* Tableau: one column per team, under a tab sticker, --cols (set by
+   js/team.js) to a row. A team with a stack of cards spans two grid rows
+   (--span, also from js/team.js) and single cards fill in beside it, so a
+   tall stack leaves no empty felt under the rest of its row. */
+.crew-tableau {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, var(--card-max)));
+  grid-auto-flow: row dense;
+  justify-content: center;
+  align-items: start;
+  gap: clamp(18px, 2.4vw, 30px) var(--col-gap);
+}
+.crew-col {
+  --tab: var(--red);
+  grid-row: span var(--span, 1);
+  display: grid;
+  /* A fixed track: left to content sizing, the cards' aspect-ratio box would
+     widen it past the column */
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: clamp(10px, 1.1vw, 14px);
+  min-width: 0;
+}
+.crew-col[data-theme="yellow"] { --tab: var(--yellow); }
+.crew-col[data-theme="blue"] { --tab: var(--blue); }
+.crew-col[data-theme="pink"] { --tab: var(--pink); }
+.crew-tab {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.42em 0.5em 0.38em 0.95em;
+  font-family: var(--font-tape);
+  font-size: clamp(0.78rem, 0.68rem + 0.36vw, 1.02rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--tab);
+  border: var(--line) solid var(--ink);
+  border-radius: 12px 12px 6px 6px;
+  box-shadow: 4px 4px 0 var(--ink);
+  rotate: -2deg;
+  /* One line, so every card in a row starts at the same height */
+  white-space: nowrap;
+}
+.crew-col:nth-child(even) .crew-tab { rotate: 2deg; }
+/* Phones: two narrow columns, so a longer team name ("Finance Team") is set
+   smaller and tighter to fit (149px columns at 375px, 121px at 320px) */
+@media (max-width: 480px) {
+  .crew-tab {
+    gap: 0.38em;
+    padding-left: 0.7em;
+    font-size: clamp(0.64rem, 0.175rem + 2.33vw, 0.72rem);
+    letter-spacing: 0.045em;
+  }
+}
+.crew-tab__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.75em;
+  height: 1.75em;
+  padding: 0 0.35em;
+  font-size: 0.78em;
+  letter-spacing: 0;
+  color: var(--tape);
+  background: var(--ink);
+  border-radius: 999px;
+}
+
+/* A column's cards cascade: each card overlaps the one above it, so only its
+   name plate shows (31% of the card's width, ~70px at full size). Percentage
+   margins resolve against the column's width, which is the card's width. */
+.crew-col__cards {
+  position: relative;
+  /* Explicit: a grid item with an aspect-ratio would otherwise size its width
+     from its stretched height and spill out of the column */
+  width: 100%;
+  /* Room for the stack to open below its last card when one is hovered */
+  margin-bottom: 44%;
+}
+/* A single card has no stack to open */
+.crew-col[data-count="1"] .crew-col__cards { margin-bottom: 0; }
+.crew-col__cards > .ocard + .ocard { margin-top: -109%; }
+.crew-col__slot {
+  position: absolute;
+  inset: 0 0 auto;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 5 / 7;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(12, 14, 15, 0.12);
+  border: 3px dashed rgba(255, 255, 255, 0.55);
+  border-radius: 7%;
+}
+.crew-col__slot svg {
+  width: 32%;
+  aspect-ratio: 1;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* GSAP turns the cards here, so the CSS flip transition stands down */
+.crew-table .ocard__flip { transition: none; }
+.crew-table.is-animating .ocard,
+.crew-table.is-animating .ocard__flip { will-change: transform; }
+
+/* Dealt: hover (or keyboard focus) lifts a card and opens the stack below it,
+   so the rest of the card peeks out; a click opens it in the focused view */
+.crew-table[data-state="dealt"] .crew-col__cards > .ocard {
+  transition: translate 0.34s cubic-bezier(0.2, 1.25, 0.4, 1);
+}
+.crew-table[data-state="dealt"] .crew-col__cards > .ocard:is(:hover, :has(:focus-visible)) { translate: 0 -12px; }
+.crew-table[data-state="dealt"] .crew-col__cards > .ocard:is(:hover, :has(:focus-visible)) ~ .ocard { translate: 0 31%; }
+.crew-table[data-state="dealt"] .crew-col__cards > .ocard:is(:hover, :has(:focus-visible)) .ocard__face { box-shadow: 3.8cqw 4cqw 0 var(--ink); }
+.crew-table .ocard__face { transition: box-shadow 0.25s ease; }
+/* The card that is up in the focused view leaves a gap in its stack */
+.crew-table .ocard.is-lifted { visibility: hidden; }
+
+/* Focused view · a modal dialog over the whole page: a dimmed halftone layer
+   (a click on it closes), the card about 1.5x a table card, and a bar with
+   prev / next and the count. js/team.js flies the card in from its seat and
+   back; GSAP drives .crew-focus__tilt (fly, swap, tilt), so it carries no
+   CSS transforms of its own. */
+.crew-focus {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  /* No page scrolling behind it; a swipe on the card changes organizer */
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+.crew-focus[open] { display: grid; place-items: center; }
+.crew-focus::backdrop { background: transparent; }
+.crew-focus__dim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.09) 1.3px, transparent 1.7px) 0 0 / 12px 12px,
+    radial-gradient(70% 60% at 50% 45%, rgba(12, 14, 15, 0.55), rgba(12, 14, 15, 0.85));
+}
+.crew-focus__stage {
+  /* As big as fits with the bar: never past 400px wide or 74% of the screen */
+  --focus-w: min(400px, 74vw, calc((100vh - 200px) / 1.4));
+  --focus-w: min(400px, 74vw, calc((100dvh - 200px) / 1.4));
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: clamp(18px, 3.2vh, 30px);
+  /* Clicks between the card and the bar fall through to the dim */
+  pointer-events: none;
+}
+.crew-focus__stage > * { pointer-events: auto; }
+.crew-focus__tilt { position: relative; width: var(--focus-w); }
+.crew-focus .ocard__face { box-shadow: 3cqw 3.4cqw 0 var(--ink); }
+/* Glare: a soft light that follows the mouse across the card while it tilts */
+.crew-focus__glare {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 7% / 5%;
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 48%);
+  mix-blend-mode: overlay;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.crew-focus__tilt.is-tilting .crew-focus__glare { opacity: 1; }
+
+.crew-focus__bar { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); }
+.crew-focus__nav { width: 3em; height: 3em; padding: 0; justify-content: center; }
+.crew-focus__nav .crew-btn__icon { width: 1.5em; height: 1.5em; stroke-width: 2.8; }
+.crew-focus__count {
+  min-width: 6.5em;
+  margin: 0;
+  font-family: var(--font-tape);
+  font-size: clamp(0.95rem, 0.85rem + 0.4vw, 1.15rem);
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.crew-focus__count b { font-weight: 400; color: var(--tape); }
+.crew-focus__team {
+  display: block;
+  margin-top: 0.2em;
+  font-size: 0.72em;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.72);
+}
+.crew-focus__close {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+  width: 3em;
+  height: 3em;
+  padding: 0;
+  justify-content: center;
+  background: var(--tape);
+}
+.crew-focus__close:hover { background-color: #FFEB6E; }
+.crew-focus__close .crew-btn__icon { width: 1.4em; height: 1.4em; stroke-width: 3; }
+
+/* The deck: a pile on the middle of the table, under a slow yellow
+   spotlight, with a speech bubble telling you what to do */
+/* Level with the first card slot (--deck-top, measured in js/team.js), so the
+   deck and its bubble sit high enough to be seen whole */
+.crew-deck {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  display: grid;
+  place-items: start center;
+  padding-top: var(--deck-top, 56px);
+  pointer-events: none;
+}
+.crew-table[data-state="dealt"] .crew-deck { visibility: hidden; }
+.crew-deck__spot {
+  position: relative;
+  width: var(--card-w, 236px);
+  aspect-ratio: 5 / 7;
+}
+/* Centred with margins, not translate: GSAP scales and turns these, and it
+   folds a CSS translate into its own transform, where a turn would swing the
+   centre round in a circle instead of spinning the burst in place. (Vertical
+   percentage margins resolve against the width, which is what's wanted.) */
+.crew-deck__glow,
+.crew-deck__burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.crew-deck__glow {
+  width: 190%;
+  margin: -95% 0 0 -95%;
+  background: radial-gradient(closest-side, rgba(255, 226, 58, 0.5), rgba(255, 226, 58, 0) 100%);
+}
+.crew-deck__burst {
+  width: 330%;
+  margin: -165% 0 0 -165%;
+  background: repeating-conic-gradient(rgba(255, 226, 58, 0.55) 0deg 7.5deg, transparent 7.5deg 15deg);
+  -webkit-mask-image: radial-gradient(closest-side, #000 14%, rgba(0, 0, 0, 0.45) 48%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 14%, rgba(0, 0, 0, 0.45) 48%, transparent 100%);
+  animation: crew-spin 80s linear infinite;
+}
+.crew-deck__hit {
+  position: absolute;
+  inset: -12px;
+  z-index: 3;
+  display: none;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 26px;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.crew-table[data-state="stacked"] .crew-deck__hit { display: block; }
+.crew-deck__hit:focus-visible { outline: 4px solid var(--tape); outline-offset: 6px; }
+.crew-deck__float {
+  position: absolute;
+  inset: 0;
+  animation: crew-float 3.4s ease-in-out infinite;
+}
+.crew-table:not([data-state="stacked"]) .crew-deck__float { animation-play-state: paused; }
+/* Three layers, so CSS and GSAP never share an element's transform: the float
+   (CSS keyframes), the lift (CSS hover), the pile (GSAP's squash) */
+.crew-deck__lift,
+.crew-deck__pile {
+  position: absolute;
+  inset: 0;
+}
+.crew-deck__lift { transition: translate 0.35s cubic-bezier(0.2, 1.4, 0.4, 1), scale 0.35s cubic-bezier(0.2, 1.4, 0.4, 1); }
+.crew-deck__pile > .ocard { position: absolute; inset: 0; }
+/* Hover lifts the deck (and js/team.js fans the top card), inviting the tap */
+.crew-deck__hit:is(:hover, :focus-visible) ~ .crew-deck__float .crew-deck__lift { translate: 0 -10px; scale: 1.03; }
+
+/* Speech bubble beside the deck. The wrapper places it (and takes GSAP's pop);
+   the bubble itself bobs. */
+.crew-deck__say {
+  position: absolute;
+  top: 10%;
+  left: calc(100% + 18px);
+  z-index: 4;
+  pointer-events: none;
+}
+.crew-deck__say[hidden] { display: none; }
+.crew-deck__bubble {
+  position: relative;
+  display: block;
+  padding: 0.42em 0.8em 0.38em;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 1rem + 1vw, 1.9rem);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 4px 4px 0 var(--ink);
+  rotate: 5deg;
+  animation: crew-bob 1.3s ease-in-out infinite;
+}
+.crew-deck__bubble::before,
+.crew-deck__bubble::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  border-style: solid;
+  border-color: transparent;
+}
+/* The tail: an ink wedge with a paper wedge inside it, pointing at the deck */
+.crew-deck__bubble::before { right: 100%; border-width: 12px 18px 12px 0; border-right-color: var(--ink); }
+.crew-deck__bubble::after { right: calc(100% - 5px); border-width: 8px 13px 8px 0; border-right-color: var(--paper); }
+
+/* Shine: a gloss that sweeps each card as the crew is revealed */
+.ocard__shine {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  border-radius: 5cqw;
+  pointer-events: none;
+}
+.ocard__shine i {
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  left: 0;
+  width: 34%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0));
+  opacity: 0;
+}
+
+@keyframes crew-spin { to { rotate: 360deg; } }
+@keyframes crew-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-0.6deg); }
+}
+@keyframes crew-bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -7px; }
+}
+
+/* --------------------------------------------------------------------------
+   OrganizerCard · a 5:7 trading card that says who someone is: position,
+   name, photo and a LinkedIn sticker. The card (a div in the deck and the
+   tableau, an article in the focused view) is the container; .ocard__flip
+   turns in 3D between the two faces.
+   -------------------------------------------------------------------------- */
+.ocard {
+  /* Theme: orange is the default (core). Each theme sets the outer frame, the
+     inner frame, the window's sunburst and the name plate. */
+  --c-frame: var(--red);
+  --c-inner: var(--tape);
+  --c-ray-a: #F4592F;
+  --c-ray-b: #E53A1B;
+  --c-plate: var(--red);
+  --c-name: var(--tape);
+  --c-cheek: rgba(255, 255, 255, 0.24);
+
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  text-align: left;
+  color: var(--ink);
+  border-radius: 7%;
+  container-type: inline-size;
+  perspective: 1200px;
+}
+.ocard[data-theme="yellow"] {
+  --c-frame: var(--yellow);
+  --c-inner: var(--red);
+  --c-ray-a: #FBD900;
+  --c-ray-b: #FFE866;
+  --c-plate: var(--yellow);
+  --c-name: var(--white);
+}
+.ocard[data-theme="blue"] {
+  --c-frame: var(--blue);
+  --c-inner: var(--tape);
+  --c-ray-a: #5A92FF;
+  --c-ray-b: #3570EA;
+  --c-plate: var(--blue);
+  --c-name: var(--tape);
+}
+.ocard[data-theme="pink"] {
+  --c-frame: var(--pink);
+  --c-inner: var(--paper);
+  --c-ray-a: #F98FC0;
+  --c-ray-b: #F06AA6;
+  --c-plate: var(--pink);
+  --c-name: var(--white);
+}
+
+/* Zero specificity, so the name plate's own type (.ocard__name) still wins
+   when the name is a heading (the focused view's card) */
+:where(.ocard) h2 { margin: 0; font: inherit; }
+.ocard img { max-width: none; }
+
+.ocard__flip {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.75s cubic-bezier(0.3, 1.35, 0.45, 1);
+}
+.ocard[data-face="back"] .ocard__flip { transform: rotateY(180deg); }
+
+.ocard__face {
+  position: absolute;
+  inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border: max(2.5px, 2cqw) solid var(--ink);
+  border-radius: 7cqw;
+  box-shadow: 2.4cqw 2.4cqw 0 var(--ink);
+}
+
+/* Front ------------------------------------------------------------------- */
+.ocard__front {
+  padding: 3cqw;
+  /* The frame, lit from the top-left like the podium's metals */
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0) 42%, rgba(12, 14, 15, 0.12)),
+    var(--c-frame);
+}
+
+.ocard__frame {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 1.6cqw;
+  height: 100%;
+  padding: 2.4cqw 2.6cqw 2.6cqw;
+  background:
+    radial-gradient(rgba(12, 14, 15, 0.09) 0.42cqw, transparent 0.52cqw) 0 0 / 2.2cqw 2.2cqw,
+    var(--c-inner);
+  border: max(1.5px, 1.1cqw) solid var(--ink);
+  border-radius: 4.2cqw;
+}
+
+/* Position, in small caps over the name ("Design Team Member") */
+.ocard__role {
+  min-width: 0;
+  overflow: hidden;
+  padding-inline: 1cqw;
+  font-size: 4.9cqw;
+  font-weight: 700;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.09em;
+  line-height: 1.15;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Name plate: the logo's lettering (fill, ink stroke, extruded shadow) on a
+   tilted plate, the mascot badge on the left and the LinkedIn sticker on the
+   right. It sits over the photo's head, and lets clicks through to the
+   card's button everywhere except the sticker. */
+.ocard__plate {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  height: 13.2cqw;
+  margin: 0.4cqw 1.6cqw 0 6.8cqw;
+  padding: 0 9cqw 0.6cqw 9.6cqw;
+  background:
+    radial-gradient(rgba(12, 14, 15, 0.16) 0.4cqw, transparent 0.5cqw) 0 0 / 1.9cqw 1.9cqw,
+    linear-gradient(180deg, var(--c-cheek), transparent 55%),
+    var(--c-plate);
+  border: max(1.5px, 1cqw) solid var(--ink);
+  border-radius: 2.6cqw;
+  box-shadow: 1.2cqw 1.2cqw 0 var(--ink);
+  rotate: -2.2deg;
+  pointer-events: none;
+}
+.ocard__name {
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: calc(10cqw * var(--fit, 1));
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--c-name);
+  -webkit-text-stroke: 0.15em var(--ink);
+  paint-order: stroke fill;
+  text-shadow:
+    0.025em 0.03em 0 var(--ink),
+    0.05em 0.06em 0 var(--ink),
+    0.075em 0.09em 0 var(--ink);
+}
+.ocard__badge {
+  position: absolute;
+  top: 50%;
+  left: -7.6cqw;
+  width: 15.2cqw;
+  aspect-ratio: 1;
+  overflow: hidden;
+  translate: 0 -50%;
+  background:
+    radial-gradient(circle at 50% 120%, var(--c-ray-a) 0 40%, transparent 41%),
+    var(--paper);
+  border: max(1.5px, 1cqw) solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 0.9cqw 0.9cqw 0 var(--ink);
+  rotate: 2.2deg;
+}
+.ocard__badge img {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 118%;
+  height: auto;
+  translate: -50% 0;
+}
+
+/* LinkedIn: a die-cut sticker on the plate's right end. A real link, above
+   the card's button, so it works straight from the table. */
+.ocard__in {
+  position: absolute;
+  top: 50%;
+  right: -4.8cqw;
+  display: grid;
+  place-items: center;
+  width: 11.8cqw;
+  aspect-ratio: 1;
+  translate: 0 -50%;
+  color: var(--white);
+  background: #0A66C2;
+  border: max(1.5px, 0.9cqw) solid var(--white);
+  border-radius: 2.8cqw;
+  box-shadow: 0 0 0 max(1px, 0.6cqw) var(--ink), 1cqw 1.2cqw 0 max(1px, 0.6cqw) var(--ink);
+  rotate: 8deg;
+  text-decoration: none;
+  pointer-events: auto;
+  transition: rotate 0.2s cubic-bezier(0.2, 1.4, 0.4, 1), scale 0.2s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.ocard__in svg { width: 54%; height: 54%; fill: currentColor; }
+.ocard__in:hover { rotate: -4deg; scale: 1.14; }
+.ocard__in:focus-visible { outline: max(2px, 0.8cqw) solid var(--ink); outline-offset: max(2px, 0.8cqw); }
+
+/* Photo window: sunburst, halftone and doodles. The cutout fills it, rises
+   over its top edge in a white sticker outline, and is cut at the sides and
+   the bottom by the window's frame. */
+.ocard__window {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  margin-top: 1.6cqw;
+}
+.ocard__scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: repeating-conic-gradient(from -4.5deg at 50% 32%, var(--c-ray-a) 0deg 9deg, var(--c-ray-b) 9deg 18deg);
+  border: max(1.5px, 1cqw) solid var(--ink);
+  border-radius: 3.2cqw;
+}
+.ocard__scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(rgba(12, 14, 15, 0.3) 0.5cqw, transparent 0.62cqw) 0 0 / 2.5cqw 2.5cqw;
+  -webkit-mask-image: radial-gradient(70% 80% at 50% 40%, transparent 35%, #000 100%);
+  mask-image: radial-gradient(70% 80% at 50% 40%, transparent 35%, #000 100%);
+}
+.ocard__doodle {
+  position: absolute;
+  width: var(--s, 8cqw);
+  aspect-ratio: 1;
+  overflow: visible;
+  fill: var(--white);
+  stroke: var(--ink);
+  stroke-width: 7;
+  stroke-linejoin: round;
+  rotate: var(--r, 0deg);
+}
+.ocard__doodle--a { top: 6%; left: 6%; --s: 9cqw; --r: -8deg; }
+.ocard__doodle--b { top: 10%; right: 7%; --s: 7.5cqw; --r: 14deg; }
+.ocard__doodle--c { top: 34%; left: 9%; --s: 5cqw; --r: 0deg; }
+.ocard--alt .ocard__doodle--a { left: auto; right: 7%; }
+.ocard--alt .ocard__doodle--b { right: auto; left: 8%; top: 30%; }
+.ocard--alt .ocard__doodle--c { left: auto; right: 10%; top: 38%; }
+
+.ocard__cutout {
+  --edge: max(1.5px, 1cqw);
+  position: absolute;
+  inset: -22cqw 0 var(--edge);
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  /* Cut at the window's inner edges and bottom; the head is free to rise over the top */
+  clip-path: polygon(var(--edge) -50%, calc(100% - var(--edge)) -50%, calc(100% - var(--edge)) 100%, var(--edge) 100%);
+}
+.ocard__photo {
+  flex: none;
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  /* A die-cut sticker: four white offsets make the outline, the last one the ink shadow */
+  filter:
+    drop-shadow(0.9cqw 0 0 var(--white))
+    drop-shadow(-0.9cqw 0 0 var(--white))
+    drop-shadow(0 0.9cqw 0 var(--white))
+    drop-shadow(0 -0.9cqw 0 var(--white))
+    drop-shadow(1.1cqw 0.9cqw 0 var(--ink));
+}
+
+/* The card's button: the whole face, under the name plate, so a click
+   anywhere but the LinkedIn sticker picks the card */
+.ocard__open {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 5cqw;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.ocard__open:focus-visible {
+  outline: max(3px, 1.4cqw) solid var(--ink);
+  outline-offset: calc(2cqw + max(3px, 1.6cqw));
+}
+
+/* Back ---------------------------------------------------------------------
+   Mustard, a red sunburst, a halftone border, the logo, the crew pill and the
+   mascot peeking up from the bottom. Mirror-symmetric about the centre line. */
+.ocard__back {
+  overflow: hidden;
+  padding: 3cqw;
+  background: var(--hero-page);
+  transform: rotateY(180deg);
+}
+.ocard__back-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3.4cqw;
+  height: 100%;
+  overflow: hidden;
+  padding-bottom: 14cqw;
+  background:
+    radial-gradient(120% 90% at 50% 42%, var(--hero-page-lit) 0%, var(--hero-page) 55%, var(--hero-page-shade) 100%);
+  border: max(1.5px, 1.1cqw) solid var(--ink);
+  border-radius: 4.2cqw;
+}
+/* Rays: red on mustard, a ray centred on 12 o'clock so both halves mirror */
+.ocard__back-inner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(from -3.75deg at 50% 42%, var(--red) 0deg 7.5deg, transparent 7.5deg 15deg);
+  -webkit-mask-image: radial-gradient(circle at 50% 42%, #000 0 24cqw, transparent 66cqw);
+  mask-image: radial-gradient(circle at 50% 42%, #000 0 24cqw, transparent 66cqw);
+}
+/* Halftone border: one centred dot grid, shown only in a band round the edge */
+.ocard__back-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(12, 14, 15, 0.42) 0.62cqw, transparent 0.74cqw) 50% 50% / 3cqw 3cqw;
+  -webkit-mask-image:
+    linear-gradient(90deg, #000 0 6%, transparent 17% 83%, #000 94% 100%),
+    linear-gradient(180deg, #000 0 4%, transparent 12% 88%, #000 96% 100%);
+  mask-image:
+    linear-gradient(90deg, #000 0 6%, transparent 17% 83%, #000 94% 100%),
+    linear-gradient(180deg, #000 0 4%, transparent 12% 88%, #000 96% 100%);
+  pointer-events: none;
+}
+.ocard__back-logo {
+  position: relative;
+  z-index: 1;
+  width: 76cqw;
+  height: auto;
+  filter: drop-shadow(0.9cqw 1.1cqw 0 rgba(12, 14, 15, 0.45));
+}
+.ocard__back-pill {
+  position: relative;
+  z-index: 1;
+  padding: 1.5cqw 3.6cqw 1.4cqw;
+  font-family: var(--font-tape);
+  font-size: 3.7cqw;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--tape);
+  background: var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 0 0 max(1px, 0.7cqw) var(--paper), 0 0 0 max(2px, 1.3cqw) var(--ink);
+}
+.ocard__back-mascot {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 1;
+  width: 34cqw;
+  height: auto;
+  translate: -50% 50%;
+  filter: drop-shadow(0 -0.6cqw 0 rgba(12, 14, 15, 0.25));
+}
+.ocard__back-star {
+  position: absolute;
+  z-index: 1;
+  width: 7cqw;
+  aspect-ratio: 1;
+  overflow: visible;
+  fill: var(--white);
+  stroke: var(--ink);
+  stroke-width: 8;
+  stroke-linejoin: round;
+}
+.ocard__back-star--tl { top: 5cqw; left: 5cqw; }
+.ocard__back-star--tr { top: 5cqw; right: 5cqw; }
+.ocard__back-star--bl { bottom: 5cqw; left: 5cqw; }
+.ocard__back-star--br { bottom: 5cqw; right: 5cqw; }
+
+/* Responsive ----------------------------------------------------------------- */
+@media (max-width: 760px) {
+  /* No room beside the deck: the bubble sits under it, tail pointing up.
+     Centred by flex (not translate, which GSAP would fold into its pop) */
+  .crew-deck__say { top: calc(100% + 22px); left: 0; right: 0; display: flex; justify-content: center; }
+  .crew-deck__bubble { rotate: -3deg; font-size: clamp(1.1rem, 0.9rem + 1.2vw, 1.5rem); }
+  .crew-deck__bubble::before {
+    top: auto;
+    bottom: 100%;
+    left: 50%;
+    right: auto;
+    translate: -50% 0;
+    border-width: 0 11px 16px;
+    border-color: transparent transparent var(--ink);
+  }
+  .crew-deck__bubble::after {
+    top: auto;
+    bottom: calc(100% - 5px);
+    left: 50%;
+    right: auto;
+    translate: -50% 0;
+    border-width: 0 7px 11px;
+    border-color: transparent transparent var(--paper);
+  }
+}
+
+@media (max-width: 640px) {
+  .crew-head {
+    grid-template-columns: minmax(0, auto);
+    grid-template-areas: "kicker" "title" "note";
+  }
+  .crew-table { border-radius: 18px; box-shadow: 5px 5px 0 var(--ink); }
+  .crew-bar { justify-content: center; }
+  .crew-tools { margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocard__flip { transition: none; }
+  .crew-focus__glare { display: none; }
+  .crew-deck__burst,
+  .crew-deck__float,
+  .crew-deck__bubble { animation: none; }
+}

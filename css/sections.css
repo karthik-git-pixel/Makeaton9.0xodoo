@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  width: min(calc(100% - 24px), 980px);
+  width: min(calc(100% - 24px), 1080px);
   padding: 8px 8px 8px 18px;
   color: var(--white);
   background: var(--ink);
@@ -24,21 +24,25 @@
 .site-nav.is-visible,
 .site-nav:focus-within { translate: -50% 0; }
 .site-nav :focus-visible { outline-color: var(--tape); }
+.site-nav__brand { flex: none; }
 .site-nav__brand img { width: auto; height: 30px; }
 .site-nav__menu { display: flex; align-items: center; gap: clamp(2px, 1.2vw, 18px); margin-left: auto; }
+/* One line per link; the type eases down a touch on narrower laptops so all
+   eight fit, and below 940px they fold into the Menu toggle */
 .site-nav__menu a:not(.btn) {
   padding: 0.4em 0.5em;
   font-family: var(--font-tape);
-  font-size: 0.95rem;
+  font-size: clamp(0.78rem, 0.1rem + 1.2vw, 0.95rem);
   letter-spacing: 0.03em;
   text-transform: uppercase;
   text-decoration: none;
+  white-space: nowrap;
   border-radius: 8px;
 }
 .site-nav__menu a:not(.btn):hover { color: var(--tape); }
 .site-nav__toggle { display: none; }
 
-@media (max-width: 760px) {
+@media (max-width: 940px) {
   .site-nav { flex-wrap: wrap; padding: 8px 8px 8px 16px; border-radius: 24px; }
   .site-nav__toggle {
     display: inline-flex;
@@ -794,6 +798,295 @@
   .faq__item[open]::details-content { height: auto; }
 }
 
+/* Crew call · the red mascot walking the footer's top edge with a "Meet the
+   organizers" sign, on its way to the team page (team.html). js/main.js runs
+   the show: the first time the end of the FAQ comes into view it runs in and
+   skids to a stop; then, on a loop, it presents (the sign spins), strolls
+   off to the right and strolls back in from the left.
+   The mascot's legs are separate images that swing only while it travels
+   ([data-gait]), at a cadence matched to its speed so the feet don't skate.
+   Hover or focus freezes the show (.is-frozen), and so does scrolling it out
+   of view. Everything is sized in em of --call-k, so it scales as one piece. */
+.section--faq {
+  --call-k: clamp(13px, 1vw + 8px, 21px);
+  /* Room for the parade under the last question */
+  padding-bottom: calc(var(--call-k) * 13.6 + clamp(26px, 3vw, 44px));
+}
+.crew-call {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  font-size: var(--call-k);
+  pointer-events: none;
+}
+.crew-call[data-gait="walk"] { --stride: 0.56s; }
+.crew-call[data-gait="run"] { --stride: 0.28s; }
+.crew-call__link {
+  position: relative;
+  display: block;
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: 1em;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.crew-call__link:focus-visible { outline: 3px solid var(--tape); outline-offset: 0.4em; }
+.crew-call__group {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.7em;
+  /* The sign rides above the mascot and overhangs both sides; this keeps it
+     inside the link's box and the mascot centred */
+  padding: 5.9em 2.9em 0;
+  transform-origin: 50% 100%;
+}
+/* Until js/main.js starts the show, the parade waits off screen */
+.js .crew-call:not(.is-started, .is-standing) .crew-call__group { transform: translateX(-200vw); }
+
+/* The walker stands on the footer's edge, over a soft floor shadow */
+.crew-call__walker { position: relative; display: block; flex: none; }
+.crew-call__walker::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: -0.1em;
+  height: 0.45em;
+  background: rgba(12, 14, 15, 0.3);
+  border-radius: 50%;
+}
+.crew-call__bob { position: relative; z-index: 1; display: block; transform-origin: 50% 100%; }
+
+/* The lead: the sunglasses star and its sign on a stick. The body and the two
+   legs are separate images (assets/mascot/mascot-cool-walker.png, 560x530, and
+   mascot-leg.svg). The mascot box is the body plus room below it for the legs
+   (560x665 in body pixels); the hips sit inside the two bottom lobes, at
+   (183, 492) and (377, 492), and the boots are scaled so their outline matches
+   the body's. */
+.crew-call__walker--lead { width: 6.3em; transition: translate 0.3s cubic-bezier(0.2, 1.5, 0.4, 1); }
+.crew-call__mascot {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 560 / 665;
+  filter: drop-shadow(0.28em 0.3em 0 var(--ink));
+}
+.crew-call__body { position: absolute; left: 0; top: 0; width: 100%; height: auto; }
+.crew-call__leg {
+  position: absolute;
+  width: 31.45%;
+  height: auto;
+  transform-origin: 31.03% 14.71%; /* the hip, at (27, 15) of the leg's 87x102 */
+}
+.crew-call__leg--far { left: 20.89%; top: 69.43%; }
+.crew-call__leg--near { left: 55.57%; top: 69.43%; }
+.crew-call__placard {
+  position: absolute;
+  left: -2.45em; /* centred over the walker */
+  bottom: calc(100% + 0.45em);
+  width: 11.2em;
+  height: 5em;
+}
+.crew-call__stick {
+  position: absolute;
+  left: 4.1em;
+  top: 4.4em;
+  width: 0.42em;
+  height: 4.8em;
+  background: #B97A3E;
+  border: 0.14em solid var(--ink);
+  border-radius: 0.2em;
+}
+.crew-call__board {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  rotate: -4deg;
+}
+.crew-call__side {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15em;
+  padding: 0.3em 0.6em;
+  text-align: center;
+  background: var(--paper);
+  border: 0.22em solid var(--ink);
+  border-radius: 0.6em;
+  box-shadow: 0.32em 0.32em 0 var(--ink);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+/* Both faces say the same thing; the sign's spin just swaps yellow for paper */
+.crew-call__side--a { background: var(--tape); }
+.crew-call__side--b { transform: rotateY(180deg); }
+.crew-call__side b {
+  font-family: var(--font-display);
+  font-size: 1.62em;
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.crew-call__side em {
+  font-style: normal;
+  color: var(--red);
+  -webkit-text-stroke: 0.1em var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0.05em 0.06em 0 var(--ink);
+}
+.crew-call__side small {
+  font-family: var(--font-tape);
+  font-size: 0.74em;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.crew-call__side svg {
+  display: inline-block;
+  width: 0.78em;
+  height: 0.78em;
+  vertical-align: -0.04em;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Speech bubble beside the star's top point, clear of its sunglasses: "Psst!"
+   when it presents, "Click me!" on hover */
+.crew-call__bubble {
+  position: absolute;
+  left: 79%;
+  top: -0.3em;
+  z-index: 2;
+  padding: 0.32em 0.62em 0.26em;
+  font-family: var(--font-display);
+  font-size: 1.1em;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--white);
+  border: 0.16em solid var(--ink);
+  border-radius: 0.8em;
+  box-shadow: 0.18em 0.18em 0 var(--ink);
+  transform-origin: 0 100%;
+  scale: 0;
+}
+.crew-call__bubble::before {
+  content: "";
+  position: absolute;
+  left: 0.5em;
+  top: 100%;
+  border-style: solid;
+  border-width: 0.5em 0.55em 0 0;
+  border-color: var(--ink) transparent transparent;
+}
+.crew-call__click { display: none; }
+
+/* On the move: legs swing from the hips, and the hips dip as each foot lands
+   (so the planted foot stays put on the ground) */
+.crew-call[data-gait] .crew-call__leg { animation: crew-call-stride var(--stride) infinite; }
+.crew-call[data-gait] .crew-call__leg--near { animation-delay: calc(var(--stride) * -0.5); }
+.crew-call[data-gait] .crew-call__walker--lead .crew-call__bob { animation: crew-call-hip var(--stride) infinite; }
+
+/* The first entrance: speed lines behind the run, a "Skrrt!" at the skid */
+.crew-call__speed {
+  position: absolute;
+  /* trailing just behind the mascot, which starts 2.9em into the group */
+  right: calc(100% - 2.4em);
+  bottom: 1.4em;
+  display: grid;
+  justify-items: end;
+  gap: 0.55em;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.crew-call.is-entering .crew-call__speed { opacity: 1; }
+.crew-call__speed i { display: block; width: 3.6em; height: 0.3em; background: var(--white); border-radius: 0.2em; }
+.crew-call__speed i:nth-child(2) { width: 5.4em; }
+.crew-call__skid {
+  position: absolute;
+  /* in its own em (1.5x): ends where the mascot starts */
+  right: calc(100% - 2.1em);
+  bottom: 0.6em;
+  z-index: 3;
+  font-family: var(--font-display);
+  font-size: 1.5em;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--white);
+  -webkit-text-stroke: 0.12em var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0.06em 0.07em 0 var(--ink);
+  rotate: -10deg;
+  opacity: 0;
+}
+.crew-call.is-skidding .crew-call__skid { animation: crew-call-skid 1.3s ease-out both; }
+
+/* Presenting: the sign goes up and spins */
+.crew-call.is-presenting .crew-call__placard { animation: crew-call-raise 4.8s ease-in-out both; }
+.crew-call.is-presenting .crew-call__board { animation: crew-call-spin 4.8s ease-in-out both; }
+.crew-call.is-presenting .crew-call__bubble { animation: crew-call-psst 4.8s ease-out both; }
+
+/* Caught looking: everything freezes, the mascot hops and asks for the click */
+.crew-call.is-frozen * { animation-play-state: paused !important; }
+.crew-call__link:is(:hover, :focus-visible) .crew-call__walker--lead { translate: 0 -0.5em; }
+.crew-call__link:is(:hover, :focus-visible) .crew-call__bubble { animation: none; scale: 1; }
+.crew-call__link:is(:hover, :focus-visible) .crew-call__psst { display: none; }
+.crew-call__link:is(:hover, :focus-visible) .crew-call__click { display: inline; }
+
+/* A step: the planted foot sweeps back at a steady pace, then the leg swings forward, lifted */
+@keyframes crew-call-stride {
+  0% { rotate: -26deg; translate: 0 0; animation-timing-function: linear; }
+  50% { rotate: 26deg; translate: 0 0; animation-timing-function: ease-in-out; }
+  75% { rotate: 0deg; translate: 0 -9%; animation-timing-function: ease-in-out; }
+  100% { rotate: -26deg; translate: 0 0; }
+}
+@keyframes crew-call-hip {
+  0%, 50%, 100% { translate: 0 0.2em; animation-timing-function: ease-in-out; }
+  25%, 75% { translate: 0 0; animation-timing-function: ease-in-out; }
+}
+@keyframes crew-call-skid {
+  0% { opacity: 0; scale: 0.2; }
+  18% { opacity: 1; scale: 1.15; }
+  60% { opacity: 1; scale: 1; }
+  100% { opacity: 0; scale: 1; translate: -0.6em -0.8em; }
+}
+@keyframes crew-call-raise {
+  0%, 100% { translate: 0 0; }
+  8%, 88% { translate: 0 -0.5em; }
+}
+@keyframes crew-call-spin {
+  0%, 12% { transform: rotateY(0deg); }
+  30%, 100% { transform: rotateY(360deg); }
+}
+@keyframes crew-call-psst {
+  0%, 3% { scale: 0; }
+  7%, 40% { scale: 1; }
+  45%, 100% { scale: 0; }
+}
+
+/* Reduced motion: no show; the parade just stands there, sign up */
+.crew-call.is-standing .crew-call__group { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .crew-call .crew-call__group,
+  .crew-call .crew-call__group * { animation: none !important; transition: none !important; }
+  .crew-call__speed,
+  .crew-call__skid { display: none; }
+}
+
 /* Footer · red field, dot texture, three marks and a thin legal bar --------- */
 .site-footer {
   --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
@@ -1073,6 +1366,20 @@ a.foot-social__link:active { transform: translate(2px, 2px); box-shadow: 1px 1px
   text-transform: uppercase;
   border-top: 2px solid rgba(12, 14, 15, 0.35);
 }
+/* The one page link in the bar: a small paper pill, so it reads as a link on the red */
+.site-footer__link {
+  padding: 0.35em 0.9em;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--ink);
+  transition: translate 0.15s ease, box-shadow 0.15s ease;
+}
+.site-footer__link:hover { translate: -1px -1px; box-shadow: 3px 3px 0 var(--ink); }
+.site-footer__link:active { translate: 1px 1px; box-shadow: 1px 1px 0 var(--ink); }
 
 @media (max-width: 860px) {
   .site-footer__inner { grid-template-columns: minmax(0, 1fr) auto; }
