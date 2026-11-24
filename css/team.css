@@ -26,23 +26,16 @@
    symbols resolve */
 .crew-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 
-/* Header: kicker, the title, and a cream sticky note slapped beside it ------ */
+/* Header: the kicker over the title, centred --------------------------------- */
 .crew-head {
   display: grid;
-  grid-template-columns: auto auto;
-  grid-template-areas:
-    "kicker kicker"
-    "title  note";
-  justify-content: center;
-  align-items: center;
-  gap: 10px clamp(16px, 2.4vw, 32px);
+  justify-items: center;
+  gap: 10px;
   width: min(calc(100% - 2 * var(--gutter)), var(--max));
   margin: 0 auto clamp(18px, 2.6vw, 34px);
   text-align: center;
 }
 .crew-kicker {
-  grid-area: kicker;
-  justify-self: center;
   display: inline-flex;
   align-items: center;
   gap: 0.7em;
@@ -63,36 +56,10 @@
   border-radius: 999px;
 }
 .crew-title {
-  grid-area: title;
   font-size: clamp(2.8rem, 1.6rem + 4.4vw, 5.2rem);
   rotate: -1.5deg;
 }
 .crew-title span { color: var(--red); }
-.crew-note {
-  grid-area: note;
-  position: relative;
-  padding: 0.85em 1.1em 0.75em;
-  font-family: var(--font-tape);
-  font-size: clamp(0.86rem, 0.78rem + 0.35vw, 1.08rem);
-  line-height: 1.15;
-  text-transform: uppercase;
-  color: var(--ink);
-  background: var(--paper);
-  border: var(--line) solid var(--ink);
-  box-shadow: 5px 5px 0 var(--ink);
-  rotate: 3deg;
-}
-.crew-note__tape {
-  position: absolute;
-  top: -11px;
-  left: 50%;
-  width: 52px;
-  height: 18px;
-  translate: -50% 0;
-  rotate: -5deg;
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(12, 14, 15, 0.25);
-}
 
 /* --------------------------------------------------------------------------
    The card table · green felt (a nod to the classic Solitaire table), drawn
@@ -1002,10 +969,6 @@
 }
 
 @media (max-width: 640px) {
-  .crew-head {
-    grid-template-columns: minmax(0, auto);
-    grid-template-areas: "kicker" "title" "note";
-  }
   .crew-table { border-radius: 18px; box-shadow: 5px 5px 0 var(--ink); }
   .crew-bar { justify-content: center; }
   .crew-tools { margin-left: 0; }
