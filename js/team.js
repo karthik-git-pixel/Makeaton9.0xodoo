@@ -724,9 +724,11 @@
      Clicking (or tapping) a dealt card lifts it out of its stack and brings it
      to the front, about 1.5x, over a dimmed table: a modal <dialog> holding
      the full card (an article, the name as its heading). It tilts toward the
-     mouse with a glare; prev / next go round the crew (buttons, arrow keys or
-     a swipe); the close button, Esc or a click outside puts it back. The
-     stacks never change size: the lifted card just leaves a gap. */
+     mouse with a glare. Prev / next (buttons, arrow keys or a swipe) stay in
+     that card's team, top of the stack to bottom, and stop at either end:
+     there the arrow dims and the card only nudges. Another team is picked on
+     the table, so the close button, Esc or a click outside puts the card
+     back. The stacks never change size: the lifted card just leaves a gap. */
   const view = {
     dialog: null,
     dim: null,
@@ -735,13 +737,17 @@
     glare: null,
     bar: null,
     count: null,
+    prev: null,
+    next: null,
     close: null,
     live: null,
     card: null,
-    index: -1,
+    team: null, // the open card's column: its cards, in stack order
+    index: -1, // the open card's place in team.cards
     busy: false,
     closing: false,
     tl: null,
+    nudge: null,
     tiltTo: null,
   };
   const icon = (d) => `<svg class="crew-btn__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
@@ -771,6 +777,8 @@
       glare: dialog.querySelector('.crew-focus__glare'),
       bar: dialog.querySelector('.crew-focus__bar'),
       count: dialog.querySelector('.crew-focus__count'),
+      prev: dialog.querySelector('[data-focus-step="-1"]'),
+      next: dialog.querySelector('[data-focus-step="1"]'),
       close: dialog.querySelector('.crew-focus__close'),
       live: dialog.querySelector('[data-focus-live]'),
     });
@@ -794,7 +802,7 @@
     });
     dialog.addEventListener('wheel', (event) => event.preventDefault(), { passive: false });
 
-    // A swipe on the card (touch or pen) goes to the next or previous organizer
+    // A swipe on the card (touch or pen) goes to the next or previous organizer in the team
     let swipe = null;
     view.tilt.addEventListener('pointerdown', (event) => {
       if (event.pointerType !== 'mouse') swipe = { x: event.clientX, y: event.clientY };
@@ -835,17 +843,30 @@
     requestAnimationFrame(() => { view.live.textContent = text; });
   }
 
-  /** Puts crew.cards[view.index] in the focused view, as a full card */
+  const tileOfView = () => view.team.cards[view.index];
+
+  /** "Name, Position. 2 of 3 in Core." for screen readers */
+  const sayCard = (org) => say(`${org.name}, ${org.position}. ${view.index + 1} of ${view.team.cards.length} in ${org.team}.`);
+
+  /** Puts the open team's card at view.index in the focused view, as a full
+      card, and sets the bar: the place in the team, an arrow dimmed at either
+      end of the team, and no arrows at all for a team of one */
   function showFocusCard() {
-    const tile = crew.cards[view.index];
+    const tile = tileOfView();
     const org = ORG.get(tile);
-    const card = OrganizerCard(org, { index: view.index, face: 'front', full: true });
+    const last = view.team.cards.length - 1;
+    // The tile's own index, so the doodles sit where they do on the table
+    const card = OrganizerCard(org, { index: crew.cards.indexOf(tile), face: 'front', full: true });
     card.querySelector('.ocard__name').id = 'crew-focus-name';
     card.querySelector('.ocard__photo').loading = 'eager';
     if (view.card) view.card.remove();
     view.tilt.prepend(card);
     view.card = card;
-    view.count.innerHTML = `<b>${view.index + 1}</b> / ${crew.cards.length}<span class="crew-focus__team">${esc(org.team)}</span>`;
+    view.count.innerHTML = `<b>${view.index + 1}</b> / ${last + 1}<span class="crew-focus__team">${esc(org.team)}</span>`;
+    view.bar.classList.toggle('is-solo', last === 0);
+    // aria-disabled, not disabled: a focused arrow keeps focus when it dims
+    view.prev.setAttribute('aria-disabled', String(view.index === 0));
+    view.next.setAttribute('aria-disabled', String(view.index === last));
     return org;
   }
 
@@ -871,7 +892,8 @@
 
   function openFocus(tile) {
     if (crew.state !== 'dealt' || view.dialog.open) return;
-    view.index = crew.cards.indexOf(tile);
+    view.team = SEAT.get(tile).column;
+    view.index = view.team.cards.indexOf(tile);
     const org = showFocusCard();
     view.dialog.showModal();
     tile.classList.add('is-lifted');
@@ -893,14 +915,15 @@
     view.tl.add(sweepShine(view.card), 0.42);
     // Landed: prev / next work from here, while the gloss finishes its sweep
     view.tl.add(() => { view.busy = false; }, 0.6);
-    say(`${org.name}, ${org.position}. ${view.index + 1} of ${crew.cards.length}.`);
+    sayCard(org);
   }
 
   function closeFocus() {
     if (!view.dialog.open || view.closing) return;
     if (view.tl) view.tl.kill();
+    if (view.nudge) view.nudge.kill();
     view.busy = false;
-    const tile = crew.cards[view.index];
+    const tile = tileOfView();
     const done = () => {
       tile.classList.remove('is-lifted');
       view.dialog.close();
@@ -915,7 +938,7 @@
       return;
     }
     view.closing = true;
-    // A card from further along the crew may be off screen: bring it in under the dim
+    // A card further down a tall stack may be off screen: bring it in under the dim
     const r = tile.getBoundingClientRect();
     if (r.top < 0 || r.bottom > window.innerHeight) tile.scrollIntoView({ block: 'center', behavior: 'instant' });
     const to = flightTo(tile);
@@ -926,27 +949,43 @@
     view.tl.add(() => play('snap', { volume: 0.7 }), 0.4);
   }
 
-  /** Next (+1) or previous (-1) organizer, going round the whole crew */
+  /** Next (+1) or previous (-1) organizer in the open card's team. It never
+      leaves the team: past the first or last card the card only nudges. */
   function step(dir) {
-    if (!view.dialog.open || view.busy || view.closing || crew.cards.length < 2) return;
-    const n = crew.cards.length;
-    crew.cards[view.index].classList.remove('is-lifted');
-    view.index = (view.index + dir + n) % n;
-    crew.cards[view.index].classList.add('is-lifted');
+    if (!view.dialog.open || view.busy || view.closing) return;
+    const to = view.index + dir;
+    if (to < 0 || to >= view.team.cards.length) {
+      nudge(dir);
+      return;
+    }
+    if (view.nudge) view.nudge.kill();
+    tileOfView().classList.remove('is-lifted');
+    view.index = to;
+    tileOfView().classList.add('is-lifted');
     play('thwip', { rate: 1 + Math.random() * 0.2, volume: 0.8 });
-    const announceCard = (org) => say(`${org.name}, ${org.position}. ${view.index + 1} of ${n}.`);
     if (!canAnimate()) {
-      announceCard(showFocusCard());
+      sayCard(showFocusCard());
       return;
     }
     view.busy = true;
     view.tiltTo(0, 0);
     view.tl = gsap.timeline({ onComplete: () => { view.busy = false; } });
     view.tl.to(view.tilt, { x: -dir * 150, rotation: -dir * 12, opacity: 0, duration: 0.18, ease: 'power2.in' });
-    view.tl.add(() => announceCard(showFocusCard()));
+    view.tl.add(() => sayCard(showFocusCard()));
     view.tl.fromTo(view.tilt,
       { x: dir * 150, rotation: dir * 12, opacity: 0 },
       { x: 0, rotation: 0, opacity: 1, duration: 0.42, ease: 'back.out(1.5)' });
+  }
+
+  /** The end of the team: the card starts off the way a step would send it,
+      then springs back, so a press or swipe there still answers */
+  function nudge(dir) {
+    play('pop', { volume: 0.7 });
+    if (!canAnimate()) return;
+    if (view.nudge) view.nudge.kill();
+    view.nudge = gsap.timeline()
+      .to(view.tilt, { x: -dir * 26, rotation: -dir * 3, duration: 0.12, ease: 'power2.out' })
+      .to(view.tilt, { x: 0, rotation: 0, duration: 0.6, ease: 'elastic.out(1, 0.45)' });
   }
 
   /* Dealt: opening a card, reshuffling --------------------------------------- */

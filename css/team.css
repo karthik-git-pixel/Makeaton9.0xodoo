@@ -317,9 +317,10 @@
 
 /* Focused view · a modal dialog over the whole page: a dimmed halftone layer
    (a click on it closes), the card about 1.5x a table card, and a bar with
-   prev / next and the count. js/team.js flies the card in from its seat and
-   back; GSAP drives .crew-focus__tilt (fly, swap, tilt), so it carries no
-   CSS transforms of its own. */
+   prev / next and the card's place in its team (the arrows never leave the
+   team). js/team.js flies the card in from its seat and back; GSAP drives
+   .crew-focus__tilt (fly, swap, tilt), so it carries no CSS transforms of
+   its own. */
 .crew-focus {
   position: fixed;
   inset: 0;
@@ -375,8 +376,21 @@
 .crew-focus__tilt.is-tilting .crew-focus__glare { opacity: 1; }
 
 .crew-focus__bar { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); }
-.crew-focus__nav { width: 3em; height: 3em; padding: 0; justify-content: center; }
+.crew-focus__nav {
+  width: 3em;
+  height: 3em;
+  padding: 0;
+  justify-content: center;
+  transition: translate 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, opacity 0.2s ease;
+}
 .crew-focus__nav .crew-btn__icon { width: 1.5em; height: 1.5em; stroke-width: 2.8; }
+/* First or last card of the team: that arrow dims. It stays focusable
+   (aria-disabled), and pressing it only nudges the card. A team of one
+   card has no arrows; their space is kept so the count stays centred. */
+.crew-focus__nav[aria-disabled="true"] { opacity: 0.35; box-shadow: none; cursor: not-allowed; }
+.crew-focus__nav[aria-disabled="true"]:hover,
+.crew-focus__nav[aria-disabled="true"]:active { translate: none; box-shadow: none; background-color: var(--paper); }
+.crew-focus__bar.is-solo .crew-focus__nav { visibility: hidden; }
 .crew-focus__count {
   min-width: 6.5em;
   margin: 0;
