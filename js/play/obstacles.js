@@ -62,6 +62,13 @@ const ANT_GO = 1.45;            // s before you arrive that a Race Condition set
 const ANT_EDGE = 2.55;          // where it waits, just off the lanes
 export const HOP = { look: 1.75, go: 1.02, time: 0.36, height: 0.85 }; // Off-By-One: s before contact; hop length; peak
 const MAGNET_RANGE = 28;        // metres ahead the Wi-Fi magnet reaches
+const MAGNET_FRONT = 0.8;       // the magnet pulls sparkles to this far in front of the star (never into it)
+const POP_FRONT = 0.6;          // a collected pickup pops up at least this far in front of the star...
+const POP_TIME = 0.3;           // ...over this many seconds, rising above its head
+const TOUCH_GAP = 0.03;         // after a hit, the star and the obstacle are set this far apart (just touching)
+// how close a pickup must come to be collected: half its width plus the star's (x), how far
+// in front/behind (z), and how far its shape reaches below and above its position (y)
+const PICK = { x: 0.65, z: 0.7, below: -0.38, above: 0.6 };
 export const FLY_Y = 2.5;       // the rocket's cruising height (feet), m
 
 const COL = {
@@ -799,6 +806,8 @@ export class Obstacles {
     this.tmp = new THREE.Object3D();
     this.auto = true;      // tests turn the spawner off and place items by hand
     this.magnet = null;    // { x, y } while the Wi-Fi magnet is on (set by the game)
+    this.frozen = false;   // after a crash nothing moves on its own (so nothing rolls or hops into the star)
+    this.player = null;    // the star's box and the distance at the last check (to place knocked items)
     this.time = 0;
     this.reset(0);
   }
@@ -1026,18 +1035,21 @@ export class Obstacles {
       if (it.at < distance - BEHIND) continue;
       if (it.gone >= 0) {
         it.gone += dt;
-        if (it.gone > (it.kind === 'pickup' ? 0.25 : 0.9)) continue;
+        if (it.gone > (it.kind === 'pickup' ? POP_TIME : 0.9)) continue;
         // knocked flying: it sails off ahead of the star, down the aisle;
-        // squashed: it stays under the star's boots while it splats
+        // squashed: it stays just in front of the star's boots while it splats;
+        // collected: it keeps pace in front of the star while it pops (never through it)
         if (it.kind === 'obstacle') it.at += (it.squash ? speed : speed + 7) * dt;
+        else it.at = distance - it.popZ;
       } else if (it.kind === 'obstacle') {
-        this.move(it, distance, speed, dt);
+        if (!this.frozen) this.move(it, distance, speed, dt);
       } else if (it.mag && this.magnet) {
-        // pulled in by the Wi-Fi magnet: flies to the star
+        // pulled in by the Wi-Fi magnet: flies to just in front of the star
         const k = 1 - Math.exp(-11 * dt);
         it.x += (this.magnet.x - it.x) * k;
         it.y += (this.magnet.y - it.y) * k;
-        it.at -= Math.min(it.at - distance + 1, 30 * dt);
+        const front = distance + MAGNET_FRONT;
+        if (it.at > front) it.at -= Math.min(it.at - front, 30 * dt);
       } else if (this.magnet && it.type === 'sparkle' && it.at - distance < MAGNET_RANGE && it.at - distance > -0.5) {
         it.mag = true;
       }
@@ -1171,12 +1183,16 @@ export class Obstacles {
       if (it.gone >= 0) {
         const g = it.gone;
         if (it.kind === 'pickup') {
-          // collected: swells, rises and shrinks away
-          o.position.y += g * 2.5;
-          s *= (1 + g * 5) * Math.max(0, 1 - g / 0.25);
+          // collected: pops up out of the front of the star to above its head, turning
+          // to face you, swells a little and shrinks away. It stays in front of the star.
+          const u = Math.min(1, g / POP_TIME);
+          const e = 1 - (1 - u) * (1 - u);
+          o.position.set(it.x, it.popY + (it.popTop - it.popY) * e, it.popZ);
+          if (it.type === 'sparkle') o.rotation.set(0, 0, u * 5);
+          s *= u < 0.55 ? 1 + 0.3 * (u / 0.55) : 1.3 * Math.max(0, 1 - (u - 0.55) / 0.45);
         } else if (it.squash) {
           // squashed in debug mode: splats flat, then vanishes (before it reaches the camera)
-          const k = Math.min(1, g / 0.1);
+          const k = Math.min(1, g / 0.06);
           sy *= 1 - 0.85 * k;
           sxz *= 1 + 0.45 * k;
           o.position.y = Math.min(o.position.y, 0.02);
@@ -1240,14 +1256,23 @@ export class Obstacles {
    */
   check(p, prevDistance, distance, speed) {
     const events = [];
+    this.player = { ...p, distance };
     for (const it of this.items) {
       if (it.gone >= 0) continue;
       const zNow = -(it.at - distance);
       if (it.kind === 'pickup') {
-        const cy = it.y + 0.25;
-        const touch = Math.abs(zNow) < 0.7 && Math.abs(p.x - it.x) < 0.65 && cy > p.y - 0.25 && cy < p.y + p.h + 0.35;
+        // Anything that would touch the star is collected: the test is swept along the
+        // aisle (a slow frame can't skip past it) and covers the pickup's whole height
+        // (so a sparkle can't pass through the star's head).
+        const zPrev = -(it.atPrev - prevDistance);
+        const alongside = zPrev < PICK.z && zNow > -PICK.z;
+        const touch = alongside && Math.abs(p.x - it.x) < PICK.x && it.y + PICK.below < p.y + p.h + 0.05 && it.y + PICK.above > p.y - 0.05;
         if (touch || (it.mag && zNow > -1.5)) {
           it.gone = 0;
+          // where it pops from: in front of the star, rising to above its head (see writeInstances)
+          it.popZ = Math.min(zNow, -POP_FRONT);
+          it.popY = it.y;
+          it.popTop = Math.max(it.y, p.y + p.h) + 0.45;
           events.push({ kind: it.type, item: it });
         }
         continue;
@@ -1261,7 +1286,7 @@ export class Obstacles {
       if (swept && overlapX && overlapY) {
         it.threat = false; // a hit is never a near miss
         it.passed = true;
-        events.push({ kind: 'hit', item: it });
+        events.push({ kind: 'hit', item: it, ...this.overlap(it, p, zNow) });
         continue;
       }
       // Near miss: still on a collision course a moment before contact, yet got past
@@ -1281,15 +1306,40 @@ export class Obstacles {
     for (const k in this.extra) this.extra[k].material.color.copy(color);
   }
 
+  /**
+   * How far the star and an obstacle overlap: needZ is how far to back off down
+   * the aisle (the obstacle then sits just in front of the star), needX how far
+   * to step aside. A hit is only found once they overlap, by up to a frame's run.
+   */
+  overlap(it, p, zNow = -(it.at - p.distance)) {
+    const T = it.T;
+    return {
+      needZ: zNow + (p.d + T.d) / 2 + TOUCH_GAP,
+      needX: (p.w + T.w) / 2 + TOUCH_GAP - Math.abs(p.x - it.x),
+    };
+  }
+
+  /** Moves an obstacle that was hit out of the star, the shorter way: ahead of it, or beside it. */
+  unsink(it) {
+    const p = this.player;
+    if (!p) return;
+    const { needZ, needX } = this.overlap(it, p);
+    if (needZ <= 0 || needX <= 0) return;
+    if (needX < needZ) it.x += (Math.sign(it.x - p.x) || it.side || 1) * needX;
+    else it.at += needZ;
+  }
+
   /** Shield or coffee rush: the obstacle is knocked out of the way. */
   knockAway(it, side) {
     it.gone = 0;
     it.side = side || (Math.random() < 0.5 ? -1 : 1);
+    this.unsink(it);
   }
 
-  /** Debug mode: the bug is squashed flat. */
+  /** Debug mode: the bug is squashed flat, just in front of the star. */
   squash(it) {
     it.gone = 0;
     it.squash = true;
+    this.unsink(it);
   }
 }

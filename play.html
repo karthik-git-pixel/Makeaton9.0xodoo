@@ -61,6 +61,10 @@
             <span class="title__word title__word--a" aria-hidden="true">RUN</span><span class="title__word title__word--b" aria-hidden="true">-A-</span><span class="title__word title__word--c" aria-hidden="true">TON</span>
           </h1>
           <p class="title__tag">The endless hackathon run</p>
+          <i class="title__spark title__spark--a" aria-hidden="true"></i>
+          <i class="title__spark title__spark--b" aria-hidden="true"></i>
+          <i class="title__spark title__spark--c" aria-hidden="true"></i>
+          <i class="title__spark title__spark--d" aria-hidden="true"></i>
         </header>
         <footer class="title__foot">
           <p id="titleBest" class="title__best" hidden>Your best <b>0</b></p>
@@ -69,13 +73,14 @@
             <span>PLAY</span>
           </button>
           <div class="title__row">
-            <button id="boardBtn" class="btn btn--ghost" type="button">
-              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1.1 1.8A5 5 0 0 1 7 9V7zm10 0v2a5 5 0 0 1-.1.8A2 2 0 0 0 18 8V7h-1z"/></svg>
-              Leaderboard
+            <!-- The board's top runners tick through on this button (js/play/menu.js) -->
+            <button id="boardBtn" class="tile tile--board" type="button">
+              <span class="tile__icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1.1 1.8A5 5 0 0 1 7 9V7zm10 0v2a5 5 0 0 1-.1.8A2 2 0 0 0 18 8V7h-1z"/></svg></span>
+              <span class="tile__text"><b>Leaderboard</b><small id="boardTicker" class="ticker" aria-live="off"></small></span>
             </button>
-            <button id="howBtn" class="btn btn--ghost" type="button">
-              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 14a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8zm.2-10.2c-2.3 0-3.9 1.3-4.1 3.3h2.6c.1-.7.6-1.1 1.4-1.1.9 0 1.4.5 1.4 1.2 0 .6-.3 1-1.2 1.6-1.1.7-1.6 1.4-1.5 2.7v.6h2.5v-.4c0-.7.3-1.1 1.2-1.6 1.1-.7 1.7-1.5 1.7-2.9 0-2.1-1.6-3.4-4-3.4z"/></svg>
-              How to play
+            <button id="howBtn" class="tile tile--how" type="button">
+              <span class="tile__icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 14a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8zm.2-10.2c-2.3 0-3.9 1.3-4.1 3.3h2.6c.1-.7.6-1.1 1.4-1.1.9 0 1.4.5 1.4 1.2 0 .6-.3 1-1.2 1.6-1.1.7-1.6 1.4-1.5 2.7v.6h2.5v-.4c0-.7.3-1.1 1.2-1.6 1.1-.7 1.7-1.5 1.7-2.9 0-2.1-1.6-3.4-4-3.4z"/></svg></span>
+              <span class="tile__text"><b>How to play</b><small>Swipe · jump · slide</small></span>
             </button>
           </div>
           <p class="title__when"><a class="title__home" href="./" data-home>&larr; makeaton.in</a> · 24-hour final · CUSAT, Kochi · 19–20 Dec</p>

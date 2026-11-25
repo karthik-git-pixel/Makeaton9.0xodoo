@@ -28,6 +28,14 @@ const ICONS = {
 };
 const POWER_ORDER = ['rocket', 'coffee', 'duck', 'magnet', 'pizza', 'shield'];
 
+/* Small icons for the card's buttons */
+export const BUTTON_ICONS = {
+  home: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3.2 2.8 11h2.7v9.3h5V15h3v5.3h5V11h2.7z"/></svg>',
+  restart: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4.5a7.5 7.5 0 1 1-7.1 9.9l2.6-.9A4.8 4.8 0 1 0 12 7.2c-1.4 0-2.6.6-3.5 1.5L11 11.2H3.8V4l2.8 2.8A7.4 7.4 0 0 1 12 4.5z"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1.1 1.8A5 5 0 0 1 7 9V7zm10 0v2a5 5 0 0 1-.1.8A2 2 0 0 0 18 8V7h-1z"/></svg>',
+  user: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4.4 0-8 2.3-8 5.2V21h16v-1.8c0-2.9-3.6-5.2-8-5.2z"/></svg>',
+};
+
 export class UI {
   constructor(root) {
     this.root = root;
@@ -77,8 +85,10 @@ export class UI {
     if (up) this.bump(this.mult);
   }
 
-  setSparkles(n) {
+  /** The sparkle count; `pop` gives the chip a little bounce (one was just collected). */
+  setSparkles(n, pop = false) {
     this.sparkles.textContent = String(n);
+    if (pop) this.bump(this.sparkles.parentElement, 'is-pop');
   }
 
   /** "+150 SQUASHED" floating up beside the score. */
@@ -212,6 +222,25 @@ export class UI {
     this.overlaySlot.replaceChildren();
     this.overlay.dataset.place = place;
     this.overlay.hidden = false;
+  }
+
+  /**
+   * A row of small buttons under the card's main one (Restart, Home...).
+   * @param {Array<{label:string, icon?:string, onClick:() => void}>} list
+   */
+  actions(list) {
+    const row = document.createElement('div');
+    row.className = 'card__actions';
+    for (const a of list) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn btn--ghost btn--sm';
+      b.innerHTML = `${a.icon && BUTTON_ICONS[a.icon] ? BUTTON_ICONS[a.icon] : ''}<span>${a.label}</span>`;
+      b.addEventListener('pointerdown', (e) => e.stopPropagation());
+      b.addEventListener('click', (e) => { e.stopPropagation(); a.onClick(); });
+      row.append(b);
+    }
+    this.overlaySlot.replaceChildren(row);
   }
 
   hide() {

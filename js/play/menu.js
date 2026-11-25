@@ -7,8 +7,12 @@
  * Playing never needs an account; the panels are for the leaderboard only.
  */
 import { online, MASCOTS, mascotIndex, checkName, inAppBrowser } from './online.js';
-import { formatScore } from './ui.js';
+import { formatScore, BUTTON_ICONS } from './ui.js';
 import { CATALOG } from './progress.js';
+
+const BOARD_REFRESH = 15000;   // ms between leaderboard updates while it's open
+const TOP_STALE = 30000;       // ms before the start screen fetches the top runners again
+const TICK = 2800;             // ms each top runner shows on the start screen's Leaderboard button
 
 /** Makes an element: el('p', { class, text, onclick, ... }, ...children) */
 function el(tag, attrs = {}, ...kids) {
@@ -52,8 +56,9 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const SWIPE_SIDE = '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="3" width="42" height="42" rx="12" fill="#FFE23A" stroke="#0C0E0F" stroke-width="3"/><path d="M9 24h30M15 18l-6 6 6 6M33 18l6 6-6 6" fill="none" stroke="#0C0E0F" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const SWIPE_UP = '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="3" width="42" height="42" rx="12" fill="#9EE6B8" stroke="#0C0E0F" stroke-width="3"/><path d="M24 38V12M17 19l7-7 7 7" fill="none" stroke="#0C0E0F" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="38" r="3.5" fill="#0C0E0F"/></svg>';
 const SWIPE_DOWN = '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="3" width="42" height="42" rx="12" fill="#B9D3FF" stroke="#0C0E0F" stroke-width="3"/><path d="M24 10v26M17 29l7 7 7-7" fill="none" stroke="#0C0E0F" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const TROPHY = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1.1 1.8A5 5 0 0 1 7 9V7zm10 0v2a5 5 0 0 1-.1.8A2 2 0 0 0 18 8V7h-1z"/></svg>';
+const CROWN = '<svg viewBox="0 0 48 32" aria-hidden="true"><path d="M4 28 2 8l11 9 11-15 11 15 11-9-2 20z" fill="#FFD84A" stroke="#0C0E0F" stroke-width="3" stroke-linejoin="round"/><circle cx="24" cy="19" r="3.2" fill="#EF4225" stroke="#0C0E0F" stroke-width="2"/></svg>';
 const svg = (markup) => { const t = document.createElement('template'); t.innerHTML = markup; return t.content.firstChild; };
+const icon = (name) => svg(BUTTON_ICONS[name]);
 /* Google's "G", as its sign-in button guidelines ask */
 const GOOGLE_G = '<svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>';
 
@@ -75,9 +80,12 @@ export class Menu {
     this.sheetTitle = $('#sheetTitle');
     this.sheetBody = $('#sheetBody');
     this.bestEl = $('#titleBest');
+    this.tickerEl = $('#boardTicker');
     this.noticeEl = $('#notice');
     this.current = null;   // the open panel
     this.returnFocus = null;
+    this.top = null;       // the top runners, for the start screen ({ rows, at })
+    this.best = 0;
 
     $('#playBtn').addEventListener('click', () => this.onPlay());
     $('#boardBtn').addEventListener('click', () => this.open('leaderboard'));
@@ -89,6 +97,7 @@ export class Menu {
     this.drawBurst();
     online.onChange(() => {
       if (this.current === 'profile' && !this.busy) this.renderProfile();
+      if (!this.title.hidden) { this.setBest(this.best); this.refreshTop(true); }
     });
   }
 
@@ -136,11 +145,13 @@ export class Menu {
     this.title.classList.remove('is-leaving');
     this.title.hidden = false;
     this.setBest(best);
+    this.refreshTop();
   }
 
   /** Fades the start screen out (when a run starts). */
   hideTitle() {
     this.noticeEl.hidden = true;
+    clearInterval(this.tickTimer);
     if (this.title.hidden) return;
     this.close();
     this.title.classList.add('is-leaving');
@@ -148,9 +159,52 @@ export class Menu {
     this.leaveTimer = setTimeout(() => { this.title.hidden = true; this.title.classList.remove('is-leaving'); }, 340);
   }
 
+  /** "Your best 12,340"; signed in, with your mascot, name and place on the board. */
   setBest(best) {
-    this.bestEl.hidden = !(best > 0);
-    this.bestEl.querySelector('b').textContent = formatScore(best);
+    this.best = best;
+    const p = online.signedIn && online.profile;
+    this.bestEl.hidden = !(best > 0 || p);
+    const me = p && this.top && this.top.rows.find((r) => r.is_me);
+    this.bestEl.replaceChildren(...(p
+      ? [avatar(p.mascot, 24), el('span', { class: 'title__me', text: p.username }), best > 0 && ' · best ', best > 0 && el('b', { text: formatScore(best) }), me && el('span', { class: 'title__rank', text: `#${me.rank}` })]
+      : ['Your best ', el('b', { text: formatScore(best) })]).filter(Boolean));
+  }
+
+  /**
+   * The start screen's Leaderboard button shows who's on top, one runner at a
+   * time ("#1 Asha · 48,210"), so the board feels alive before you open it.
+   */
+  async refreshTop(force = false) {
+    if (!this.tickerEl) return;
+    if (force || !this.top || Date.now() - this.top.at > TOP_STALE) {
+      if (!this.top) this.setTicker('Live now', true);
+      try {
+        this.top = { rows: await online.leaderboard(5), at: Date.now() };
+      } catch (e) {
+        this.top = null;
+        this.setTicker(e.kind === 'not-set-up' ? 'Opens soon' : 'Top runners');
+        return;
+      }
+      this.setBest(this.best);
+    }
+    const rows = this.top.rows;
+    clearInterval(this.tickTimer);
+    if (!rows.length) { this.setTicker('Be the first!', true); return; }
+    let i = 0;
+    const show = () => {
+      const r = rows[i % rows.length];
+      this.setTicker(`#${r.rank} ${r.username} · ${formatScore(r.score)}`, true);
+      i++;
+    };
+    show();
+    if (rows.length > 1) this.tickTimer = setInterval(() => { if (!this.title.hidden) show(); }, TICK);
+  }
+
+  setTicker(text, live = false) {
+    const t = this.tickerEl;
+    t.classList.toggle('is-live', live);
+    const line = el('span', { class: 'ticker__line', text });
+    t.replaceChildren(line);
   }
 
   /** A short message over the start screen. */
@@ -165,8 +219,10 @@ export class Menu {
   open(name, opts = {}) {
     if (!this.current) this.returnFocus = document.activeElement;
     this.current = name;
+    clearInterval(this.boardTimer);
     this.sheet.hidden = false;
     this.sheetCard.scrollTop = 0;
+    this.sheetCard.classList.toggle('sheet__card--board', name === 'leaderboard');
     if (name === 'leaderboard') this.renderLeaderboard();
     else if (name === 'profile') this.renderProfile(opts.mode);
     else if (name === 'how') this.renderHow();
@@ -178,6 +234,8 @@ export class Menu {
 
   close() {
     if (!this.current) return;
+    if (this.current === 'leaderboard' && !this.title.hidden) this.refreshTop(true);
+    clearInterval(this.boardTimer);
     this.current = null;
     this.sheet.hidden = true;
     this.sheetBody.replaceChildren();
@@ -189,48 +247,81 @@ export class Menu {
     this.sheetBody.replaceChildren(...content.flat().filter(Boolean));
   }
 
-  /* Leaderboard */
-  async renderLeaderboard() {
-    const list = el('ol', { class: 'lb', 'aria-busy': 'true' }, ...Array.from({ length: 6 }, () => el('li', { class: 'lb__skeleton' })));
-    const foot = el('div');
-    this.setPanel('Leaderboard', list, foot);
+  /* Leaderboard: the top three on a podium, then everyone else. It updates
+     itself every few seconds while it's open. */
+  async renderLeaderboard(refresh = false) {
+    const live = el('span', { class: 'live' }, el('i'), 'Live');
+    if (!refresh) {
+      const skeleton = el('div', { class: 'board', 'aria-busy': 'true' },
+        el('div', { class: 'podium podium--loading' }, [2, 1, 3].map((n) => el('div', { class: `podium__spot podium__spot--${n}` }, el('span', { class: 'podium__ghost' }), el('div', { class: 'podium__block' }, el('span', { text: String(n) }))))),
+        el('ol', { class: 'lb' }, Array.from({ length: 4 }, () => el('li', { class: 'lb__skeleton' }))));
+      this.setPanel('Leaderboard', skeleton);
+      this.sheetTitle.append(live);
+    }
     let rows;
     try {
       rows = await online.leaderboard(50);
     } catch (e) {
       if (this.current !== 'leaderboard') return;
-      list.replaceWith(el('p', { class: 'lb__empty', text: e.message }));
-      foot.replaceChildren(this.signUpNudge());
+      if (refresh) return; // keep what's showing; try again next time
+      this.sheetTitle.querySelector('.live')?.remove();
+      this.setPanel('Leaderboard',
+        el('div', { class: 'lb__empty' }, el('p', { text: e.message }),
+          e.kind !== 'not-set-up' && el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('leaderboard') }, icon('restart'), 'Try again')),
+        this.boardFoot(null));
       return;
     }
     if (this.current !== 'leaderboard') return;
-    list.removeAttribute('aria-busy');
-    if (!rows.length) {
-      list.replaceWith(el('p', { class: 'lb__empty' }, 'No scores yet. ', el('b', { text: 'Be the first on the board!' })));
-    } else {
-      list.replaceChildren(...rows.map((r) => el('li', { class: `lb__row${r.is_me ? ' is-me' : ''}` },
-        el('span', { class: `lb__rank${r.rank <= 3 ? ` lb__rank--${r.rank}` : ''}`, text: String(r.rank) }),
-        avatar(r.mascot, 40),
-        el('span', { class: 'lb__name', text: r.username }),
-        el('span', { class: 'lb__score', text: formatScore(r.score) }))));
-    }
-    if (online.signedIn) {
-      if (!rows.some((r) => r.is_me)) {
-        const me = await online.myRank().catch(() => null);
-        if (this.current !== 'leaderboard') return;
-        foot.replaceChildren(el('p', { class: 'lb__me' }, me
-          ? ['You: ', el('b', { text: `#${me.rank}` }), ` · best ${formatScore(me.score)}`]
-          : 'Your best run will show here after your next game.'));
-      }
-    } else {
-      foot.replaceChildren(this.signUpNudge());
-    }
+    let me = null;
+    if (online.signedIn && !rows.some((r) => r.is_me)) me = await online.myRank().catch(() => null);
+    if (this.current !== 'leaderboard') return;
+
+    const top = [1, 2, 3].map((n) => rows[n - 1] || null);
+    const spot = (r, n) => el('div', { class: `podium__spot podium__spot--${n}${r && r.is_me ? ' is-me' : ''}`, style: `--i:${n}` },
+      n === 1 && el('span', { class: 'podium__crown' }, svg(CROWN)),
+      r ? avatar(r.mascot, n === 1 ? 62 : 50) : el('span', { class: 'avatar podium__empty', style: `--s:${n === 1 ? 62 : 50}px` }),
+      el('b', { class: 'podium__name', text: r ? r.username : 'Your spot?' }),
+      el('span', { class: 'podium__score', text: r ? formatScore(r.score) : '—' }),
+      el('div', { class: 'podium__block' }, el('span', { text: String(n) })));
+    const podium = el('div', { class: 'podium' }, spot(top[1], 2), spot(top[0], 1), spot(top[2], 3));
+
+    const rest = rows.slice(3);
+    const list = rest.length ? el('ol', { class: 'lb' }, rest.map((r, i) => el('li', { class: `lb__row${r.is_me ? ' is-me' : ''}`, style: `--i:${Math.min(i, 12)}` },
+      el('span', { class: 'lb__rank', text: String(r.rank) }),
+      avatar(r.mascot, 36),
+      el('span', { class: 'lb__name', text: r.username }),
+      el('span', { class: 'lb__score', text: formatScore(r.score) })))) : null;
+
+    const stamp = el('p', { class: 'lb__stamp' }, rows.length
+      ? `${rows.length >= 50 ? '50+' : rows.length} ${rows.length === 1 ? 'runner' : 'runners'} on the board · updates live`
+      : '');
+    const empty = !rows.length && el('div', { class: 'lb__empty lb__empty--first' },
+      el('b', { text: 'No scores yet!' }),
+      el('p', { text: 'The podium is waiting. Sign up, run, and take the crown.' }),
+      el('button', { class: 'btn btn--sm', type: 'button', onclick: () => { this.close(); this.onPlay(); } }, 'Play now'));
+
+    const scroll = this.sheetCard.scrollTop;
+    this.setPanel('Leaderboard', el('div', { class: `board${refresh ? ' is-refresh' : ''}` }, podium, empty, list, rows.length ? stamp : null), this.boardFoot(rows.find((r) => r.is_me) || me));
+    this.sheetTitle.append(live);
+    if (refresh) this.sheetCard.scrollTop = scroll;
+
+    clearInterval(this.boardTimer);
+    this.boardTimer = setInterval(() => {
+      if (this.current === 'leaderboard' && !document.hidden) this.renderLeaderboard(true);
+    }, BOARD_REFRESH);
   }
 
-  signUpNudge() {
-    return el('div', { class: 'lb__me' },
-      el('p', { text: 'Want your name and mascot up here?' }),
-      el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('profile') }, 'Sign up, it takes a minute'));
+  /** The bar under the board: your place (signed in), or how to get on it. */
+  boardFoot(me) {
+    if (online.signedIn) {
+      const p = online.profile || { username: 'You', mascot: 'red-cool' };
+      return el('div', { class: 'lb__foot lb__foot--me' }, avatar(p.mascot, 36),
+        el('span', { class: 'lb__name', text: p.username }),
+        el('span', { class: 'lb__you' }, me ? [el('b', { text: `#${me.rank}` }), ` · ${formatScore(me.score)}`] : 'Your next run counts!'));
+    }
+    return el('div', { class: 'lb__foot' },
+      el('p', {}, el('b', { text: 'Want your name up here?' }), el('br'), 'Pick a mascot and a name. Takes a minute.'),
+      el('button', { class: 'btn btn--sm', type: 'button', onclick: () => this.open('profile') }, 'Sign up'));
   }
 
   /* Profile: sign up / sign in, or your name and icon */
@@ -446,9 +537,9 @@ export class Menu {
   gameOver(run, slot) {
     const line = el('p', { class: 'result__line' });
     const row = el('div', { class: 'result__row' },
-      el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('leaderboard') }, svg(TROPHY), 'Leaderboard'),
-      !online.signedIn && el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('profile') }, 'Sign up'),
-      el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.onMenu() }, 'Menu'));
+      el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('leaderboard') }, icon('trophy'), 'Leaderboard'),
+      !online.signedIn && el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('profile') }, icon('user'), 'Sign up'),
+      el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.onMenu() }, icon('home'), 'Home'));
     slot.replaceChildren(el('div', { class: 'result' }, line, row));
     if (!online.signedIn) {
       online.noteRun(run);

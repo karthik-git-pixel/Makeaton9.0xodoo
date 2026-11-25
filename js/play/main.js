@@ -380,7 +380,23 @@ function start() {
     quality.resetProbe();
   }
 
-  function die(item) {
+  /**
+   * A crash is found once the star and the obstacle already overlap (by up to a
+   * frame's run, more on a slow phone). Back off to where they only touch, the
+   * shorter way: down the aisle (head on), or sideways (steering into it).
+   */
+  function separate(it, e) {
+    if (!e) return;
+    if (e.needX > 0 && e.needX < e.needZ) {
+      const s = Math.sign(G.x - it.x) || -Math.sign(G.vx) || 1;
+      G.x += s * e.needX;
+    } else if (e.needZ > 0) {
+      G.distance -= e.needZ;
+    }
+  }
+
+  function die(item, e) {
+    separate(item, e);
     G.state = 'dead';
     G.stateTime = 0;
     G.slideLeft = 0;
@@ -450,8 +466,14 @@ function start() {
     G.paused = on;
     ui.pauseBtn.setAttribute('aria-pressed', String(on));
     ui.pauseBtn.setAttribute('aria-label', on ? 'Resume' : 'Pause');
-    if (on) ui.show({ title: 'Paused', text: `Score ${formatScore(G.score)} · ${formatDistance(G.distance)}`, button: 'Resume' });
-    else { ui.hide(); last = performance.now(); }
+    if (on) {
+      ui.show({ title: 'Paused', text: `Score ${formatScore(G.score)} · ${formatDistance(G.distance)}`, button: 'Resume' });
+      // ...or start over, or leave the run for the start screen
+      ui.actions([
+        { label: 'Restart', icon: 'restart', onClick: () => { setPaused(false); startRun(); } },
+        { label: 'Home', icon: 'home', onClick: () => { setPaused(false); toTitle(); } },
+      ]);
+    } else { ui.hide(); last = performance.now(); }
   }
 
   // Buttons handle their own clicks; they must not also count as a tap on the game
@@ -517,12 +539,15 @@ function start() {
       glints.spawn({ x, y, z, vx: Math.cos(a) * v, vy: Math.sin(a) * v + 0.8, vz: rand(-0.5, 0.5), color: i % 3 ? '#FADD02' : '#FFFFFF', size: rand(0.16, 0.26), life: rand(0.4, 0.6), shape: 1, drag: 3.5, spin: rand(-5, 5) });
     }
   }
-  function glitchShards(x, y, z, n = 14) {
+  /** Glitchy shards off a bug. `away`: they fly off down the aisle, away from the star (not through it). */
+  function glitchShards(x, y, z, n = 14, away = false) {
     const cols = ['#4FF7FF', '#FF4FE0', '#FFFFFF', '#22AC5F'];
     for (let i = 0; i < n; i++) {
-      glints.spawn({ x, y, z, vx: rand(-3.5, 3.5), vy: rand(1.5, 5.5), vz: rand(-1, 3), color: cols[i % cols.length], size: rand(0.09, 0.16), life: rand(0.5, 0.8), shape: 2, gravity: 10, spin: rand(-14, 14) });
+      glints.spawn({ x, y, z, vx: rand(-3.5, 3.5), vy: rand(1.5, 5.5), vz: away ? rand(-3.5, -0.8) : rand(-1, 3), color: cols[i % cols.length], size: rand(0.09, 0.16), life: rand(0.5, 0.8), shape: 2, gravity: 10, spin: rand(-14, 14) });
     }
   }
+  /** Where an item is along the aisle (the star is at 0; ahead is negative). */
+  const itemZ = (it) => -(it.at - G.distance);
   function dust(x, z, n = 2, strength = 1) {
     for (let i = 0; i < n; i++) {
       // a small puff that's left behind and fades before it gets near the camera
@@ -544,8 +569,8 @@ function start() {
   }
   /** Something knocked flying: shards for a bug, a sparkle pop for anything else. */
   function impactFx(it) {
-    if (it.T.bug) glitchShards(it.x, 0.4 + it.lift, 0);
-    else sparkleBurst(it.x, 0.8, 0, 8);
+    if (it.T.bug) glitchShards(it.x, 0.4 + it.lift, itemZ(it), 14, true);
+    else sparkleBurst(it.x, 0.8, itemZ(it), 8);
   }
   /** A comic word where something was hit (BONK!, SQUASHED!...), beside the star on the side it went. */
   function word(list, side) {
@@ -555,7 +580,7 @@ function start() {
   /* Power-ups ----------------------------------------------------------------- */
   function collectPower(kind, it) {
     award(TUNING.points.power);
-    sparkleBurst(it.x, it.y + 0.4, 0, 12);
+    sparkleBurst(it.x, it.popTop, it.popZ, 12);
     popups.show(POWER_POPUP[kind], { position: popupAt(1.65), size: 0.72, life: 1.0 });
     switch (kind) {
       case 'coffee':
@@ -775,22 +800,31 @@ function start() {
       if (G.slideLeft <= 0) mascot.slide(false);
     }
 
-    // Sideways: ease into the chosen lane
-    const tx = LANES[G.lane];
-    const nx = approach(G.x, tx, TUNING.laneRate, dt);
-    G.vx = (nx - G.x) / Math.max(dt, 1e-4);
-    G.x = nx;
+    // Sideways: ease into the chosen lane (after a crash the star stays where it was stopped)
+    if (G.state === 'dead') {
+      G.vx = 0;
+    } else {
+      const tx = LANES[G.lane];
+      const nx = approach(G.x, tx, TUNING.laneRate, dt);
+      G.vx = (nx - G.x) / Math.max(dt, 1e-4);
+      G.x = nx;
+    }
 
     obstacles.magnet = G.state === 'run' && G.power.magnet > 0 ? { x: G.x, y: G.y + 0.45 } : null;
+    obstacles.frozen = G.state === 'dead'; // nothing rolls, hops or runs into the star once it's down
     if (G.state === 'run' || G.state === 'dead') obstacles.update(dt, G.distance, Math.max(Math.abs(G.speed), SPEED.v0));
     else if (G.state === 'title') { obstacles.update(dt, 0, 1); tickParade(dt); }
     if (G.state === 'run') {
       const P = TUNING.player;
       const box = { x: G.x, y: G.y, w: P.w, h: G.slideLeft > 0 ? P.hSlide : P.h, d: P.d };
-      for (const e of obstacles.check(box, prevDistance, G.distance, G.speed)) {
+      const events = obstacles.check(box, prevDistance, G.distance, G.speed);
+      for (const e of events) {
         handleEvent(e);
         if (G.state !== 'run') break;
       }
+      // something was collected or hit: place it again before this frame is drawn
+      // (it pops in front of the star; a crash backs off to just touching)
+      if (events.length) obstacles.writeInstances(G.distance);
     }
     world.update(G.distance);
     world.setTime(G.day);
@@ -880,9 +914,10 @@ function start() {
     switch (e.kind) {
       case 'sparkle':
         G.sparkles++;
-        ui.setSparkles(G.sparkles);
+        ui.setSparkles(G.sparkles, true);
         award(TUNING.points.sparkle);
-        sparkleBurst(it.x, it.y + 0.3, 0, it.mag ? 5 : 10);
+        // the glints go off where the sparkle pops to: above the star's head, in front of it
+        sparkleBurst(it.x, it.popTop, it.popZ, it.mag ? 5 : 10);
         break;
       case 'coffee':
       case 'shield':
@@ -893,7 +928,7 @@ function start() {
         collectPower(e.kind, it);
         break;
       case 'hit':
-        hit(it);
+        hit(it, e);
         break;
       case 'near':
         if (G.flying || G.nearCooldown > 0) break;
@@ -908,7 +943,7 @@ function start() {
     }
   }
 
-  function hit(it) {
+  function hit(it, e) {
     G.lastHit = it.type;
     const side = it.x > G.x + 0.1 ? 1 : it.x < G.x - 0.1 ? -1 : (G.wordN % 2 ? 1 : -1);
     if (G.flying) return; // up on the rocket: nothing touches you
@@ -925,7 +960,7 @@ function start() {
     if (G.power.duck > 0 && it.T.bug) {
       // debug mode: bugs get squashed
       obstacles.squash(it);
-      glitchShards(it.x, 0.3 + it.lift, 0, 18);
+      glitchShards(it.x, 0.3 + it.lift, itemZ(it), 18, true);
       G.squashed++;
       award(TUNING.points.squash, 'BUG FIXED');
       word(SQUASH_WORDS, side);
@@ -944,8 +979,9 @@ function start() {
       popups.show('BLOCKED!', { position: popupAt(1.6), size: 0.75, life: 0.9 });
       return;
     }
-    if (it.T.bug) glitchShards(it.x, 0.4 + it.lift, 0);
-    die(it);
+    die(it, e);
+    // shards off the bug, flying away from the star (not out of its middle)
+    if (it.T.bug) glitchShards(it.x, 0.4 + it.lift, itemZ(it), 14, true);
   }
 
   /* Opening move: starts on a wide shot of the stage from mid-hall, flies back
