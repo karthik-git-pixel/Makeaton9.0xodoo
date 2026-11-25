@@ -16,6 +16,11 @@ const KEY_SESSION = 'mat9-24h-auth';
 const KEY_BEST_RUN = 'mat9-24h-best-run';   // this device's best run, sent in once you sign in
 const KEY_SENT = 'mat9-24h-best-sent';      // the best score already sent
 const KEY_OAUTH = 'mat9-24h-oauth';         // set while away at Google, so the return reads as a Google sign-in
+// An account made here that still waits for its email to be confirmed. The
+// confirmation link often opens in another browser (Gmail, or Chrome rather
+// than Instagram's), so this browser stays signed out: the game then asks the
+// player to sign in here, which sends this device's best run.
+const KEY_PENDING = 'mat9-24h-pending-email';
 
 /**
  * Apps' built-in browsers (Instagram's, Facebook's, LinkedIn's, Android web
@@ -73,6 +78,7 @@ function toError(status, data) {
     email_address_invalid: "That email address doesn't look right.",
     validation_failed: "That email address doesn't look right.",
     signup_disabled: 'Sign-ups are closed right now.',
+    anonymous_provider_disabled: 'Joining with a name isn’t switched on yet. Try again soon.',
     same_password: "That's the password you already have.",
     23505: 'That name is taken. Try another.',
     23514: 'Names: 3–16 letters, numbers, spaces, . _ or -.',
@@ -153,6 +159,12 @@ class Online {
       user,
     };
     store.set(KEY_SESSION, JSON.stringify(this.session));
+    store.set(KEY_PENDING, null);
+  }
+
+  /** The email of an account made here that hasn't been signed into yet ('' otherwise). */
+  get pendingEmail() {
+    return this.signedIn ? '' : store.get(KEY_PENDING) || '';
   }
 
   clearSession() {
@@ -243,7 +255,33 @@ class Online {
       this.sendDeviceBest().catch(() => {});
       return { signedIn: true };
     }
+    store.set(KEY_PENDING, email);
+    this.emit();
     return { confirm: true };
+  }
+
+  /**
+   * Joins the leaderboard with just a name and a mascot: no email, no password,
+   * nothing to confirm. It is an anonymous Supabase account kept in this
+   * browser (needs Authentication → "Allow anonymous sign-ins" on in Supabase).
+   * Clearing the browser's data loses it, and the name stays with the old one.
+   */
+  async joinWithName({ username, mascot }) {
+    const data = await this.request('/auth/v1/signup', { method: 'POST', body: { data: { username, mascot } } });
+    if (!data || !data.access_token) throw new OnlineError('server', 'Something went wrong. Try again in a moment.');
+    this.setSession(data);
+    await this.loadProfile().catch(() => {});
+    // if the database made no profile from the name (or a stand-in one), set it now
+    if (!this.profile || this.profile.username !== username || this.profile.mascot !== mascot) {
+      await this.updateProfile({ username, mascot }).catch(() => {});
+    }
+    this.emit();
+    this.sendDeviceBest().catch(() => {});
+  }
+
+  /** Joined with just a name (no email, no Google): signing out can't be undone. */
+  get anonymous() {
+    return !!(this.session && this.session.user && !this.session.user.email);
   }
 
   async signIn({ email, password }) {

@@ -297,7 +297,7 @@ export class Menu {
       : '');
     const empty = !rows.length && el('div', { class: 'lb__empty lb__empty--first' },
       el('b', { text: 'No scores yet!' }),
-      el('p', { text: 'The podium is waiting. Sign up, run, and take the crown.' }),
+      el('p', { text: 'The podium is waiting. Add your name, run, and take the crown.' }),
       el('button', { class: 'btn btn--sm', type: 'button', onclick: () => { this.close(); this.onPlay(); } }, 'Play now'));
 
     const scroll = this.sheetCard.scrollTop;
@@ -320,15 +320,15 @@ export class Menu {
         el('span', { class: 'lb__you' }, me ? [el('b', { text: `#${me.rank}` }), ` · ${formatScore(me.score)}`] : 'Your next run counts!'));
     }
     return el('div', { class: 'lb__foot' },
-      el('p', {}, el('b', { text: 'Want your name up here?' }), el('br'), 'Pick a mascot and a name. Takes a minute.'),
-      el('button', { class: 'btn btn--sm', type: 'button', onclick: () => this.open('profile') }, 'Sign up'));
+      el('p', {}, el('b', { text: 'Want your name up here?' }), el('br'), 'Pick a name and a mascot. No email needed.'),
+      el('button', { class: 'btn btn--sm', type: 'button', onclick: () => this.open('profile') }, 'Add your name'));
   }
 
   /* Profile: sign up / sign in, or your name and icon */
   renderProfile(mode) {
     if (mode === 'recovery') { this.renderNewPassword(); return; }
     if (online.signedIn) this.renderMe();
-    else this.renderAuth(mode === 'signin' ? 'signin' : this.authTab || 'signup');
+    else this.renderAuth(mode === 'signin' || online.pendingEmail ? 'signin' : this.authTab || 'signup');
   }
 
   mascotPicker(selected, onPick) {
@@ -355,7 +355,7 @@ export class Menu {
       (where Google refuses to sign in) a note on opening a real one instead */
   googleOption() {
     if (inAppBrowser()) {
-      return el('p', { class: 'msg oauth-note' }, 'Google sign-in doesn’t work inside this app. Tap ', el('b', { text: '⋯' }), ' and choose ', el('b', { text: 'Open in browser' }), ', or use your email below.');
+      return el('p', { class: 'msg oauth-note' }, 'Google sign-in doesn’t work inside this app. Tap ', el('b', { text: '⋯' }), ' and choose ', el('b', { text: 'Open in browser' }), ', or use your email below. New here? Just use ', el('b', { text: 'Join' }), '.');
     }
     const go = el('button', { class: 'btn btn--google', type: 'button' }, svg(GOOGLE_G), 'Continue with Google');
     go.addEventListener('click', () => {
@@ -369,42 +369,32 @@ export class Menu {
   renderAuth(tab) {
     this.authTab = tab;
     const tabs = el('div', { class: 'tabs', role: 'tablist' },
-      el('button', { type: 'button', role: 'tab', 'aria-selected': String(tab === 'signup'), onclick: () => this.renderAuth('signup') }, 'Sign up'),
+      el('button', { type: 'button', role: 'tab', 'aria-selected': String(tab === 'signup'), onclick: () => this.renderAuth('signup') }, 'Join'),
       el('button', { type: 'button', role: 'tab', 'aria-selected': String(tab === 'signin'), onclick: () => this.renderAuth('signin') }, 'Sign in'));
     const msg = el('p', { class: 'msg', role: 'status' });
     const say = (text, kind = '') => { msg.className = `msg${kind ? ' msg--' + kind : ''}`; msg.textContent = text; };
 
+    // Join: just a name and a mascot, straight onto the leaderboard (online.joinWithName)
     if (tab === 'signup') {
       let mascot = this.pickedMascot || MASCOTS[Math.floor(Math.random() * MASCOTS.length)].id;
       this.pickedMascot = mascot;
       const name = this.field('Your name on the leaderboard', { type: 'text', maxlength: '16', autocomplete: 'nickname', autocapitalize: 'words', spellcheck: 'false', placeholder: 'e.g. Bug Squasher' }, '3–16 letters, numbers, spaces, . _ -');
-      const email = this.field('Email', { type: 'email', autocomplete: 'email', inputmode: 'email', placeholder: 'you@example.com' });
-      const pass = this.field('Password', { type: 'password', autocomplete: 'new-password', minlength: '6', placeholder: 'At least 6 characters' });
-      const go = el('button', { class: 'btn', type: 'submit' }, 'Create account');
-      const form = el('form', { class: 'form', novalidate: true }, name.node, el('div', { class: 'field' }, el('span', { text: 'Pick your mascot' }), this.mascotPicker(mascot, (id) => { mascot = id; this.pickedMascot = id; })), email.node, pass.node, go, msg,
-        el('p', { class: 'muted', text: 'Playing needs no account. Your name and mascot show on the leaderboard; your email stays private.' }));
+      const go = el('button', { class: 'btn', type: 'submit' }, 'Join the leaderboard');
+      const form = el('form', { class: 'form', novalidate: true }, name.node, el('div', { class: 'field' }, el('span', { text: 'Pick your mascot' }), this.mascotPicker(mascot, (id) => { mascot = id; this.pickedMascot = id; })), go, msg,
+        el('p', { class: 'muted', text: 'No email, no password. Your name is saved in this browser; your best run goes up straight away.' }));
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const n = checkName(name.input.value);
         if (!n.ok) { say(n.why, 'bad'); name.input.focus(); return; }
-        if (!EMAIL.test(email.input.value.trim())) { say("That email address doesn't look right.", 'bad'); email.input.focus(); return; }
-        if (pass.input.value.length < 6) { say('Pick a password of at least 6 characters.', 'bad'); pass.input.focus(); return; }
         go.disabled = true;
         this.busy = true;
-        say('Creating your account…');
+        say('Adding you to the leaderboard…');
         try {
           if (!(await online.usernameAvailable(n.name))) { say('That name is taken. Try another.', 'bad'); name.input.focus(); return; }
-          const res = await online.signUp({ email: email.input.value.trim(), password: pass.input.value, username: n.name, mascot });
-          if (res.signedIn) {
-            this.busy = false;
-            this.renderMe();
-            this.notice(`Welcome, ${n.name}! You're on the leaderboard.`);
-          } else {
-            this.setPanel('Check your inbox',
-              el('p', {}, 'We sent a link to ', el('b', { text: email.input.value.trim() }), '. Tap it to confirm your account, then come back here: your scores will go on the leaderboard.'),
-              el('p', { class: 'muted', text: "No email? Check your spam folder, or try signing in after a few minutes." }),
-              el('button', { class: 'btn btn--ghost', type: 'button', onclick: () => this.close() }, 'Keep playing'));
-          }
+          await online.joinWithName({ username: n.name, mascot });
+          this.busy = false;
+          this.renderMe();
+          this.notice(`Welcome, ${n.name}! You're on the leaderboard.`);
         } catch (err) {
           say(err.message, 'bad');
         } finally {
@@ -412,9 +402,9 @@ export class Menu {
           this.busy = false;
         }
       });
-      this.setPanel('Join the leaderboard', tabs, this.googleOption(), form);
+      this.setPanel('Join the leaderboard', tabs, form);
     } else {
-      const email = this.field('Email', { type: 'email', autocomplete: 'email', inputmode: 'email' });
+      const email = this.field('Email', { type: 'email', autocomplete: 'email', inputmode: 'email', value: online.pendingEmail || undefined });
       const pass = this.field('Password', { type: 'password', autocomplete: 'current-password' });
       const go = el('button', { class: 'btn', type: 'submit' }, 'Sign in');
       const forgot = el('button', { class: 'linkish', type: 'button' }, 'Forgot your password?');
@@ -461,7 +451,8 @@ export class Menu {
     const picker = this.mascotPicker(mascot, (id) => { mascot = id; });
     const form = el('form', { class: 'form', novalidate: true },
       el('div', { class: 'field' }, el('span', { text: 'Your mascot' }), picker), name.node, save, msg,
-      el('button', { class: 'btn btn--ghost', type: 'button', onclick: async () => { await online.signOut(); this.renderAuth('signin'); this.notice('Signed out.'); } }, 'Sign out'));
+      el('button', { class: 'btn btn--ghost', type: 'button', onclick: async () => { await online.signOut(); this.renderAuth(online.pendingEmail ? 'signin' : 'signup'); this.notice('Signed out.'); } }, 'Sign out'),
+      online.anonymous && el('p', { class: 'muted', text: 'You joined with just a name, so it lives in this browser: signing out (or clearing the browser) means joining again under a new name.' }));
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const n = checkName(name.input.value);
@@ -538,12 +529,14 @@ export class Menu {
     const line = el('p', { class: 'result__line' });
     const row = el('div', { class: 'result__row' },
       el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('leaderboard') }, icon('trophy'), 'Leaderboard'),
-      !online.signedIn && el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('profile') }, icon('user'), 'Sign up'),
+      !online.signedIn && el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('profile', { mode: online.pendingEmail ? 'signin' : undefined }) }, icon('user'), online.pendingEmail ? 'Sign in' : 'Add your name'),
       el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.onMenu() }, icon('home'), 'Home'));
     slot.replaceChildren(el('div', { class: 'result' }, line, row));
     if (!online.signedIn) {
       online.noteRun(run);
-      line.textContent = 'Sign up to put your name on the leaderboard. This run counts too!';
+      line.textContent = online.pendingEmail
+        ? 'Confirmed your email? Sign in here to put this run on the leaderboard.'
+        : 'Add your name to put this run on the leaderboard. No email needed!';
       return;
     }
     line.textContent = 'Sending your score…';
