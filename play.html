@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Run-A-Ton · an endless hackathon run · Make-A-Ton 9.0</title>
+  <meta name="description" content="Run-A-Ton: an endless run through the Make-A-Ton 9.0 hackathon as the red star. Dodge bugs, chairs and Make-A-Ton boards, grab power-ups and chase a high score. The 24-hour final is at CUSAT, Kochi on 19–20 December 2026.">
+  <meta name="theme-color" content="#FCC230">
+  <link rel="icon" href="assets/play/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="assets/play/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Titan+One&display=swap">
+  <link rel="preconnect" href="https://daucloimixgmojzqcrvw.supabase.co" crossorigin>
+  <link rel="stylesheet" href="css/play.css">
+  <script type="importmap">
+    { "imports": { "three": "./js/vendor/three/three.module.min.js" } }
+  </script>
+  <link rel="modulepreload" href="js/vendor/three/three.module.min.js">
+</head>
+<body>
+  <main id="app" class="app">
+    <div id="stage" class="stage">
+      <canvas id="game" class="game" aria-label="Run-A-Ton game"></canvas>
+
+      <div class="hud" aria-live="off">
+        <div class="hud__left">
+          <div class="hud__sparkles" aria-label="Sparkles collected">
+            <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true"><path d="M50 4C54 34 66 46 96 50C66 54 54 66 50 96C46 66 34 54 4 50C34 46 46 34 50 4Z"/></svg>
+            <span id="sparkles">0</span>
+          </div>
+          <div id="powers" class="hud__powers" aria-label="Power-ups"></div>
+        </div>
+        <div class="hud__score-wrap">
+          <span id="score" class="hud__score">0</span>
+          <span id="mult" class="hud__mult" aria-label="Score multiplier">×1</span>
+          <span id="gain" class="hud__gain" aria-hidden="true"></span>
+        </div>
+        <button id="pauseBtn" class="hud__btn" type="button" aria-label="Pause" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+        </button>
+      </div>
+
+      <div id="toast" class="toast" role="status" hidden>
+        <span class="toast__tag"></span>
+        <strong class="toast__name"></strong>
+        <span class="toast__hint"></span>
+      </div>
+
+      <div id="levelup" class="levelup" aria-hidden="true" hidden><b>LEVEL 2</b><span>×2 points</span></div>
+
+      <!-- Start screen -->
+      <section id="title" class="title" data-ui hidden>
+        <div class="title__burst" aria-hidden="true"></div>
+        <div class="title__top">
+          <img class="title__event" src="assets/play/logo-640.webp" alt="Make-A-Ton 9.0" width="640" height="228">
+          <p class="title__presents">presents</p>
+        </div>
+        <header class="title__head">
+          <h1 class="title__logo" aria-label="Run-A-Ton">
+            <span class="title__word title__word--a" aria-hidden="true">RUN</span><span class="title__word title__word--b" aria-hidden="true">-A-</span><span class="title__word title__word--c" aria-hidden="true">TON</span>
+          </h1>
+          <p class="title__tag">The endless hackathon run</p>
+        </header>
+        <footer class="title__foot">
+          <p id="titleBest" class="title__best" hidden>Your best <b>0</b></p>
+          <button id="playBtn" class="btn btn--play" type="button">
+            <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.2-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>
+            <span>PLAY</span>
+          </button>
+          <div class="title__row">
+            <button id="boardBtn" class="btn btn--ghost" type="button">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1.1 1.8A5 5 0 0 1 7 9V7zm10 0v2a5 5 0 0 1-.1.8A2 2 0 0 0 18 8V7h-1z"/></svg>
+              Leaderboard
+            </button>
+            <button id="howBtn" class="btn btn--ghost" type="button">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 14a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8zm.2-10.2c-2.3 0-3.9 1.3-4.1 3.3h2.6c.1-.7.6-1.1 1.4-1.1.9 0 1.4.5 1.4 1.2 0 .6-.3 1-1.2 1.6-1.1.7-1.6 1.4-1.5 2.7v.6h2.5v-.4c0-.7.3-1.1 1.2-1.6 1.1-.7 1.7-1.5 1.7-2.9 0-2.1-1.6-3.4-4-3.4z"/></svg>
+              How to play
+            </button>
+          </div>
+          <p class="title__when"><a class="title__home" href="./" data-home>&larr; makeaton.in</a> · 24-hour final · CUSAT, Kochi · 19–20 Dec</p>
+        </footer>
+      </section>
+
+      <!-- Panels over the start screen: leaderboard, profile, how to play -->
+      <div id="sheet" class="sheet" data-ui hidden>
+        <div class="sheet__card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+          <button class="sheet__close" type="button" aria-label="Close">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6.4 4.9 12 10.6l5.6-5.7 1.5 1.5-5.7 5.6 5.7 5.6-1.5 1.5-5.6-5.7-5.6 5.7-1.5-1.5 5.7-5.6-5.7-5.6z"/></svg>
+          </button>
+          <h2 id="sheetTitle" class="sheet__title"></h2>
+          <div id="sheetBody" class="sheet__body"></div>
+        </div>
+      </div>
+
+      <div id="notice" class="notice" role="status" hidden></div>
+
+      <div id="overlay" class="overlay" hidden>
+        <div class="card" role="dialog" aria-labelledby="overlayTitle" data-ui>
+          <p id="overlayBadge" class="card__badge" hidden></p>
+          <h1 id="overlayTitle" class="card__title"></h1>
+          <p id="overlayScore" class="card__score" hidden></p>
+          <p id="overlayText" class="card__text"></p>
+          <dl id="overlayStats" class="card__stats" hidden></dl>
+          <button id="overlayBtn" class="btn" type="button"></button>
+          <!-- Your place on the leaderboard, or a nudge to sign up (js/play/menu.js) -->
+          <div id="overlaySlot" class="card__slot"></div>
+        </div>
+      </div>
+
+      <div id="fallback" class="overlay" hidden>
+        <div class="card">
+          <h1 class="card__title">RUN-A-TON</h1>
+          <p class="card__text">This game needs WebGL 2, which this browser doesn't have.</p>
+          <a class="btn" href="https://makeaton.in">Visit makeaton.in</a>
+        </div>
+      </div>
+
+      <div id="debug" class="debug" aria-hidden="true"></div>
+    </div>
+    <!-- Back to the Make-A-Ton site; shown only where the game is a framed
+         card with room beside it (desktop). Phones use the link on the start screen. -->
+    <a class="home-pill" href="./" data-home>
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M10.6 5.4 4 12l6.6 6.6 1.6-1.6-3.9-3.9H20v-2.2H8.3l3.9-3.9z"/></svg>
+      makeaton.in
+    </a>
+  </main>
+  <script type="module">
+    // The back links say "./", which is the Make-A-Ton home page at makeaton.in/play.
+    // Where the game itself is the site's root (its own deployment), send them to makeaton.in.
+    if (location.pathname === '/') {
+      document.querySelectorAll('[data-home]').forEach((a) => { a.href = 'https://www.makeaton.in/'; });
+    }
+    // Wait (briefly) for the banner font so the hall's banners are lettered in it
+    const fontReady = document.fonts ? document.fonts.load('64px Bangers') : Promise.resolve();
+    Promise.race([fontReady, new Promise((r) => setTimeout(r, 2500))])
+      .catch(() => {})
+      .then(() => import('./js/play/main.js'));
+  </script>
+</body>
+</html>

@@ -715,22 +715,25 @@
 .desk-pet__leg--far { left: 31.82%; top: 68.62%; } /* hip at (104, 238) */
 .desk-pet__leg--near { left: 54.96%; top: 69.23%; } /* hip at (160, 240) */
 
-/* Speech bubble over its head; it stays upright when the mascot turns */
+/* Speech bubble over its head; it stays upright when the mascot turns. Three
+   short lines (set in the markup), so it is no wider than the mascot and
+   stays on the desk wherever the mascot walks. */
 .desk-pet__bubble {
   position: absolute;
   left: -1cqw;
   bottom: calc(100% + 1.2cqw);
-  padding: 0.35em 0.9em;
+  padding: 0.45em 0.85em 0.4em;
   font-family: var(--font-tape);
   font-size: max(0.66rem, 2.8cqw);
   letter-spacing: 0.05em;
-  line-height: 1.2;
+  line-height: 1.15;
+  text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
   color: var(--ink);
   background: var(--tape);
   border: 2px solid var(--ink);
-  border-radius: 999px;
+  border-radius: 0.9em;
   box-shadow: 3px 3px 0 var(--ink);
   rotate: -4deg;
   animation: mascot-bubble-pulse 2.8s ease-in-out infinite;
@@ -744,7 +747,12 @@
   border-width: 6px 6px 0;
   border-color: var(--ink) transparent transparent;
 }
-.desk-pet__say--play { display: none; }
+/* "Click here" for a mouse, "Tap here" on a touch screen */
+.desk-pet__say--touch { display: none; }
+@media (hover: none) {
+  .desk-pet__say--mouse { display: none; }
+  .desk-pet__say--touch { display: inline; }
+}
 
 /* Walking: legs swing from the hips and the hips dip as each foot lands.
    js/main.js moves it 1.3 body widths a second, which is what one 0.48s
@@ -753,7 +761,7 @@
 .desk-pet[data-gait] .desk-pet__leg--near { animation-delay: -0.24s; }
 .desk-pet[data-gait] .desk-pet__bob { animation: pet-hip 0.48s infinite; }
 
-/* Pointed at: a hop, then a happy tippy-tap dance, and the bubble asks for the click */
+/* Pointed at: a hop, then a happy tippy-tap dance */
 @media (hover: hover) {
   .desk-pet:not([data-gait], .is-leaping) .desk-pet__hit:hover .desk-pet__bob {
     animation: pet-hop 0.5s ease-out, pet-bounce 0.34s ease-in-out 0.5s infinite;
@@ -763,11 +771,7 @@
   }
   .desk-pet:not([data-gait], .is-leaping) .desk-pet__hit:hover .desk-pet__leg { animation: pet-tap 0.34s ease-in-out 0.5s infinite; }
   .desk-pet:not([data-gait], .is-leaping) .desk-pet__hit:hover .desk-pet__leg--near { animation-delay: 0.67s; }
-  .desk-pet__hit:hover .desk-pet__say { display: none; }
-  .desk-pet__hit:hover .desk-pet__say--play { display: inline; }
 }
-.desk-pet__hit:focus-visible .desk-pet__say { display: none; }
-.desk-pet__hit:focus-visible .desk-pet__say--play { display: inline; }
 
 /* Clicked: crouch, leap with a flip, land; then the arcade opens */
 .desk-pet.is-leaping .desk-pet__bob { animation: pet-leap 0.64s ease-in-out both; }

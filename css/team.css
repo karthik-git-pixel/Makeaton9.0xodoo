@@ -82,6 +82,7 @@
   --cols: 4;
   --card-max: 236px;
   --col-gap: clamp(12px, 2.6vw, 36px);
+  --team-gap: clamp(18px, 2.4vw, 30px);
   --felt: #1E9A54;
   position: relative;
   isolation: isolate;
@@ -194,16 +195,24 @@
 .crew-table:is([data-state="loading"], [data-state="placing"], [data-state="stacked"]) .crew-tableau { visibility: hidden; }
 
 /* Tableau: one column per team, under a tab sticker, --cols (set by
-   js/team.js) to a row. A team with a stack of cards spans two grid rows
-   (--span, also from js/team.js) and single cards fill in beside it, so a
-   tall stack leaves no empty felt under the rest of its row. */
+   js/team.js) to a row. When the teams don't all fit in one row they pack
+   like bricks: the grid's rows are 1px tall and each team spans its own
+   height plus the gap under it (--span, measured by js/team.js), so a team
+   drops into whichever column ends highest and leaves no hole above it. */
 .crew-tableau {
   display: grid;
   grid-template-columns: repeat(var(--cols), minmax(0, var(--card-max)));
+  grid-auto-rows: 1px;
   grid-auto-flow: row dense;
   justify-content: center;
   align-items: start;
-  gap: clamp(18px, 2.4vw, 30px) var(--col-gap);
+  column-gap: var(--col-gap);
+}
+/* A stack fans open on hover (see "Dealt" below). The felt clips at its edge,
+   so the lowest stacks keep room under them; higher up, an open stack lies
+   over the team below it while it is open, rather than leaving a gap. */
+@media (hover: hover) {
+  .crew-tableau { padding-bottom: max(0px, calc(var(--card-w, 0px) * 0.44 - var(--team-gap))); }
 }
 .crew-col {
   --tab: var(--red);
@@ -215,6 +224,8 @@
   align-content: start;
   gap: clamp(10px, 1.1vw, 14px);
   min-width: 0;
+  /* The gap to the next team down the same column */
+  margin-bottom: var(--team-gap);
 }
 .crew-col[data-theme="yellow"] { --tab: var(--yellow); }
 .crew-col[data-theme="blue"] { --tab: var(--blue); }
@@ -272,11 +283,7 @@
   /* Explicit: a grid item with an aspect-ratio would otherwise size its width
      from its stretched height and spill out of the column */
   width: 100%;
-  /* Room for the stack to open below its last card when one is hovered */
-  margin-bottom: 44%;
 }
-/* A single card has no stack to open */
-.crew-col[data-count="1"] .crew-col__cards { margin-bottom: 0; }
 .crew-col__cards > .ocard + .ocard { margin-top: -109%; }
 .crew-col__slot {
   position: absolute;
@@ -303,14 +310,23 @@
 .crew-table.is-animating .ocard,
 .crew-table.is-animating .ocard__flip { will-change: transform; }
 
-/* Dealt: hover (or keyboard focus) lifts a card and opens the stack below it,
-   so the rest of the card peeks out; a click opens it in the focused view */
+/* Dealt: a mouse hover (or keyboard focus) lifts a card and fans open the
+   stack below it, so the rest of the card peeks out, raised over the team
+   below if there is one; a click opens it in the focused view. Touch screens
+   skip the hover: it would stick after a tap, and no room is kept for it. */
 .crew-table[data-state="dealt"] .crew-col__cards > .ocard {
   transition: translate 0.34s cubic-bezier(0.2, 1.25, 0.4, 1);
 }
-.crew-table[data-state="dealt"] .crew-col__cards > .ocard:is(:hover, :has(:focus-visible)) { translate: 0 -12px; }
-.crew-table[data-state="dealt"] .crew-col__cards > .ocard:is(:hover, :has(:focus-visible)) ~ .ocard { translate: 0 31%; }
-.crew-table[data-state="dealt"] .crew-col__cards > .ocard:is(:hover, :has(:focus-visible)) .ocard__face { box-shadow: 3.8cqw 4cqw 0 var(--ink); }
+.crew-table[data-state="dealt"] .crew-col__cards > .ocard:has(:focus-visible) { translate: 0 -12px; }
+.crew-table[data-state="dealt"] .crew-col__cards > .ocard:has(:focus-visible) ~ .ocard { translate: 0 31%; }
+.crew-table[data-state="dealt"] .crew-col__cards > .ocard:has(:focus-visible) .ocard__face { box-shadow: 3.8cqw 4cqw 0 var(--ink); }
+.crew-table[data-state="dealt"] .crew-col:has(:focus-visible) { z-index: 3; }
+@media (hover: hover) {
+  .crew-table[data-state="dealt"] .crew-col__cards > .ocard:hover { translate: 0 -12px; }
+  .crew-table[data-state="dealt"] .crew-col__cards > .ocard:hover ~ .ocard { translate: 0 31%; }
+  .crew-table[data-state="dealt"] .crew-col__cards > .ocard:hover .ocard__face { box-shadow: 3.8cqw 4cqw 0 var(--ink); }
+  .crew-table[data-state="dealt"] .crew-col:hover { z-index: 3; }
+}
 .crew-table .ocard__face { transition: box-shadow 0.25s ease; }
 /* The card that is up in the focused view leaves a gap in its stack */
 .crew-table .ocard.is-lifted { visibility: hidden; }

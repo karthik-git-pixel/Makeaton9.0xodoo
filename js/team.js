@@ -77,13 +77,14 @@
   }
 
   /* Card geometry, in card widths: a card is 1.4 tall (5:7), and in a column
-     each card shows the top 0.31 of the one under it (its name plate). A
-     stack keeps 0.44 free below it to open into on hover (css/team.css), and
-     a tableau row is a card plus about 0.3 for its team's tab and the gaps. */
+     each card shows the top 0.31 of the one under it (its name plate). */
   const CARD_RATIO = 1.4;
   const PEEK = 0.31;
-  const STACK_ROOM = 0.44;
-  const ROW_EXTRA = 0.3;
+  /* Table columns, in px of card width: every team side by side while the
+     cards stay at least ONE_ROW_MIN wide; otherwise the brick layout that
+     covers the most felt with cards at least BRICK_MIN wide (or two columns) */
+  const ONE_ROW_MIN = 120;
+  const BRICK_MIN = 140;
 
   /* Helpers ---------------------------------------------------------------- */
   const ENTITIES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
@@ -342,16 +343,11 @@
       const label = members[0].team; // the team's name as written in the data
       const look = teamLook(key, place);
       const count = members.length;
-      // A stack is taller than a single card, so it spans more than one
-      // tableau row and the single cards fill in beside it
-      const height = CARD_RATIO + (count - 1) * PEEK + (count > 1 ? STACK_ROOM : 0);
-      const span = Math.max(1, Math.ceil(height / (CARD_RATIO + ROW_EXTRA)));
       const col = document.createElement('section');
       col.className = 'crew-col';
       col.dataset.team = key;
       col.dataset.theme = look.theme;
       col.dataset.count = String(count);
-      col.style.setProperty('--span', String(span));
       col.setAttribute('aria-labelledby', `crew-tab-${key}`);
       col.innerHTML = `
         <h2 class="crew-tab" id="crew-tab-${key}">${esc(label)}<span class="crew-tab__count"><span class="sr-only">, </span>${count}<span class="sr-only"> ${count === 1 ? 'card' : 'cards'}</span></span></h2>
@@ -362,7 +358,6 @@
       return {
         team: key,
         label,
-        span,
         el: col,
         tab: col.querySelector('.crew-tab'),
         slot: col.querySelector('.crew-col__slot'),
@@ -419,15 +414,53 @@
     surface.classList.add('is-built');
   }
 
-  /* Columns: up to five teams side by side on desktop; more teams share two
-     rows (a stack counts once per row it spans), so the cards stay big
-     enough to read. Two columns on tablets and phones. */
+  /* Columns: every team side by side while the cards stay big enough to read.
+     Otherwise the teams pack like bricks (css/team.css): each one drops into
+     the column that ends highest. Each column count from two up is tried with
+     that same rule, and the one whose teams cover the most felt wins, so
+     neither half-empty columns nor wide bare margins are left. */
   function columnCount() {
     const n = crew.columns.length;
-    if (window.innerWidth < 1024) return Math.min(n, 2);
-    if (n <= 5) return n;
-    const cells = crew.columns.reduce((sum, column) => sum + column.span, 0);
-    return Math.ceil(cells / 2);
+    const width = crew.tableau.clientWidth;
+    const gap = parseFloat(getComputedStyle(crew.tableau).columnGap) || 0;
+    const cardMax = parseFloat(getComputedStyle(table).getPropertyValue('--card-max')) || Infinity;
+    const cardW = (k) => Math.min(cardMax, (width - (k - 1) * gap) / k);
+    if (n <= 2 || cardW(n) >= ONE_ROW_MIN) return n;
+
+    const colStyle = getComputedStyle(crew.columns[0].el);
+    const below = parseFloat(colStyle.marginBottom) || 0; // the gap under a team
+    const inside = parseFloat(colStyle.rowGap) || 0; // between its tab and its cards
+    let best = 2;
+    let bestFill = 0;
+    for (let k = 2; k < n; k++) {
+      const w = cardW(k);
+      if (k > 2 && w < BRICK_MIN) break;
+      const ends = new Array(k).fill(0);
+      let covered = 0;
+      crew.columns.forEach((column) => {
+        const h = column.tab.offsetHeight + inside + w * (CARD_RATIO + (column.cards.length - 1) * PEEK);
+        const c = ends.indexOf(Math.min(...ends));
+        ends[c] += h + below;
+        covered += w * h;
+      });
+      const fill = covered / (width * (Math.max(...ends) - below));
+      // A near tie goes to fewer columns, so bigger cards
+      if (fill > bestFill + 0.01) {
+        best = k;
+        bestFill = fill;
+      }
+    }
+    return best;
+  }
+
+  /** Each team spans its own height, plus the gap under it, in the tableau's
+      1px grid rows; measured after the column count sets the card size */
+  function spanTeams() {
+    crew.columns.forEach((column) => {
+      const below = parseFloat(getComputedStyle(column.el).marginBottom) || 0;
+      const height = column.el.getBoundingClientRect().height + below;
+      column.el.style.setProperty('--span', String(Math.ceil(height)));
+    });
   }
 
   const narrow = () => window.matchMedia('(max-width: 760px)').matches;
@@ -438,6 +471,7 @@
       bubble where it sits under the deck. */
   function layout() {
     table.style.setProperty('--cols', String(columnCount()));
+    spanTeams();
     const first = crew.columns[0];
     if (!first) return;
     const seat = first.cardsEl.getBoundingClientRect();
@@ -1092,10 +1126,13 @@
       buildTable(organizers);
       layout();
       let frame = 0;
-      window.addEventListener('resize', () => {
+      const relayout = () => {
         cancelAnimationFrame(frame);
         frame = requestAnimationFrame(layout);
-      });
+      };
+      window.addEventListener('resize', relayout);
+      // The tabs' font changes their height once it has loaded
+      if (document.fonts) document.fonts.ready.then(relayout).catch(() => {});
       if (canAnimate()) {
         stackPile(shuffled(crew.cards));
         crew.pile.style.visibility = 'hidden';

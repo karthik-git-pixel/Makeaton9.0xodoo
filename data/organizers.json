@@ -40,12 +40,28 @@
     "photo": "assets/organizers/amrutha-m.webp"
   },
   {
+    "id": "muhsin-ali-p",
+    "name": "Muhsin Ali P",
+    "team": "Finance Team",
+    "position": "Finance Head",
+    "linkedin": "https://www.linkedin.com/in/muzin",
+    "photo": "assets/organizers/muhsin-ali-p.webp"
+  },
+  {
     "id": "samir-navas",
     "name": "Samir Navas",
     "team": "Design",
     "position": "Design Team Member",
     "linkedin": "https://www.linkedin.com/in/samir-navas-a6128633b",
     "photo": "assets/organizers/samir-navas.webp"
+  },
+  {
+    "id": "s-sruthy",
+    "name": "S. Sruthy",
+    "team": "Design",
+    "position": "Design Team Member",
+    "linkedin": "https://www.linkedin.com/in/sruthy-s-b57116298",
+    "photo": "assets/organizers/s-sruthy.webp"
   },
   {
     "id": "kamesh-singh",
@@ -62,5 +78,21 @@
     "position": "Ambience Lead",
     "linkedin": "https://www.linkedin.com/in/jude-thomas-3884502b8",
     "photo": "assets/organizers/jude-thomas.webp"
+  },
+  {
+    "id": "aisha-nama",
+    "name": "Aisha Nama",
+    "team": "Content Team",
+    "position": "Content Team Member",
+    "linkedin": "https://www.linkedin.com/in/aisha-nama-06256b253/",
+    "photo": "assets/organizers/aisha-nama.webp"
+  },
+  {
+    "id": "anjana-sankar",
+    "name": "Anjana Sankar",
+    "team": "Content Team",
+    "position": "Content Team Member",
+    "linkedin": "https://www.linkedin.com/in/anjana-sankar-1ba508243/",
+    "photo": "assets/organizers/anjana-sankar.webp"
   }
 ]
