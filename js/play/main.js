@@ -667,7 +667,9 @@ function start() {
       confetti(30, { x: G.x * 0.5, y: 3.6, z: -4 });
       announceGap = 1.45;
     } else {
-      popups.show(a.text, { position: new THREE.Vector3(G.x * 0.4, 3.3, -3.6), style: 'burst', size: a.size, life: 1.6, rise: 0.3, tilt: announceGap > -2 ? 0.07 : -0.06 });
+      // Yellow comic lettering, no white starburst behind it (the user found that white splash
+      // distracting mid-run). 0.6 keeps the letters as big as they were inside the starburst.
+      popups.show(a.text, { position: new THREE.Vector3(G.x * 0.4, 3.3, -3.6), style: 'shout', size: a.size * 0.6, life: 1.6, rise: 0.3, tilt: announceGap > -2 ? 0.07 : -0.06 });
       if (a.conf) confetti(a.conf, { x: G.x * 0.5, y: 3.9, z: -4 });
       announceGap = 1.25;
     }

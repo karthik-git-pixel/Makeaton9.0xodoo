@@ -491,18 +491,6 @@ body {
 .title.is-leaving { animation: title-out 0.35s ease-in forwards; }
 .title.is-leaving > * { pointer-events: none; }
 
-/* sunburst behind the logo, turning slowly */
-.title__burst {
-  position: absolute;
-  left: 50%;
-  top: calc(var(--safe-t) + 170px);
-  width: 840px;
-  height: 840px;
-  margin: -420px 0 0 -420px;
-  background: center / 100% 100% no-repeat; /* the rays are drawn once into an image (menu.js) */
-  will-change: transform;
-  animation: burst-spin 60s linear infinite, fade-in 1.2s ease-out 1.6s both;
-}
 
 .title__top {
   position: relative;
@@ -568,20 +556,6 @@ body {
   --tilt: 10deg;
 }
 .title__word--c { animation-delay: 2.02s, 2.9s; }
-.title__tag {
-  display: inline-block;
-  margin: 10px 0 0;
-  padding: 4px 14px 5px;
-  font-size: clamp(12px, 3.6vw, 15px);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--paper);
-  background: var(--ink);
-  border-radius: 999px;
-  transform: rotate(-3deg);
-  box-shadow: 3px 3px 0 var(--red);
-  animation: drop-in 0.5s cubic-bezier(.2, 1.5, .4, 1) 2.25s both;
-}
 
 .title__foot {
   position: relative;

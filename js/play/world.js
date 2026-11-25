@@ -499,24 +499,7 @@ export class World {
       makeGlowing(new THREE.MeshBasicMaterial({ color: '#CFC7B4', fog: true }), this.glow.bulbs), lamps, 'bulbs');
     hall.add(this.bulbs);
 
-    /* Side banners hanging from the balconies, once per period */
-    const devTex = bannerTexture(["DEVELOPERS'", 'TEAMS'], { w: 512, h: 320 });
-    const mentorsTex = bannerTexture(['MENTORS'], { w: 512, h: 240 });
-    const bannerGeoL = new THREE.PlaneGeometry(3.4, 2.1);
-    const bannerGeoR = new THREE.PlaneGeometry(3.4, 1.6);
-    this.sideBanners = [];
-    for (const z of along(H.period, 9)) {
-      const l = new THREE.Mesh(bannerGeoL, new THREE.MeshBasicMaterial({ map: devTex, fog: true }));
-      l.position.set(-(pillarX - 1.3), 4.05, z);
-      l.rotation.y = Math.PI / 2 - 0.35;
-      const r = new THREE.Mesh(bannerGeoR, new THREE.MeshBasicMaterial({ map: mentorsTex, fog: true }));
-      r.position.set(pillarX - 1.3, 4.3, z - H.period / 2);
-      r.rotation.y = -Math.PI / 2 + 0.35;
-      hall.add(l, r);
-      this.sideBanners.push(l, r);
-    }
-    // The banner materials share textures; merge identical ones into one draw call each
-    this.mergeBanners();
+    // (No white DEVELOPERS' TEAMS / MENTORS boards on the side walls: removed at the user's request.)
 
     this.buildNeon(pillarX);
     this.buildBeams();
@@ -833,19 +816,6 @@ export class World {
       this.hall.add(hull);
       this.hallHulls.push(hull);
     }
-  }
-
-  /** Side banners: two InstancedMeshes instead of many meshes. */
-  mergeBanners() {
-    const groups = new Map();
-    for (const m of this.sideBanners) {
-      const key = m.material.map.uuid;
-      if (!groups.has(key)) groups.set(key, { geo: m.geometry, mat: m.material, items: [] });
-      groups.get(key).items.push({ x: m.position.x, y: m.position.y, z: m.position.z, ry: m.rotation.y });
-      this.hall.remove(m);
-    }
-    for (const { geo, mat, items } of groups.values()) this.hall.add(instanced(geo, mat, items, 'sideBanners'));
-    this.sideBanners = null;
   }
 
   /** The demo stage at the end of the aisle, with the MAKE-A-TON banner and the big screen. */
