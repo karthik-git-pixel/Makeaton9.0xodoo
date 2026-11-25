@@ -5,7 +5,8 @@
 //   Whack-a-Ton · tap mascots as they pop up, leave the bombs alone, 30 seconds
 // Both are drawn on a logical canvas 360 wide and 540 to 720 tall (taller on
 // phones, so the board fills the screen), scaled to fit.
-// The menu opens with Run-A-Ton on top, the 3D endless runner. It is its own page
+// The menu opens with Run-A-Ton on top, the 3D endless runner and the featured
+// (highlighted) game of Make-A-Ton 9.0. It is its own page
 // (play.html, js/play/*), so its card is a plain link there; its best score is
 // the one the game saves in this browser (mat9-24h-best-score).
 (() => {
@@ -439,10 +440,15 @@
         <div class="arcade__body">
           <section class="arcade__menu" aria-label="Pick a game">
             <a class="arcade-card arcade-card--run" href="play.html">
-              <span class="arcade-card__tag">New &middot; 3D</span>
-              <img class="arcade-card__art" src="assets/play/run-a-ton-card.webp" alt="" width="240" height="235">
+              <span class="arcade-card__tag">Featured game &middot; Make-A-Ton 9.0</span>
+              <span class="arcade-card__pic" aria-hidden="true">
+                <img class="arcade-card__art" src="assets/play/run-a-ton-card.webp" alt="" width="240" height="235">
+                <span class="arcade-card__spark arcade-card__spark--a"></span>
+                <span class="arcade-card__spark arcade-card__spark--b"></span>
+                <span class="arcade-card__spark arcade-card__spark--c"></span>
+              </span>
               <span class="arcade-card__name">Run-A-Ton</span>
-              <span class="arcade-card__how">The endless hackathon run. Dodge bugs, top the leaderboard.</span>
+              <span class="arcade-card__how">The endless 3D hackathon run. Dodge bugs, top the leaderboard.</span>
               <span class="arcade-card__foot">
                 <span class="arcade-card__best" data-best="mat9-24h-best-score"></span>
                 <span class="arcade-card__go">Play<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.2-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg></span>
