@@ -321,11 +321,12 @@ html.arcade-open { overflow: hidden; }
   animation: arcade-gloss 5s ease-in-out 1.2s infinite;
 }
 .arcade-card__pic { grid-area: art; position: relative; display: block; }
+/* The game's icon holds still (the user's call): no bobbing like the mini games' art */
 .arcade-card--run .arcade-card__art {
   display: block;
   height: 136px;
   rotate: -4deg;
-  animation-duration: 2s;
+  animation: none;
 }
 .arcade-card__spark {
   position: absolute;

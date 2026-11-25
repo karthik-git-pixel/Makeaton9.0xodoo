@@ -27,3 +27,8 @@ node_modules/
 dist/
 build/
 .cache/
+
+# Secrets: never commit these. Keys live in the Supabase and Vercel dashboards.
+.env
+.env.*
+!.env.example

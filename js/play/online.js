@@ -15,6 +15,16 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const KEY_SESSION = 'mat9-24h-auth';
 const KEY_BEST_RUN = 'mat9-24h-best-run';   // this device's best run, sent in once you sign in
 const KEY_SENT = 'mat9-24h-best-sent';      // the best score already sent
+const KEY_OAUTH = 'mat9-24h-oauth';         // set while away at Google, so the return reads as a Google sign-in
+
+/**
+ * Apps' built-in browsers (Instagram's, Facebook's, LinkedIn's, Android web
+ * views). Google refuses to sign anyone in there ("403 disallowed_useragent"),
+ * so the game offers email instead and says how to open a real browser.
+ */
+export function inAppBrowser() {
+  return /Instagram|FBAN|FBAV|FB_IAB|LinkedInApp|Snapchat|Line\/|; wv\)/i.test(navigator.userAgent || '');
+}
 
 /** The mascots you can pick as your icon (cells of assets/play/avatars.webp, in this order). */
 export const MASCOTS = [
@@ -178,9 +188,11 @@ class Online {
     const hash = (location.hash || '').replace(/^#/, '');
     if (/access_token=|error=/.test(hash)) {
       const h = new URLSearchParams(hash);
+      let viaGoogle = false;
+      try { viaGoogle = window.sessionStorage.getItem(KEY_OAUTH) === 'google'; window.sessionStorage.removeItem(KEY_OAUTH); } catch (e) { /* no storage */ }
       if (h.get('access_token') && h.get('refresh_token')) {
         this.setSession({ access_token: h.get('access_token'), refresh_token: h.get('refresh_token'), expires_in: h.get('expires_in'), expires_at: h.get('expires_at') });
-        link = { type: h.get('type') || 'signin' };
+        link = { type: h.get('type') || (viaGoogle ? 'google' : 'signin') };
       } else if (h.get('error')) {
         link = { error: (h.get('error_description') || 'That link has expired.').replace(/\+/g, ' ') };
       }
@@ -240,6 +252,24 @@ class Online {
     await this.loadProfile().catch(() => {});
     this.emit();
     this.sendDeviceBest().catch(() => {});
+  }
+
+  /**
+   * Google sign-in. The Google client ID and secret live in Supabase
+   * (Authentication → Providers → Google), never in this file. The browser
+   * goes to Google and comes back to this page with the session in the
+   * address, which init() picks up like an email link. New Google players get
+   * an automatic "Player-xxxx" name (loadProfile) until they pick one.
+   */
+  signInWithGoogle() {
+    try { window.sessionStorage.setItem(KEY_OAUTH, 'google'); } catch (e) { /* no storage */ }
+    const back = encodeURIComponent(location.origin + location.pathname);
+    location.assign(`${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${back}`);
+  }
+
+  /** True while the player still has the automatic name new Google accounts get. */
+  get needsName() {
+    return !!(this.profile && /^Player-[0-9a-f]{4}$/.test(this.profile.username));
   }
 
   async signOut() {

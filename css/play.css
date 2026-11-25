@@ -854,6 +854,24 @@ body {
 .form .btn[disabled] { opacity: 0.6; cursor: default; }
 .linkish { padding: 0; font: inherit; font-size: 13px; color: var(--ink); text-decoration: underline; background: none; border: 0; cursor: pointer; justify-self: center; }
 
+/* "Continue with Google" over the email form, split off by an "or with email" rule */
+.oauth { display: grid; gap: 12px; margin: 0 0 12px; }
+.btn--google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+  font-size: 17px;
+  background: #fff;
+}
+.btn--google svg { flex: none; }
+.btn--google[disabled] { opacity: 0.6; cursor: default; }
+.oauth__or { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 13px; opacity: 0.72; }
+.oauth__or::before,
+.oauth__or::after { content: ""; flex: 1; border-top: 2px dashed currentColor; }
+.sheet .msg.oauth-note { margin: 0 0 12px; }
+
 .picker { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
 .picker button {
   display: grid;

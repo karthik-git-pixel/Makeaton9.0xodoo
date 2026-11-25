@@ -1071,7 +1071,11 @@ function start() {
       if (!link) return;
       if (link.error) menu.notice(link.error);
       else if (link.type === 'recovery') menu.open('profile', { mode: 'recovery' });
-      else if (online.signedIn) menu.notice(link.type === 'signup' ? "Email confirmed: you're on the leaderboard!" : 'Signed in.');
+      else if (link.type === 'google' && online.signedIn && online.needsName) {
+        // a new Google player: pick the name and mascot that go on the leaderboard
+        menu.open('profile');
+        menu.notice('Signed in with Google. Pick your name for the leaderboard.', 6000);
+      } else if (online.signedIn) menu.notice(link.type === 'signup' ? "Email confirmed: you're on the leaderboard!" : link.type === 'google' ? 'Signed in with Google.' : 'Signed in.');
     }).catch(() => {});
   }
 

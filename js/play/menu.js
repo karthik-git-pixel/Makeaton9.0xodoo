@@ -6,7 +6,7 @@
  *
  * Playing never needs an account; the panels are for the leaderboard only.
  */
-import { online, MASCOTS, mascotIndex, checkName } from './online.js';
+import { online, MASCOTS, mascotIndex, checkName, inAppBrowser } from './online.js';
 import { formatScore } from './ui.js';
 import { CATALOG } from './progress.js';
 
@@ -54,6 +54,8 @@ const SWIPE_UP = '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="3" 
 const SWIPE_DOWN = '<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="3" width="42" height="42" rx="12" fill="#B9D3FF" stroke="#0C0E0F" stroke-width="3"/><path d="M24 10v26M17 29l7 7 7-7" fill="none" stroke="#0C0E0F" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const TROPHY = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1.1 1.8A5 5 0 0 1 7 9V7zm10 0v2a5 5 0 0 1-.1.8A2 2 0 0 0 18 8V7h-1z"/></svg>';
 const svg = (markup) => { const t = document.createElement('template'); t.innerHTML = markup; return t.content.firstChild; };
+/* Google's "G", as its sign-in button guidelines ask */
+const GOOGLE_G = '<svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>';
 
 export class Menu {
   /**
@@ -258,6 +260,21 @@ export class Menu {
     return { input, node: el('label', { class: 'field' }, el('span', { text: label }), input, hint && el('small', { text: hint })) };
   }
 
+  /** "Continue with Google" above the email form; inside an app's own browser
+      (where Google refuses to sign in) a note on opening a real one instead */
+  googleOption() {
+    if (inAppBrowser()) {
+      return el('p', { class: 'msg oauth-note' }, 'Google sign-in doesn’t work inside this app. Tap ', el('b', { text: '⋯' }), ' and choose ', el('b', { text: 'Open in browser' }), ', or use your email below.');
+    }
+    const go = el('button', { class: 'btn btn--google', type: 'button' }, svg(GOOGLE_G), 'Continue with Google');
+    go.addEventListener('click', () => {
+      go.disabled = true;
+      this.busy = true;
+      online.signInWithGoogle();
+    });
+    return el('div', { class: 'oauth' }, go, el('p', { class: 'oauth__or' }, el('span', { text: 'or with email' })));
+  }
+
   renderAuth(tab) {
     this.authTab = tab;
     const tabs = el('div', { class: 'tabs', role: 'tablist' },
@@ -304,7 +321,7 @@ export class Menu {
           this.busy = false;
         }
       });
-      this.setPanel('Join the leaderboard', tabs, form);
+      this.setPanel('Join the leaderboard', tabs, this.googleOption(), form);
     } else {
       const email = this.field('Email', { type: 'email', autocomplete: 'email', inputmode: 'email' });
       const pass = this.field('Password', { type: 'password', autocomplete: 'current-password' });
@@ -336,7 +353,7 @@ export class Menu {
           say('Check your inbox for a link to set a new password.', 'good');
         } catch (err) { say(err.message, 'bad'); }
       });
-      this.setPanel('Welcome back', tabs, form);
+      this.setPanel('Welcome back', tabs, this.googleOption(), form);
     }
   }
 
