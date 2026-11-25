@@ -288,39 +288,11 @@ function start() {
     return p;
   }
 
-  /* The start screen: demo time in the hall, the star turning on the spot,
-     and some of the cast hanging about behind it. */
-  const parade = { items: [], hopT: 0 };
+  /* The start screen: demo time in the hall and the star turning on the spot,
+     with an empty aisle behind it (no bugs, sparkles or power-ups). */
   function titleParade() {
     obstacles.auto = false;
     obstacles.reset(0, 99);
-    const add = (type, x, at, opts = {}) => { const it = obstacles.add(type, 1, at, opts); it.x = x; it.roll = false; return it; };
-    parade.items = [
-      add('firefly', -1.45, 4.6),
-      add('beetle', -2.3, 8.5),
-      add('stack', 2.35, 10),
-      add('roly', -0.9, 13),
-      add('duck', 1.95, 5.2, { y: 1.0 }),
-    ];
-    parade.hopper = add('hopper', 1.7, 6.2, { hopTo: 0 });
-    parade.hopper.lane = 2;
-    parade.ant = add('ant', -3.6, 3.4);
-    parade.ant.vx = 1.35;
-    for (let i = 0; i < 5; i++) add('sparkle', -1.6 + i * 0.8, 11, { y: 2.3 + 0.5 * Math.sin((i / 4) * Math.PI) });
-    parade.hopT = 1.5;
-  }
-  function tickParade(dt) {
-    if (parade.ant && parade.ant.x > 3.6) parade.ant.x = -3.6;
-    parade.hopT -= dt;
-    const h = parade.hopper;
-    if (h && parade.hopT <= 0) {
-      // the Off-By-One hops from one side lane to the other every few seconds
-      parade.hopT = 3.2;
-      h.lane = h.hopT >= 0 ? h.hopTo : h.lane;
-      h.hopTo = h.lane === 2 ? 0 : 2;
-      h.hopT = 0;
-      h.look = 0.01;
-    }
   }
 
   function toTitle() {
@@ -815,7 +787,7 @@ function start() {
     obstacles.magnet = G.state === 'run' && G.power.magnet > 0 ? { x: G.x, y: G.y + 0.45 } : null;
     obstacles.frozen = G.state === 'dead'; // nothing rolls, hops or runs into the star once it's down
     if (G.state === 'run' || G.state === 'dead') obstacles.update(dt, G.distance, Math.max(Math.abs(G.speed), SPEED.v0));
-    else if (G.state === 'title') { obstacles.update(dt, 0, 1); tickParade(dt); }
+    else if (G.state === 'title') obstacles.update(dt, 0, 1);
     if (G.state === 'run') {
       const P = TUNING.player;
       const box = { x: G.x, y: G.y, w: P.w, h: G.slideLeft > 0 ? P.hSlide : P.h, d: P.d };
