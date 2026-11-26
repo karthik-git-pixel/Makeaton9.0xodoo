@@ -262,6 +262,13 @@ class Online {
       this.emit();
       return { signedIn: true };
     }
+    // An email that already has an account: Supabase answers with a stand-in
+    // user that has no identities, and sends no email (so nobody can probe
+    // which emails are signed up). Say so, instead of "check your inbox".
+    const user = data && (data.user || data);
+    if (user && Array.isArray(user.identities) && user.identities.length === 0) {
+      throw new OnlineError('input', 'That email already has an account. Sign in instead (or use "Forgot your password?").', 'user_already_exists');
+    }
     store.set(KEY_PENDING, email);
     this.emit();
     return { confirm: true };
