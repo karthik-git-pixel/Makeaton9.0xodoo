@@ -10,6 +10,7 @@ import { online, MASCOTS, mascotIndex, checkName, inAppBrowser } from './online.
 import { formatScore, BUTTON_ICONS } from './ui.js';
 import { CATALOG } from './progress.js';
 
+const BOARD_SIZE = 100;        // runners the open leaderboard lists (podium + list)
 const BOARD_REFRESH = 15000;   // ms between leaderboard updates while it's open
 const TOP_STALE = 30000;       // ms before the start screen fetches the top runners again
 const TICK = 2800;             // ms each top runner shows on the start screen's Leaderboard button
@@ -90,6 +91,7 @@ export class Menu {
     $('#playBtn').addEventListener('click', () => this.onPlay());
     $('#boardBtn').addEventListener('click', () => this.open('leaderboard'));
     $('#howBtn').addEventListener('click', () => this.open('how'));
+    this.bestEl.addEventListener('click', () => this.open('profile'));
     this.sheet.querySelector('.sheet__close').addEventListener('click', () => this.close());
     this.sheet.addEventListener('click', (e) => { if (e.target === this.sheet) this.close(); });
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.current) { e.preventDefault(); this.close(); } });
@@ -165,8 +167,9 @@ export class Menu {
     const p = online.signedIn && online.profile;
     this.bestEl.hidden = !(best > 0 || p);
     const me = p && this.top && this.top.rows.find((r) => r.is_me);
+    this.bestEl.title = p ? 'Change your name or mascot' : 'Sign in to go on the leaderboard';
     this.bestEl.replaceChildren(...(p
-      ? [avatar(p.mascot, 24), el('span', { class: 'title__me', text: p.username }), best > 0 && ' · best ', best > 0 && el('b', { text: formatScore(best) }), me && el('span', { class: 'title__rank', text: `#${me.rank}` })]
+      ? [avatar(p.mascot, 24), el('span', { class: 'title__me', text: p.username }), best > 0 && ' · best ', best > 0 && el('b', { text: formatScore(best) }), me && el('span', { class: 'title__rank', text: `#${me.rank}` }), el('span', { class: 'title__edit' }, icon('edit'))]
       : ['Your best ', el('b', { text: formatScore(best) })]).filter(Boolean));
   }
 
@@ -260,7 +263,7 @@ export class Menu {
     }
     let rows;
     try {
-      rows = await online.leaderboard(50);
+      rows = await online.leaderboard(BOARD_SIZE);
     } catch (e) {
       if (this.current !== 'leaderboard') return;
       if (refresh) return; // keep what's showing; try again next time
@@ -293,11 +296,11 @@ export class Menu {
       el('span', { class: 'lb__score', text: formatScore(r.score) })))) : null;
 
     const stamp = el('p', { class: 'lb__stamp' }, rows.length
-      ? `${rows.length >= 50 ? '50+' : rows.length} ${rows.length === 1 ? 'runner' : 'runners'} on the board · updates live`
+      ? `${rows.length >= BOARD_SIZE ? `${BOARD_SIZE}+` : rows.length} ${rows.length === 1 ? 'runner' : 'runners'} on the board · updates live`
       : '');
     const empty = !rows.length && el('div', { class: 'lb__empty lb__empty--first' },
       el('b', { text: 'No scores yet!' }),
-      el('p', { text: 'The podium is waiting. Add your name, run, and take the crown.' }),
+      el('p', { text: 'The podium is waiting. Sign in, run, and take the crown.' }),
       el('button', { class: 'btn btn--sm', type: 'button', onclick: () => { this.close(); this.onPlay(); } }, 'Play now'));
 
     const scroll = this.sheetCard.scrollTop;
@@ -317,11 +320,12 @@ export class Menu {
       const p = online.profile || { username: 'You', mascot: 'red-cool' };
       return el('div', { class: 'lb__foot lb__foot--me' }, avatar(p.mascot, 36),
         el('span', { class: 'lb__name', text: p.username }),
-        el('span', { class: 'lb__you' }, me ? [el('b', { text: `#${me.rank}` }), ` · ${formatScore(me.score)}`] : 'Your next run counts!'));
+        el('span', { class: 'lb__you' }, me ? [el('b', { text: `#${me.rank}` }), ` · ${formatScore(me.score)}`] : 'Your next run counts!'),
+        el('button', { class: 'lb__edit', type: 'button', 'aria-label': 'Change your name or mascot', title: 'Change your name or mascot', onclick: () => this.open('profile') }, icon('edit')));
     }
     return el('div', { class: 'lb__foot' },
-      el('p', {}, el('b', { text: 'Want your name up here?' }), el('br'), 'Pick a name and a mascot. No email needed.'),
-      el('button', { class: 'btn btn--sm', type: 'button', onclick: () => this.open('profile') }, 'Add your name'));
+      el('p', {}, el('b', { text: 'Want your name up here?' }), el('br'), 'Sign in with Google or email, then every run counts.'),
+      el('button', { class: 'btn btn--sm', type: 'button', onclick: () => this.open('profile') }, 'Join'));
   }
 
   /* Profile: sign up / sign in, or your name and icon */
@@ -355,7 +359,7 @@ export class Menu {
       (where Google refuses to sign in) a note on opening a real one instead */
   googleOption() {
     if (inAppBrowser()) {
-      return el('p', { class: 'msg oauth-note' }, 'Google sign-in doesn’t work inside this app. Tap ', el('b', { text: '⋯' }), ' and choose ', el('b', { text: 'Open in browser' }), ', or use your email below. New here? Just use ', el('b', { text: 'Join' }), '.');
+      return el('p', { class: 'msg oauth-note' }, 'Google sign-in doesn’t work inside this app. Tap ', el('b', { text: '⋯' }), ' and choose ', el('b', { text: 'Open in browser' }), ', or use your email below.');
     }
     const go = el('button', { class: 'btn btn--google', type: 'button' }, svg(GOOGLE_G), 'Continue with Google');
     go.addEventListener('click', () => {
@@ -369,32 +373,44 @@ export class Menu {
   renderAuth(tab) {
     this.authTab = tab;
     const tabs = el('div', { class: 'tabs', role: 'tablist' },
-      el('button', { type: 'button', role: 'tab', 'aria-selected': String(tab === 'signup'), onclick: () => this.renderAuth('signup') }, 'Join'),
+      el('button', { type: 'button', role: 'tab', 'aria-selected': String(tab === 'signup'), onclick: () => this.renderAuth('signup') }, 'Sign up'),
       el('button', { type: 'button', role: 'tab', 'aria-selected': String(tab === 'signin'), onclick: () => this.renderAuth('signin') }, 'Sign in'));
     const msg = el('p', { class: 'msg', role: 'status' });
     const say = (text, kind = '') => { msg.className = `msg${kind ? ' msg--' + kind : ''}`; msg.textContent = text; };
 
-    // Join: just a name and a mascot, straight onto the leaderboard (online.joinWithName)
+    // Sign up: Google, or email + password with a name and mascot. Only signed-in
+    // accounts go on the leaderboard (name-only joining is closed: too easy to fake).
     if (tab === 'signup') {
       let mascot = this.pickedMascot || MASCOTS[Math.floor(Math.random() * MASCOTS.length)].id;
       this.pickedMascot = mascot;
       const name = this.field('Your name on the leaderboard', { type: 'text', maxlength: '16', autocomplete: 'nickname', autocapitalize: 'words', spellcheck: 'false', placeholder: 'e.g. Bug Squasher' }, '3–16 letters, numbers, spaces, . _ -');
-      const go = el('button', { class: 'btn', type: 'submit' }, 'Join the leaderboard');
-      const form = el('form', { class: 'form', novalidate: true }, name.node, el('div', { class: 'field' }, el('span', { text: 'Pick your mascot' }), this.mascotPicker(mascot, (id) => { mascot = id; this.pickedMascot = id; })), go, msg,
-        el('p', { class: 'muted', text: 'No email, no password. Your name is saved in this browser; your best run goes up straight away.' }));
+      const email = this.field('Email', { type: 'email', autocomplete: 'email', inputmode: 'email', placeholder: 'you@example.com' });
+      const pass = this.field('Password', { type: 'password', autocomplete: 'new-password', minlength: '6', placeholder: 'At least 6 characters' });
+      const go = el('button', { class: 'btn', type: 'submit' }, 'Create account');
+      const form = el('form', { class: 'form', novalidate: true }, name.node, el('div', { class: 'field' }, el('span', { text: 'Pick your mascot' }), this.mascotPicker(mascot, (id) => { mascot = id; this.pickedMascot = id; })), email.node, pass.node, go, msg,
+        el('p', { class: 'muted', text: 'Playing needs no account, but only runs played while signed in go on the leaderboard. Your email stays private.' }));
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const n = checkName(name.input.value);
         if (!n.ok) { say(n.why, 'bad'); name.input.focus(); return; }
+        if (!EMAIL.test(email.input.value.trim())) { say("That email address doesn't look right.", 'bad'); email.input.focus(); return; }
+        if (pass.input.value.length < 6) { say('Pick a password of at least 6 characters.', 'bad'); pass.input.focus(); return; }
         go.disabled = true;
         this.busy = true;
-        say('Adding you to the leaderboard…');
+        say('Creating your account…');
         try {
           if (!(await online.usernameAvailable(n.name))) { say('That name is taken. Try another.', 'bad'); name.input.focus(); return; }
-          await online.joinWithName({ username: n.name, mascot });
+          const res = await online.signUp({ email: email.input.value.trim(), password: pass.input.value, username: n.name, mascot });
           this.busy = false;
-          this.renderMe();
-          this.notice(`Welcome, ${n.name}! You're on the leaderboard.`);
+          if (res.signedIn) {
+            this.renderMe();
+            this.notice(`Welcome, ${n.name}! Your runs now go on the leaderboard.`);
+          } else {
+            this.setPanel('Check your inbox',
+              el('p', {}, 'We sent a link to ', el('b', { text: email.input.value.trim() }), '. Tap it to confirm your account, then sign in here: every run after that goes on the leaderboard.'),
+              el('p', { class: 'muted', text: 'No email? Check your spam folder, or try signing in after a few minutes.' }),
+              el('button', { class: 'btn btn--ghost', type: 'button', onclick: () => this.close() }, 'Keep playing'));
+          }
         } catch (err) {
           say(err.message, 'bad');
         } finally {
@@ -402,7 +418,7 @@ export class Menu {
           this.busy = false;
         }
       });
-      this.setPanel('Join the leaderboard', tabs, form);
+      this.setPanel('Join the leaderboard', tabs, this.googleOption(), form);
     } else {
       const email = this.field('Email', { type: 'email', autocomplete: 'email', inputmode: 'email', value: online.pendingEmail || undefined });
       const pass = this.field('Password', { type: 'password', autocomplete: 'current-password' });
@@ -451,8 +467,7 @@ export class Menu {
     const picker = this.mascotPicker(mascot, (id) => { mascot = id; });
     const form = el('form', { class: 'form', novalidate: true },
       el('div', { class: 'field' }, el('span', { text: 'Your mascot' }), picker), name.node, save, msg,
-      el('button', { class: 'btn btn--ghost', type: 'button', onclick: async () => { await online.signOut(); this.renderAuth(online.pendingEmail ? 'signin' : 'signup'); this.notice('Signed out.'); } }, 'Sign out'),
-      online.anonymous && el('p', { class: 'muted', text: 'You joined with just a name, so it lives in this browser: signing out (or clearing the browser) means joining again under a new name.' }));
+      el('button', { class: 'btn btn--ghost', type: 'button', onclick: async () => { await online.signOut(); this.renderAuth('signin'); this.notice('Signed out.'); } }, 'Sign out'));
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const n = checkName(name.input.value);
@@ -529,14 +544,13 @@ export class Menu {
     const line = el('p', { class: 'result__line' });
     const row = el('div', { class: 'result__row' },
       el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('leaderboard') }, icon('trophy'), 'Leaderboard'),
-      !online.signedIn && el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('profile', { mode: online.pendingEmail ? 'signin' : undefined }) }, icon('user'), online.pendingEmail ? 'Sign in' : 'Add your name'),
+      !online.signedIn && el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.open('profile', { mode: online.pendingEmail ? 'signin' : undefined }) }, icon('user'), online.pendingEmail ? 'Sign in' : 'Join'),
       el('button', { class: 'btn btn--ghost btn--sm', type: 'button', onclick: () => this.onMenu() }, icon('home'), 'Home'));
     slot.replaceChildren(el('div', { class: 'result' }, line, row));
     if (!online.signedIn) {
-      online.noteRun(run);
       line.textContent = online.pendingEmail
-        ? 'Confirmed your email? Sign in here to put this run on the leaderboard.'
-        : 'Add your name to put this run on the leaderboard. No email needed!';
+        ? 'Confirmed your email? Sign in, and your next runs go on the leaderboard.'
+        : 'Sign in with Google or email, and your next runs go on the leaderboard.';
       return;
     }
     line.textContent = 'Sending your score…';

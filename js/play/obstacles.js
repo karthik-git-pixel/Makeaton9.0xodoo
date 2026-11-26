@@ -979,7 +979,7 @@ export class Obstacles {
 
   pickPower(L, phase) {
     if (this.firstPower) { this.firstPower = false; this.lastPower = 'coffee'; return 'coffee'; }
-    const w = { coffee: 1, shield: 0.9, magnet: 1, duck: phase === 'Dead of night' ? 1.4 : 0.8, pizza: 0.8, rocket: 0.55 };
+    const w = { coffee: 1, shield: 0.9, magnet: 1, duck: phase === 'Dead of night' ? 1.4 : 0.8, pizza: 0.8, rocket: 1.5 };
     const list = POWERS.filter((p) => UNLOCK[p] <= L && p !== this.lastPower);
     if (!list.length) return null;
     let roll = this.random() * list.reduce((s, p) => s + w[p], 0);

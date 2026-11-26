@@ -13,8 +13,11 @@ const SUPABASE_URL = 'https://daucloimixgmojzqcrvw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhdWNsb2ltaXhnbW9qenFjcnZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU1ODYxMDgsImV4cCI6MjExMTE2MjEwOH0.zC6toIH76n6_n0OYqbmbyATzLHvniqHwWuT-4Ld9Npw';
 
 const KEY_SESSION = 'mat9-24h-auth';
-const KEY_BEST_RUN = 'mat9-24h-best-run';   // this device's best run, sent in once you sign in
-const KEY_SENT = 'mat9-24h-best-sent';      // the best score already sent
+// Runs saved in the browser used to be sent in after signing in. Anyone could
+// edit them, so only runs played while signed in count now; these get cleared.
+const OLD_KEYS = ['mat9-24h-best-run', 'mat9-24h-best-sent'];
+// ?capture and ?debug open the game up for tests, so their runs are never sent
+const TEST_MODE = /[?&](capture|debug)(=|&|$)/.test(location.search);
 const KEY_OAUTH = 'mat9-24h-oauth';         // set while away at Google, so the return reads as a Google sign-in
 // An account made here that still waits for its email to be confirmed. The
 // confirmation link often opens in another browser (Gmail, or Chrome rather
@@ -78,7 +81,7 @@ function toError(status, data) {
     email_address_invalid: "That email address doesn't look right.",
     validation_failed: "That email address doesn't look right.",
     signup_disabled: 'Sign-ups are closed right now.',
-    anonymous_provider_disabled: 'Joining with a name isn’t switched on yet. Try again soon.',
+    28000: 'Sign in with Google or email to go on the leaderboard.',
     same_password: "That's the password you already have.",
     23505: 'That name is taken. Try another.',
     23514: 'Names: 3–16 letters, numbers, spaces, . _ or -.',
@@ -220,13 +223,18 @@ class Online {
           this.session.user = { id: u.id, email: u.email };
           store.set(KEY_SESSION, JSON.stringify(this.session));
         }
+        // name-only accounts (no email, no Google) are closed: sign them out here
+        if (this.session && this.session.user && !this.session.user.email) {
+          this.clearSession();
+          link = { type: 'name-only' };
+        }
         if (this.session) await this.loadProfile();
       } catch (e) {
         if (e.kind === 'auth') this.clearSession();
       }
     }
+    for (const k of OLD_KEYS) store.set(k, null);
     this.emit();
-    if (this.signedIn) this.sendDeviceBest().catch(() => {});
     return link;
   }
 
@@ -252,7 +260,6 @@ class Online {
       this.setSession(data);
       await this.loadProfile().catch(() => {});
       this.emit();
-      this.sendDeviceBest().catch(() => {});
       return { signedIn: true };
     }
     store.set(KEY_PENDING, email);
@@ -260,36 +267,11 @@ class Online {
     return { confirm: true };
   }
 
-  /**
-   * Joins the leaderboard with just a name and a mascot: no email, no password,
-   * nothing to confirm. It is an anonymous Supabase account kept in this
-   * browser (needs Authentication → "Allow anonymous sign-ins" on in Supabase).
-   * Clearing the browser's data loses it, and the name stays with the old one.
-   */
-  async joinWithName({ username, mascot }) {
-    const data = await this.request('/auth/v1/signup', { method: 'POST', body: { data: { username, mascot } } });
-    if (!data || !data.access_token) throw new OnlineError('server', 'Something went wrong. Try again in a moment.');
-    this.setSession(data);
-    await this.loadProfile().catch(() => {});
-    // if the database made no profile from the name (or a stand-in one), set it now
-    if (!this.profile || this.profile.username !== username || this.profile.mascot !== mascot) {
-      await this.updateProfile({ username, mascot }).catch(() => {});
-    }
-    this.emit();
-    this.sendDeviceBest().catch(() => {});
-  }
-
-  /** Joined with just a name (no email, no Google): signing out can't be undone. */
-  get anonymous() {
-    return !!(this.session && this.session.user && !this.session.user.email);
-  }
-
   async signIn({ email, password }) {
     const data = await this.request('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password } });
     this.setSession(data);
     await this.loadProfile().catch(() => {});
     this.emit();
-    this.sendDeviceBest().catch(() => {});
   }
 
   /**
@@ -313,7 +295,6 @@ class Online {
   async signOut() {
     if (this.session) await this.request('/auth/v1/logout', { method: 'POST', auth: true }).catch(() => {});
     this.clearSession();
-    store.set(KEY_SENT, null);
     this.emit();
   }
 
@@ -342,41 +323,21 @@ class Online {
   }
 
   /* --- scores ------------------------------------------------------------- */
-  /** Remembers this device's best run, so it can be sent in after signing up. */
-  noteRun(run) {
-    let best = null;
-    try { best = JSON.parse(store.get(KEY_BEST_RUN) || 'null'); } catch (e) { best = null; }
-    if (!best || run.score > best.score) store.set(KEY_BEST_RUN, JSON.stringify(run));
-  }
-
-  /** Sends a finished run. Returns { best, rank }, or null when signed out. */
+  /**
+   * Sends a run that was just played while signed in. Returns { best, rank },
+   * or null when signed out. Runs from signed-out play are never sent later.
+   */
   async submitRun(run) {
-    this.noteRun(run);
     if (!this.signedIn) return null;
-    const res = await this.request('/rest/v1/rpc/submit_score', {
+    if (TEST_MODE) throw new OnlineError('input', "Test mode: this run isn't sent to the leaderboard.");
+    return this.request('/rest/v1/rpc/submit_score', {
       method: 'POST', auth: true,
       body: { p_score: Math.floor(run.score), p_distance: Math.floor(run.distance), p_sparkles: run.sparkles | 0, p_level: run.level | 0, p_seconds: Math.max(0.1, +run.seconds || 0) },
     });
-    if (res && res.best >= run.score) store.set(KEY_SENT, String(Math.floor(run.score)));
-    return res;
-  }
-
-  /** After signing in: sends this device's best run if it hasn't gone in yet. */
-  async sendDeviceBest() {
-    let best = null;
-    try { best = JSON.parse(store.get(KEY_BEST_RUN) || 'null'); } catch (e) { best = null; }
-    const sent = +(store.get(KEY_SENT) || 0);
-    if (!best || !this.signedIn || best.score <= sent) return null;
-    const res = await this.request('/rest/v1/rpc/submit_score', {
-      method: 'POST', auth: true,
-      body: { p_score: Math.floor(best.score), p_distance: Math.floor(best.distance), p_sparkles: best.sparkles | 0, p_level: best.level | 0, p_seconds: Math.max(0.1, +best.seconds || 0) },
-    });
-    store.set(KEY_SENT, String(Math.floor(best.score)));
-    return res;
   }
 
   /** The top of the leaderboard: [{ rank, username, mascot, score, distance, is_me }] */
-  async leaderboard(limit = 50) {
+  async leaderboard(limit = 100) {
     return (await this.request('/rest/v1/rpc/leaderboard', { method: 'POST', auth: this.signedIn, body: { lim: limit } })) || [];
   }
 

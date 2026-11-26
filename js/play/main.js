@@ -1080,6 +1080,7 @@ function start() {
     online.init().then((link) => {
       if (!link) return;
       if (link.error) menu.notice(link.error);
+      else if (link.type === 'name-only') menu.notice('Name-only accounts are closed. Sign in with Google or email to go on the leaderboard.', 7000);
       else if (link.type === 'recovery') menu.open('profile', { mode: 'recovery' });
       else if (link.type === 'google' && online.signedIn && online.needsName) {
         // a new Google player: pick the name and mascot that go on the leaderboard
@@ -1089,8 +1090,10 @@ function start() {
     }).catch(() => {});
   }
 
-  /* Hooks for automated tests (screenshots, scripted runs) */
-  window.__game = {
+  /* Hooks for automated tests (screenshots, scripted runs). Only with ?capture
+     or ?debug: on the live game they would let anyone set their score from the
+     console (and runs in those modes are never sent to the leaderboard). */
+  if (CAPTURE || DEBUG) window.__game = {
     G, TUNING, renderer, scene, camera, mascot, world, obstacles, quality, post, puffs, glints, ui, popups, menu, online,
     toTitle,
     setQuality(name) { quality.forced = true; quality.set(name); },

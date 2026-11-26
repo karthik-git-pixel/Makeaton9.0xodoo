@@ -37,8 +37,8 @@ export const difficultyAt = (distance) => Math.min(1, Math.max(0, distance) / 26
 export const UNLOCK = {
   beetle: 1, chair: 1, board: 1, coffee: 1, shield: 1,
   firefly: 2, hurdle: 2, magnet: 2,
-  ant: 3, standee: 3, duck: 3, pizza: 3,
-  roly: 4, rollingChair: 4, rocket: 4,
+  ant: 3, standee: 3, duck: 3, pizza: 3, rocket: 3,
+  roly: 4, rollingChair: 4,
   hopper: 5,
   stack: 6,
 };
