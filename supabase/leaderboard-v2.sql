@@ -16,6 +16,11 @@
 --          allows (even with every power-up on all the time): turned away
 --        - far above what real players reach: held for an organiser to check
 --   5. Organisers can approve or reject held runs and hide a player.
+--   6. Every turned-away run keeps its reason, and running this file again
+--      re-checks them with the current rules: genuine runs that older, tighter
+--      limits turned away go onto the board (the last query lists them).
+--
+-- Run it again whenever the game's speed or scoring changes.
 --
 -- The game's side of this is js/play/online.js (startRun, submitRun).
 -- =============================================================================
@@ -47,6 +52,8 @@ alter table public.runs add column if not exists status text not null default 'o
 -- elapsed: seconds the server timed between the run's ticket and its score
 alter table public.runs add column if not exists elapsed real;
 alter table public.runs add column if not exists ticket uuid;
+-- reason: why a run was turned away (null for counted ones)
+alter table public.runs add column if not exists reason text;
 create index if not exists runs_status on public.runs (status, created_at desc);
 
 
@@ -105,6 +112,28 @@ language sql
 immutable
 set search_path = ''
 as $$ select 5.5 * public.run_base_points(d) + 2000 $$;
+
+
+-- What's wrong with a run, if anything (null: it could be real). Used when a
+-- score comes in and by recheck_rejected(), so both always agree. If the game
+-- gets faster, raise the speed here and run this file again.
+create or replace function public.run_problem(p_score double precision, p_distance double precision, p_seconds double precision, p_elapsed double precision)
+returns text
+language sql
+immutable
+set search_path = ''
+as $$
+  select case
+    when p_score is null or p_distance is null or p_seconds is null or p_score < 0 or p_distance < 0 or p_seconds <= 0
+      then 'impossible numbers'
+    when p_seconds > coalesce(p_elapsed, 0) + 10
+      then 'longer than the server timed'
+    when p_distance > p_seconds * 46 + 150     -- top speed 40 m/s, a bit more on coffee
+      then 'faster than the star can run'
+    when p_score > public.score_limit(p_distance)
+      then 'more points than the distance allows'
+  end;
+$$;
 
 
 -- 5. Who is playing: a Google / email player with a profile ------------------------
@@ -175,6 +204,7 @@ declare
   started timestamptz;
   elapsed double precision;
   verdict text := 'ok';
+  problem text;
   lvl smallint := least(greatest(coalesce(p_level, 1), 1), 999);
   best_now integer;
   place bigint;
@@ -188,18 +218,16 @@ begin
   end if;
   elapsed := extract(epoch from (now() - started));
 
-  if p_score is null or p_distance is null or p_seconds is null
-     or p_score < 0 or p_distance < 0 or coalesce(p_sparkles, 0) < 0 or p_seconds <= 0
-     or p_seconds > elapsed + 10                       -- longer than the run really lasted
-     or p_distance > p_seconds * 46 + 150              -- faster than the star can run (up to 40 m/s, a bit more on coffee)
-     or p_score > public.score_limit(p_distance) then  -- more points than the distance allows
+  problem := case when coalesce(p_sparkles, 0) < 0 then 'impossible numbers'
+                  else public.run_problem(p_score, p_distance, p_seconds, elapsed) end;
+  if problem is not null then
     verdict := 'rejected';
   elsif p_score > public.score_review_line(p_distance) then
     verdict := 'review';
   end if;
 
-  insert into public.runs (user_id, score, distance, sparkles, level, seconds, elapsed, ticket, status)
-  values (me, coalesce(p_score, 0), coalesce(p_distance, 0), coalesce(p_sparkles, 0), lvl, coalesce(p_seconds, 0), elapsed, p_ticket, verdict);
+  insert into public.runs (user_id, score, distance, sparkles, level, seconds, elapsed, ticket, status, reason)
+  values (me, coalesce(p_score, 0), coalesce(p_distance, 0), coalesce(p_sparkles, 0), lvl, coalesce(p_seconds, 0), elapsed, p_ticket, verdict, problem);
 
   if verdict = 'ok' then
     insert into public.best_scores as b (user_id, score, distance, level)
@@ -294,6 +322,52 @@ begin
 end;
 $$;
 
+-- Runs that were turned away, and why, newest first:
+--   select * from public.runs_rejected;
+create or replace view public.runs_rejected as
+  select r.id, p.username, r.score, r.distance, r.seconds, round(r.elapsed::numeric, 1) as elapsed,
+         round((r.distance / nullif(r.seconds, 0))::numeric, 1) as metres_per_second,
+         r.reason, r.created_at
+  from public.runs r
+  join public.profiles p on p.id = r.user_id
+  where r.status = 'rejected'
+  order by r.created_at desc;
+
+-- Checks turned-away runs again with today's rules (after the game or the
+-- limits change) and puts the ones that pass on the board (or holds them for
+-- a check, like any new run). Lists what it let through.
+--   select * from public.recheck_rejected();
+create or replace function public.recheck_rejected()
+returns table (run_id bigint, player text, score integer, distance integer, now_status text)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  r public.runs%rowtype;
+  v text;
+begin
+  for r in select x.* from public.runs x where x.status = 'rejected' order by x.created_at loop
+    continue when public.run_problem(r.score, r.distance, r.seconds, r.elapsed) is not null;
+    v := case when r.score > public.score_review_line(r.distance) then 'review' else 'ok' end;
+    update public.runs x set status = v, reason = null where x.id = r.id;
+    if v = 'ok' then
+      insert into public.best_scores as b (user_id, score, distance, level)
+      values (r.user_id, r.score, r.distance, r.level)
+      on conflict (user_id) do update
+        set score = excluded.score, distance = excluded.distance, level = excluded.level, updated_at = now()
+        where excluded.score > b.score;
+    end if;
+    run_id := r.id;
+    player := (select p.username from public.profiles p where p.id = r.user_id);
+    score := r.score;
+    distance := r.distance;
+    now_status := case v when 'ok' then 'on the board' else 'held for a check' end;
+    return next;
+  end loop;
+end;
+$$;
+
 -- Turn a held run down:   select public.reject_run(123);
 create or replace function public.reject_run(run_id bigint)
 returns void
@@ -324,6 +398,9 @@ revoke all on function public.run_base_points(double precision) from public, ano
 revoke all on function public.score_limit(double precision) from public, anon, authenticated;
 revoke all on function public.score_review_line(double precision) from public, anon, authenticated;
 revoke all on function public.current_player() from public, anon, authenticated;
+revoke all on function public.run_problem(double precision, double precision, double precision, double precision) from public, anon, authenticated;
+revoke all on function public.recheck_rejected() from public, anon, authenticated;
+revoke all on public.runs_rejected from public, anon, authenticated;
 revoke all on function public.approve_run(bigint) from public, anon, authenticated;
 revoke all on function public.reject_run(bigint) from public, anon, authenticated;
 revoke all on function public.hide_player(text, boolean) from public, anon, authenticated;
@@ -340,6 +417,10 @@ grant execute on function public.username_available(text) to anon, authenticated
 
 -- Make the API notice the new and changed functions straight away
 notify pgrst, 'reload schema';
+
+-- Runs turned away by older limits that pass today's: onto the board now.
+-- (The editor shows what this let through; nothing listed means none.)
+select * from public.recheck_rejected();
 
 
 -- 11. Optional clean-ups (remove the -- in front to run one) -----------------------------
