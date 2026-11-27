@@ -552,7 +552,7 @@ function start() {
   document.addEventListener('visibilitychange', () => { if (document.hidden) setPaused(true); });
   window.addEventListener('pagehide', () => setPaused(true));
 
-  /* Sound: a soft click for the menus' buttons (PLAY and Run again have their
+  /* Sound: a soft click for the menus' buttons (Tap to run and Run again have their
      own sound), and the start screen's sound effects switch. Capture
      phase, so Resume still counts as a pause-card click when it's handled. */
   app.addEventListener('click', (e) => {
@@ -972,12 +972,8 @@ function start() {
         G.cannonT -= dt;
         if (G.cannonT <= 0) { G.cannonT = 2.2; cannons(); }
       }
-    } else if (G.state === 'title' && G.introT >= INTRO_TIME * 0.7) {
-      // the start screen: a burst of confetti as the logo lands, then the cannons now and then
-      if (!G.titleConfetti) { G.titleConfetti = true; confetti(80, { x: 0, y: 3.4, z: -1.5 }); G.cannonT = 1.2; }
-      G.cannonT -= dt;
-      if (G.cannonT <= 0) { G.cannonT = 3.4; cannons(); }
     }
+    // (no confetti on the start screen: kept calm on purpose)
     puffs.update(dt);
     glints.update(dt);
     world.animate(G.now);

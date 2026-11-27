@@ -100,12 +100,9 @@
           <i class="title__spark title__spark--d" aria-hidden="true"></i>
         </header>
         <footer class="title__foot">
-            <button id="playBtn" class="btn btn--play" type="button">
-              <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-              <span>PLAY</span>
-            </button>
+            <!-- A tap anywhere on the scene starts a run; this line says so (and is the
+               keyboard's way in) -->
+            <button id="playBtn" class="tap-run" type="button">Tap to run</button>
             <!-- Everything else: round sticker icons. js/play/menu.js keeps their
                tags current: your mascot and best on "you", your rank on the trophy. -->
             <nav class="title__icons" aria-label="More">
