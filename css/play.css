@@ -844,14 +844,25 @@ body {
   user-select: text;
   animation: sheet-in 0.34s cubic-bezier(.2, 1.25, .4, 1);
 }
+/* Title and Close stay pinned to the top while the panel scrolls */
+.sheet__head {
+  position: sticky;
+  top: -18px; /* the card's top padding: it pins flush with the card's edge */
+  z-index: 4;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: -18px -16px 10px;
+  padding: 12px 10px 8px 16px;
+  background: var(--paper);
+}
 .sheet__close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  flex: none;
   width: 40px;
   height: 40px;
   display: grid;
   place-items: center;
+  margin-left: auto;
   padding: 0;
   color: var(--ink);
   background: var(--paper);
@@ -861,11 +872,13 @@ body {
   cursor: pointer;
 }
 .sheet__close svg { fill: currentColor; }
+.sheet__close:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 .sheet__title {
-  margin: 2px 48px 12px 0;
+  min-width: 0;
+  margin: 8px 0 0;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 34px;
+  font-size: clamp(27px, 8.6vw, 34px);
   line-height: 1;
   letter-spacing: 0.03em;
 }
@@ -935,17 +948,24 @@ body {
   animation: crown-bob 2.4s ease-in-out infinite;
 }
 .podium__crown svg { display: block; width: 100%; height: auto; }
+/* up to two lines, so long names still read in full on a phone */
 .podium__name {
   max-width: 100%;
   margin: 6px 0 0;
   padding: 0 2px;
-  font: 400 13px/1.15 var(--font-tape);
+  font: 400 13px/1.12 var(--font-tape);
   color: var(--paper);
+  text-align: center;
   text-shadow: 0 1px 0 var(--ink), 1px 0 0 var(--ink), 0 -1px 0 var(--ink), -1px 0 0 var(--ink);
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
+/* one long word: a single line that ends in "…" rather than a break mid-word */
+.podium__name--word { display: block; white-space: nowrap; text-overflow: ellipsis; }
+.podium__spot--2 .podium__name, .podium__spot--3 .podium__name { font-size: 12px; }
 .podium__score {
   margin: 1px 0 5px;
   font: 400 19px/1 var(--font-display);
@@ -978,7 +998,7 @@ body {
 .lb { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .lb__row {
   display: grid;
-  grid-template-columns: 30px 36px 1fr auto;
+  grid-template-columns: 30px 36px minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
   padding: 5px 12px 5px 6px;
@@ -989,7 +1009,12 @@ body {
   animation-delay: calc(0.25s + var(--i, 0) * 0.035s);
 }
 .lb__row:nth-child(even) { background: #FFFBF3; }
-.lb__row.is-me { background: #FFF1B8; box-shadow: 3px 3px 0 var(--ink); }
+.lb__row.is-me { background: #FFF1B8; box-shadow: 3px 3px 0 var(--ink); scroll-margin: 70px 0 90px; }
+.lb__row.is-flash { animation: row-flash 1.1s ease-out; }
+@keyframes row-flash {
+  0%, 40% { background: var(--tape); transform: scale(1.03); }
+  100% { background: #FFF1B8; transform: none; }
+}
 .board.is-refresh .lb__row, .board.is-refresh .podium__spot { animation: none; }
 .lb__rank { font: 400 20px/1 var(--font-display); text-align: center; opacity: 0.75; }
 .lb__name { min-width: 0; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1019,9 +1044,28 @@ body {
 .lb__foot p { flex: 1; margin: 0; }
 .lb__foot p b { font-size: 15px; }
 .lb__foot .btn { min-width: 0; flex: none; padding: 8px 18px; font-size: 16px; }
-.lb__foot--me .lb__name { flex: 1; font-size: 16px; }
-.lb__you { font-size: 14px; white-space: nowrap; }
+/* you: name above "#57 · 19,732"; tap it to jump to your row */
+.lb__jump {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 2px 0;
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.lb__jump:disabled { cursor: default; }
+.lb__jump:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 8px; }
+.lb__foot--me .lb__name { max-width: 100%; font-size: 15px; }
+.lb__you { display: inline-flex; align-items: baseline; gap: 4px; font-size: 14px; white-space: nowrap; }
 .lb__you b { font: 400 22px/1 var(--font-display); letter-spacing: 0.04em; }
+.lb__find { align-self: center; padding: 1px 7px; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; background: var(--paper); border: 2px solid var(--ink); border-radius: 999px; }
 .lb__edit {
   flex: none;
   display: grid;
@@ -1039,6 +1083,31 @@ body {
 .lb__edit svg { fill: currentColor; }
 .lb__edit:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
 .lb__edit:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+/* Phones: slimmer rows, so more of the board fits on screen */
+@media (max-width: 480px) {
+  .lb { gap: 5px; }
+  .lb__row { grid-template-columns: 26px 32px minmax(0, 1fr) auto; gap: 7px; padding: 4px 10px 4px 4px; border-radius: 12px; }
+  .lb__row .avatar { --s: 32px !important; }
+  .lb__rank { font-size: 18px; }
+  .lb__name { font-size: 14px; }
+  .lb__score { font-size: 18px; }
+  .lb__foot { gap: 8px; }
+}
+/* Short screens: a lower podium, so the list starts higher */
+@media (max-height: 760px) {
+  .podium { padding-top: 22px; }
+  .podium__spot .avatar { --s: 44px !important; }
+  .podium__spot--1 .avatar { --s: 54px !important; }
+  .podium__ghost { width: 44px; height: 44px; }
+  .podium__crown { top: -19px; width: 34px; }
+  .podium__spot--1 .podium__block { height: 50px; }
+  .podium__spot--2 .podium__block { height: 36px; }
+  .podium__spot--3 .podium__block { height: 28px; }
+  .podium__block span { font-size: 22px; }
+  .podium__score { margin-bottom: 4px; font-size: 17px; }
+  .podium__spot--1 .podium__score { font-size: 20px; }
+}
 
 /* forms */
 .tabs { display: grid; grid-template-columns: 1fr 1fr; margin: 0 0 14px; border: 3px solid var(--ink); border-radius: 999px; overflow: hidden; }
@@ -1084,7 +1153,9 @@ body {
 .oauth__or::after { content: ""; flex: 1; border-top: 2px dashed currentColor; }
 .sheet .msg.oauth-note { margin: 0 0 12px; }
 
-.picker { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+/* six to a row at any width: the icons shrink to fit narrow phones */
+.picker { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; container-type: inline-size; }
+.picker .avatar { --s: min(44px, calc((100cqw - 66px) / 6)) !important; }
 .picker button {
   display: grid;
   place-items: center;

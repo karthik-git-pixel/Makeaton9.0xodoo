@@ -82,6 +82,7 @@ function toError(status, data) {
     validation_failed: "That email address doesn't look right.",
     signup_disabled: 'Sign-ups are closed right now.',
     28000: 'Sign in with Google or email to go on the leaderboard.',
+    42501: 'The leaderboard needs a quick fix on our side. Your runs will count once it’s done.',
     same_password: "That's the password you already have.",
     23505: 'That name is taken. Try another.',
     23514: 'Names: 3–16 letters, numbers, spaces, . _ or -.',
@@ -92,7 +93,7 @@ function toError(status, data) {
   if (status === 404 || code === 'PGRST202' || code === 'PGRST205' || code === '42P01' || code === '42883') {
     return new OnlineError('not-set-up', 'The leaderboard opens soon.', code);
   }
-  if (map[code]) return new OnlineError(/^2|^5/.test(code) ? 'input' : 'auth', map[code], code);
+  if (map[code]) return new OnlineError(code === '42501' ? 'server' : /^2|^5/.test(code) ? 'input' : 'auth', map[code], code);
   if (/password/i.test(raw) && /characters|short|weak/i.test(raw)) return new OnlineError('input', map.weak_password, code);
   if (/rate limit/i.test(raw)) return new OnlineError('auth', map.over_request_rate_limit, code);
   if (status === 401 || status === 403) return new OnlineError('auth', 'Please sign in again.', code);
@@ -107,6 +108,7 @@ class Online {
     this.status = 'unknown'; // unknown | ok | offline | not-set-up
     this.listeners = [];
     this.refreshing = null;
+    this.ticket = null;   // the running run's ticket from the server (a promise)
   }
 
   get signedIn() { return !!(this.session && this.session.user); }
@@ -223,15 +225,18 @@ class Online {
           this.session.user = { id: u.id, email: u.email };
           store.set(KEY_SESSION, JSON.stringify(this.session));
         }
-        // name-only accounts (no email, no Google) are closed: sign them out here
-        if (this.session && this.session.user && !this.session.user.email) {
-          this.clearSession();
-          link = { type: 'name-only' };
-        }
-        if (this.session) await this.loadProfile();
       } catch (e) {
+        // only a sign-in the server turns down signs you out (not being offline)
         if (e.kind === 'auth') this.clearSession();
       }
+      // name-only accounts (no email, no Google) are closed: sign them out here
+      if (this.session && this.session.user && !this.session.user.email) {
+        this.clearSession();
+        link = { type: 'name-only' };
+      }
+      // The name and mascot. If they can't load you stay signed in: they're
+      // fetched again before your next run.
+      if (this.signedIn) await this.loadProfile().catch(() => {});
     }
     for (const k of OLD_KEYS) store.set(k, null);
     this.emit();
@@ -331,15 +336,44 @@ class Online {
 
   /* --- scores ------------------------------------------------------------- */
   /**
-   * Sends a run that was just played while signed in. Returns { best, rank },
-   * or null when signed out. Runs from signed-out play are never sent later.
+   * A run is starting: ask the server for its ticket (signed in only). The
+   * server times the run from this moment and takes one score per ticket, so
+   * a score can't be made up without playing (see supabase/leaderboard-v2.sql).
+   */
+  startRun() {
+    this.ticket = null;
+    if (!this.signedIn || TEST_MODE) return;
+    const ask = () => this.request('/rest/v1/rpc/start_run', { method: 'POST', auth: true, body: {} });
+    this.ticket = ask().catch(async (e) => {
+      if (/profile/i.test(e.message)) { await this.loadProfile(); return ask(); } // make the missing profile, then again
+      if (e.kind === 'offline') { await new Promise((r) => setTimeout(r, 1500)); return ask(); } // one more try
+      throw e;
+    });
+    this.ticket.catch(() => {}); // a failure is reported when the run is sent
+  }
+
+  /**
+   * Sends a run that was just played while signed in. Returns
+   * { status: 'ok' | 'review' | 'rejected', best, rank }, or null when signed
+   * out. Runs played while signed out are never sent later.
    */
   async submitRun(run) {
     if (!this.signedIn) return null;
     if (TEST_MODE) throw new OnlineError('input', "Test mode: this run isn't sent to the leaderboard.");
+    const ticket = this.ticket;
+    this.ticket = null;
+    if (!ticket) throw new OnlineError('input', "This run started before you signed in, so it can't go on the leaderboard. Your next one will!");
+    let id;
+    try {
+      id = await ticket;
+    } catch (e) {
+      throw new OnlineError(e.kind || 'server', e.kind === 'offline'
+        ? "This run started while you were offline, so it can't go on the leaderboard."
+        : e.message);
+    }
     return this.request('/rest/v1/rpc/submit_score', {
       method: 'POST', auth: true,
-      body: { p_score: Math.floor(run.score), p_distance: Math.floor(run.distance), p_sparkles: run.sparkles | 0, p_level: run.level | 0, p_seconds: Math.max(0.1, +run.seconds || 0) },
+      body: { p_ticket: id, p_score: Math.floor(run.score), p_distance: Math.floor(run.distance), p_sparkles: run.sparkles | 0, p_level: run.level | 0, p_seconds: Math.max(0.1, +run.seconds || 0) },
     });
   }
 

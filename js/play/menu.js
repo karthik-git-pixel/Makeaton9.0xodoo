@@ -283,7 +283,7 @@ export class Menu {
     const spot = (r, n) => el('div', { class: `podium__spot podium__spot--${n}${r && r.is_me ? ' is-me' : ''}`, style: `--i:${n}` },
       n === 1 && el('span', { class: 'podium__crown' }, svg(CROWN)),
       r ? avatar(r.mascot, n === 1 ? 62 : 50) : el('span', { class: 'avatar podium__empty', style: `--s:${n === 1 ? 62 : 50}px` }),
-      el('b', { class: 'podium__name', text: r ? r.username : 'Your spot?' }),
+      el('b', { class: `podium__name${r && !/\s/.test(r.username) ? ' podium__name--word' : ''}`, text: r ? r.username : 'Your spot?' }),
       el('span', { class: 'podium__score', text: r ? formatScore(r.score) : '—' }),
       el('div', { class: 'podium__block' }, el('span', { text: String(n) })));
     const podium = el('div', { class: 'podium' }, spot(top[1], 2), spot(top[0], 1), spot(top[2], 3));
@@ -304,7 +304,8 @@ export class Menu {
       el('button', { class: 'btn btn--sm', type: 'button', onclick: () => { this.close(); this.onPlay(); } }, 'Play now'));
 
     const scroll = this.sheetCard.scrollTop;
-    this.setPanel('Leaderboard', el('div', { class: `board${refresh ? ' is-refresh' : ''}` }, podium, empty, list, rows.length ? stamp : null), this.boardFoot(rows.find((r) => r.is_me) || me));
+    const mine = rows.find((r) => r.is_me);
+    this.setPanel('Leaderboard', el('div', { class: `board${refresh ? ' is-refresh' : ''}` }, podium, empty, list, rows.length ? stamp : null), this.boardFoot(mine || me, !!mine));
     this.sheetTitle.append(live);
     if (refresh) this.sheetCard.scrollTop = scroll;
 
@@ -314,13 +315,25 @@ export class Menu {
     }, BOARD_REFRESH);
   }
 
-  /** The bar under the board: your place (signed in), or how to get on it. */
-  boardFoot(me) {
+  /**
+   * The bar under the board: your place (signed in), or how to get on it.
+   * When your row is on the board, tapping your place scrolls to it.
+   */
+  boardFoot(me, onBoard = false) {
     if (online.signedIn) {
       const p = online.profile || { username: 'You', mascot: 'red-cool' };
+      const jump = () => {
+        const row = this.sheetBody.querySelector('.lb__row.is-me');
+        if (!row) { this.sheetCard.scrollTo({ top: 0, behavior: 'smooth' }); return; } // you're on the podium
+        row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        row.classList.remove('is-flash');
+        void row.offsetWidth; // restart the flash
+        row.classList.add('is-flash');
+      };
       return el('div', { class: 'lb__foot lb__foot--me' }, avatar(p.mascot, 36),
-        el('span', { class: 'lb__name', text: p.username }),
-        el('span', { class: 'lb__you' }, me ? [el('b', { text: `#${me.rank}` }), ` · ${formatScore(me.score)}`] : 'Your next run counts!'),
+        el('button', { class: 'lb__jump', type: 'button', disabled: !onBoard, 'aria-label': onBoard ? `${p.username}, #${me.rank}: show my row` : undefined, onclick: onBoard ? jump : undefined },
+          el('span', { class: 'lb__name', text: p.username }),
+          el('span', { class: 'lb__you' }, me ? [el('b', { text: `#${me.rank}` }), ` · ${formatScore(me.score)}`, onBoard && el('span', { class: 'lb__find', text: 'Find me' })] : 'Your next run counts!')),
         el('button', { class: 'lb__edit', type: 'button', 'aria-label': 'Change your name or mascot', title: 'Change your name or mascot', onclick: () => this.open('profile') }, icon('edit')));
     }
     return el('div', { class: 'lb__foot' },
@@ -556,7 +569,16 @@ export class Menu {
     line.textContent = 'Sending your score…';
     online.submitRun(run).then((res) => {
       if (!res) return;
-      line.replaceChildren(el('b', { text: `#${res.rank}` }), ` on the leaderboard · your best ${formatScore(res.best)}`);
+      this.top = null; // the start screen's ticker fetches the board again
+      if (res.status === 'review') {
+        line.replaceChildren(el('b', { text: 'Huge run!' }), ' The organisers will check it, then it goes on the board.');
+      } else if (res.status === 'rejected') {
+        line.textContent = "That score couldn't be accepted.";
+      } else if (res.rank) {
+        line.replaceChildren(el('b', { text: `#${res.rank}` }), ` on the leaderboard · your best ${formatScore(res.best)}`);
+      } else {
+        line.textContent = 'Score sent!';
+      }
     }).catch((err) => {
       line.textContent = err.message;
     });

@@ -333,6 +333,7 @@ function start() {
     if (blend) G.day = dayFrom;
     obstacles.auto = true;
     obstacles.reset(d0, seed ?? (CAPTURE ? 7 : undefined));
+    online.startRun(); // the server's ticket for this run (signed in only)
     introduced.clear();
     announcements.length = 0;
     announceGap = 0;
