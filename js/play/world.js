@@ -49,7 +49,6 @@ const C = {
   rib: '#BFAE8A',
   lamp: '#2D3138',
   bulb: '#FFF3C4',
-  cloth: '#FFF8EE',
   ink: '#0C0E0F',
   purple: '#7B4FC2',
   stage: '#5A3A2A',
@@ -154,31 +153,6 @@ function floorTexture(anisotropy) {
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.anisotropy = anisotropy;
   return t;
-}
-
-/**
- * A cloth banner with hand-lettered text (only the real banner text from the
- * reference panel: MAKE-A-TON, MENTORS, DEVELOPERS' TEAMS).
- */
-function bannerTexture(lines, { w = 512, h = 256, fill = C.cloth, ink = C.ink, font = 'Bangers' } = {}) {
-  return canvasTexture(w, h, (g) => {
-    g.fillStyle = fill;
-    g.fillRect(0, 0, w, h);
-    g.strokeStyle = ink;
-    g.lineWidth = 10;
-    g.strokeRect(5, 5, w - 10, h - 10);
-    g.fillStyle = ink;
-    g.textAlign = 'center';
-    g.textBaseline = 'middle';
-    const size = Math.floor((h * 0.72) / lines.length);
-    g.font = `${size}px ${font}, Impact, "Arial Black", sans-serif`;
-    lines.forEach((line, i) => {
-      const y = h / 2 + (i - (lines.length - 1) / 2) * size * 1.02;
-      let fs = size;
-      while (g.measureText(line).width > w * 0.86 && fs > 10) { fs -= 2; g.font = `${fs}px ${font}, Impact, sans-serif`; }
-      g.fillText(line, w / 2, y);
-    });
-  });
 }
 
 /** A symbol banner from the stage in the reference (blue with "</>", red with "{ }"). */
@@ -818,7 +792,7 @@ export class World {
     }
   }
 
-  /** The demo stage at the end of the aisle, with the MAKE-A-TON banner and the big screen. */
+  /** The demo stage at the end of the aisle, with the big screen and a symbol banner either side. */
   buildStage() {
     const H = HALL;
     const g = this.fixed;
@@ -855,11 +829,7 @@ export class World {
     this.bigScreen.position.set(0, 5.4, z0 - 7.75);
     g.add(this.bigScreen);
 
-    // MAKE-A-TON banner over the stage, and the two symbol banners beside it
-    const mat = new THREE.MeshBasicMaterial({ map: bannerTexture(['MAKE-A-TON'], { w: 1024, h: 200 }), fog: true });
-    const banner = new THREE.Mesh(new THREE.PlaneGeometry(12.5, 2.45), mat);
-    banner.position.set(0, 12.2, z0 + 0.4);
-    g.add(banner);
+    // The two symbol banners either side of the stage (no sign over it)
     const blue = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 4.5), new THREE.MeshBasicMaterial({ map: symbolBanner('</>', C.blue), fog: true }));
     blue.position.set(-9.2, 6.4, z0 + 0.35);
     const red = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 4.5), new THREE.MeshBasicMaterial({ map: symbolBanner('{ }', C.red), fog: true }));

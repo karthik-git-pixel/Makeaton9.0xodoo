@@ -159,7 +159,7 @@
     if (location.pathname === '/') {
       document.querySelectorAll('[data-home]').forEach((a) => { a.href = 'https://www.makeaton.in/'; });
     }
-    // Wait (briefly) for the banner font so the hall's banners are lettered in it
+    // Wait (briefly) for the lettering font so the hall's screens and signs are drawn in it
     const fontReady = document.fonts ? document.fonts.load('64px Bangers') : Promise.resolve();
     Promise.race([fontReady, new Promise((r) => setTimeout(r, 2500))])
       .catch(() => {})
