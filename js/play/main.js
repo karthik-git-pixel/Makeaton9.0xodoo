@@ -325,7 +325,6 @@ function start() {
     ui.clearMessages();
     ui.setHudVisible(false);
     menu.showTitle(G.best);
-    audio.rocket(false);
   }
 
   /** A new run. opts.distance starts it further along (tests and captures). */
@@ -364,8 +363,6 @@ function start() {
     ui.hide();
     ui.setHudVisible(true);
     quality.resetProbe();
-    audio.rocket(false);
-    audio.sfx('start');
   }
 
   /**
@@ -400,7 +397,6 @@ function start() {
     G.shake = REDUCED_MOTION ? 0.12 : 0.35;
     G.cause = item ? item.type : null;
     ui.setPowers([]);
-    audio.rocket(false);
     audio.sfx('crash', { cause: G.cause, bug: !!(item && item.T && item.T.bug) });
     const score = Math.floor(G.score);
     const newBest = score > G.best;
@@ -421,7 +417,6 @@ function start() {
     const r = G.lastRun;
     const [title, line] = DEATH[r.cause] || ['GAME OVER', ''];
     ui.setHudVisible(false);
-    audio.sfx(r.newBest && r.score > 0 ? 'best' : 'over');
     ui.show({
       title,
       badge: r.newBest && r.score > 0 ? 'NEW BEST!' : '',
@@ -491,7 +486,6 @@ function start() {
   app.addEventListener('click', (e) => {
     const b = e.target.closest && e.target.closest('button');
     if (!b || b.id === 'playBtn' || b.hasAttribute('data-sound') || (b === ui.overlayBtn && !G.paused)) return;
-    audio.sfx('click');
   }, true);
   const soundBtns = [...app.querySelectorAll('[data-sound]')];
   for (const b of soundBtns) {
@@ -509,7 +503,6 @@ function start() {
       case 'right': {
         const dir = a.name === 'left' ? -1 : 1;
         const lane = clamp(G.lane + dir, 0, 2);
-        if (lane !== G.lane) audio.sfx('lane', { dir });
         G.lane = lane;
         return true;
       }
@@ -522,7 +515,6 @@ function start() {
         G.airborne = true;
         if (G.slideLeft > 0) { G.slideLeft = 0; mascot.slide(false); }
         mascot.jump({ airTime: T, flip: speed01() > TUNING.flipFrom });
-        audio.sfx('jump');
         return true;
       }
       case 'slide': {
@@ -530,12 +522,10 @@ function start() {
         if (G.airborne) {
           G.vy = Math.min(G.vy, -16); // dive down, then slide on landing
           G.slideOnLand = true;
-          audio.sfx('dive');
           return true;
         }
         G.slideLeft = TUNING.slideTime;
         mascot.slide(true);
-        audio.sfx('slide');
         return true;
       }
       default:
@@ -603,7 +593,6 @@ function start() {
     award(TUNING.points.power);
     sparkleBurst(it.x, it.popTop, it.popZ, 12);
     popups.show(POWER_POPUP[kind], { position: popupAt(1.65), size: 0.72, life: 1.0 });
-    audio.sfx('power', { kind });
     switch (kind) {
       case 'coffee':
         if (!G.flying) G.power.coffee = TUNING.power.coffee;
@@ -640,7 +629,6 @@ function start() {
     mascot.slide(false);
     mascot.jump({ airTime: 0.9, flip: !REDUCED_MOTION });
     rocketRide.visible = true;
-    audio.rocket(true);
     const v = speedAt(G.distance);
     obstacles.startFlight(G.distance, G.distance + v * (TUNING.power.rocket + 0.6), G.lane, G.distance + v * 0.8);
   }
@@ -649,8 +637,6 @@ function start() {
   function endFlight() {
     G.flying = false;
     rocketRide.visible = false;
-    audio.rocket(false);
-    audio.sfx('rocketEnd');
     const T = TUNING.airTime0 + (TUNING.airTime1 - TUNING.airTime0) * speed01();
     G.gravity = (8 * TUNING.jumpHeight) / (T * T);
     G.vy = 1.5;
@@ -668,7 +654,6 @@ function start() {
       P[k] = Math.max(0, P[k] - dt);
       if (P[k] > 0) continue;
       if (k === 'rocket') endFlight();
-      else audio.sfx('powerEnd');
       if (k === 'coffee') G.grace = Math.max(G.grace, 0.5);
       if (k === 'duck') sparkleBurst(G.x, G.y + 1.3, 0, 8);
     }
@@ -690,13 +675,11 @@ function start() {
     const a = announcements.shift();
     if (a.level) {
       ui.levelUp(a.level, multiplierFor(a.level));
-      audio.sfx('levelup');
       confetti(30, { x: G.x * 0.5, y: 3.6, z: -4 });
       announceGap = 1.45;
     } else {
       // Yellow comic lettering, no white starburst behind it (the user found that white splash
       // distracting mid-run). 0.6 keeps the letters as big as they were inside the starburst.
-      audio.sfx(a.text === 'CLEARED!' ? 'cleared' : a.text === 'NEW BEST!' ? 'best' : 'alert');
       popups.show(a.text, { position: new THREE.Vector3(G.x * 0.4, 3.3, -3.6), style: 'shout', size: a.size * 0.6, life: 1.6, rise: 0.3, tilt: announceGap > -2 ? 0.07 : -0.06 });
       if (a.conf) confetti(a.conf, { x: G.x * 0.5, y: 3.9, z: -4 });
       announceGap = 1.25;
@@ -816,7 +799,6 @@ function start() {
         const impact = Math.min(1.3, Math.abs(G.vy) / 7);
         G.vy = 0;
         mascot.land(impact);
-        if (G.state === 'run') audio.sfx('land', { impact });
         G.shake = Math.max(G.shake, (REDUCED_MOTION ? 0.03 : 0.08) * impact);
         if (G.state === 'run') dust(G.x, 0.05, 6, 1.2);
         if (G.slideOnLand && G.state === 'run') {
@@ -969,8 +951,6 @@ function start() {
         G.slowLeft = REDUCED_MOTION ? 0.18 : TUNING.slowTime;
         G.nearMisses++;
         award(TUNING.points.near, 'CLOSE ONE');
-        audio.sfx('near');
-        audio.slowmo(G.slowLeft);
         popups.show('CLOSE ONE!', { position: popupAt(1.75), size: 0.8, life: 1.0 });
         break;
       default:
@@ -988,7 +968,6 @@ function start() {
       impactFx(it);
       if (it.T.bug) G.squashed++;
       award(TUNING.points.smash, 'SMASH');
-      audio.sfx('smash', { bug: !!it.T.bug });
       word(SMASH_WORDS, side);
       G.shake = Math.max(G.shake, REDUCED_MOTION ? 0.06 : 0.16);
       return;
@@ -999,7 +978,6 @@ function start() {
       glitchShards(it.x, 0.3 + it.lift, itemZ(it), 18, true);
       G.squashed++;
       award(TUNING.points.squash, 'BUG FIXED');
-      audio.sfx('squash');
       word(SQUASH_WORDS, side);
       G.shake = Math.max(G.shake, REDUCED_MOTION ? 0.04 : 0.1);
       return;
