@@ -563,8 +563,13 @@
   }
 
   function syncBest() {
+    // Run-A-Ton started season 2 on 2026-11-27 (harder game, board cleared): a
+    // best saved before that is from the old game, until the game resets it
+    let runSeason = '';
+    try { runSeason = localStorage.getItem('mat9-24h-season') || ''; } catch { /* storage blocked */ }
     dialog.querySelectorAll('[data-best]').forEach((el) => {
-      const best = store.get(el.dataset.best);
+      const old = el.dataset.best === 'mat9-24h-best-score' && runSeason !== '2';
+      const best = old ? 0 : store.get(el.dataset.best);
       el.textContent = best ? `Best ${best.toLocaleString('en-IN')}` : 'New game';
     });
   }

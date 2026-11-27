@@ -3,7 +3,7 @@
  * How an endless run unfolds with distance. Everything here is a function of
  * metres run, so the spawner (which works ~80 m ahead) and the game agree.
  *
- *   speed       rises quickly at first, then levels off towards a top speed
+ *   speed       rises quickly at first, then keeps climbing slowly all run
  *   levels      every few hundred metres (each a little longer than the last);
  *               each raises the score multiplier and may bring in something new
  *   difficulty  0..1, sets how close together the rows come
@@ -12,8 +12,12 @@
  *   events      short themed stretches (a bug swarm, a board meeting...)
  */
 
-/* Speed in m/s: v0 at the start, approaching vmax. */
-export const SPEED = { v0: 12, vmax: 27, scale: 2300, ref: 24 };
+/* Speed in m/s: v0 at the start, approaching vmax. It climbs hard (about
+   19 m/s at 500 m, 23 at 1 km, 29 at 2 km, 33 at 3 km, 36 at 5 km), doubling
+   in the first minute and a half, then keeps edging up. Obstacle spacing is
+   in seconds, so a faster run gives as long between moves; things are fully
+   in view 72 m ahead, about 1.9 s at top speed. */
+export const SPEED = { v0: 14, vmax: 38, scale: 2000, ref: 24 };
 export const speedAt = (distance) => SPEED.v0 + (SPEED.vmax - SPEED.v0) * (1 - Math.exp(-Math.max(0, distance) / SPEED.scale));
 
 /* Levels: level 2 at 250 m, then each level is 100 m longer than the one before
@@ -30,8 +34,10 @@ export function levelAt(distance) {
 export const MAX_MULTIPLIER = 10;
 export const multiplierFor = (level) => Math.min(level, MAX_MULTIPLIER);
 
-/* 0 at the start, 1 from about 2.6 km on. */
-export const difficultyAt = (distance) => Math.min(1, Math.max(0, distance) / 2600) ** 0.8;
+/* 0 at the start, 1 from about 1.8 km on. */
+export const difficultyAt = (distance) => Math.min(1, Math.max(0, distance) / 1800) ** 0.8;
+/* After that the rows keep closing in a little: 0 at 1.8 km, 1 from 6.8 km on. */
+export const lateAt = (distance) => Math.min(1, Math.max(0, distance - 1800) / 5000);
 
 /* What appears from which level. 'rollingChair' is a chair that rolls at you. */
 export const UNLOCK = {

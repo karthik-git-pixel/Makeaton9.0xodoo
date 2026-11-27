@@ -435,7 +435,7 @@ export class Mascot {
     this.ankles.forEach((a) => a.rotation.set(0, 0, 0));
   }
 
-  /** 'title' (turning in place), 'run', or 'idle' (standing, facing +z). */
+  /** 'title' (standing still, facing the camera), 'run', or 'idle' (standing, facing +z). */
   setMode(mode) {
     this.mode = mode;
     if (mode !== 'title') this.glasses.material.uniforms.uSweep.value = 9;
@@ -522,7 +522,7 @@ export class Mascot {
     this.time += dt;
     this.footstep = 0; // -1 / +1 on the frame a boot lands (for dust puffs)
     const t = this.time;
-    const sp = clamp(speed, 0, 1);
+    const sp = clamp(speed, 0, 1.8); // past 1: running flat out, strides keep quickening
     const hit = this.hitT >= 0;
 
     /* Squash and stretch: a damped spring */
@@ -541,7 +541,8 @@ export class Mascot {
     let ankR = null;
 
     if (this.mode === 'title') {
-      this.turn.rotation.y += dt * 0.65;
+      // stands still, facing you (it breathes and its sunglasses glint)
+      this.turn.rotation.y = approach(this.turn.rotation.y, 0, 8, dt);
       sy *= 1 + 0.018 * Math.sin(t * 2.4);
       bob = 0.03 * Math.sin(t * 2.4);
       legL = 0.06 * Math.sin(t * 1.2);
@@ -573,7 +574,7 @@ export class Mascot {
         roll = 0.07 * s;
         twist = 0.12 * s;
       }
-      lean = this.sliding ? -0.18 : 0.2 + 0.1 * sp;
+      lean = this.sliding ? -0.18 : 0.2 + 0.1 * Math.min(sp, 1) + 0.12 * Math.max(0, sp - 1);
       this.bank = approach(this.bank, clamp(-lateral * 0.045, -0.35, 0.35), 10, dt);
       roll += this.bank;
 

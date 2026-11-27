@@ -33,7 +33,7 @@ import {
   toonMaterial, tintToonMaterial, mergeColored, sparkleShape, weld, outlineMaterial, instancedOutline,
   uniform, keepNote, blobShadowTexture,
 } from './fx.js';
-import { levelAt, difficultyAt, dayHourAt, phaseAt, UNLOCK, EVENTS } from './progress.js';
+import { levelAt, difficultyAt, lateAt, dayHourAt, phaseAt, UNLOCK, EVENTS } from './progress.js';
 
 /** Hitboxes in metres (a little smaller than the drawings, to be fair). */
 export const TYPES = {
@@ -959,8 +959,10 @@ export class Obstacles {
     const extraGap = pattern.make(c) || 0;
 
     // Seconds to the next row: long at first, shorter as the run goes on
-    const base = 1.25 + (0.72 - 1.25) * d;
-    let gapSeconds = Math.max(0.55, base + r() * 0.25 * (1 - 0.5 * d) + extraGap);
+    // (0.66 s from 1.8 km), then a little shorter still on long runs (0.56 s
+    // from 6.8 km). A jump lasts 0.5 s, so even then there's time to land.
+    const base = (1.15 + (0.66 - 1.15) * d) * (1 - 0.15 * lateAt(at));
+    let gapSeconds = Math.max(0.5, base + r() * 0.25 * (1 - 0.5 * d) + extraGap);
     if (ev && ev.type === 'rush') gapSeconds = Math.max(0.5, gapSeconds * 0.55);
     const next = at + speed * gapSeconds;
 

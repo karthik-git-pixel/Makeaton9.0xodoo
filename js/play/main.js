@@ -43,7 +43,7 @@ export const TUNING = {
   flipFrom: 0.55,      // jumps do a spin flip above this speed (0..1)
   mascotScale: 0.5,
   player: { w: 0.76, h: 1.05, hSlide: 0.48, d: 0.6 },
-  power: { coffee: 3, magnet: 9, duck: 9, pizza: 10, rocket: 4.5 }, // seconds each lasts
+  power: { coffee: 3, magnet: 9, duck: 9, pizza: 10, rocket: 6.5 }, // seconds each lasts
   coffeeExtra: 0.45,   // +45% speed at the peak of the coffee rush
   shieldGrace: 0.6,    // s of safety after the firewall blocks a hit
   landGrace: 0.8,      // s of safety after the rocket drops you off
@@ -96,6 +96,15 @@ const store = {
     try { window.localStorage.setItem('mat9-24h-' + key, String(value)); } catch (e) { /* no storage: fine */ }
   },
 };
+
+/* Seasons: the leaderboard was cleared on 2026-11-27, when the game got harder,
+   so everyone's own best starts again too (once per browser). A new season
+   later: bump this and clear the board (supabase/reset-board-2026-11-27.sql). */
+const SEASON = '2';
+if (store.get('season', '1') !== SEASON) {
+  store.set('best-score', '0');
+  store.set('season', SEASON);
+}
 const seen = (() => {
   try { return JSON.parse(store.get('seen', '{}')) || {}; } catch (e) { return {}; }
 })();
@@ -288,8 +297,8 @@ function start() {
     return p;
   }
 
-  /* The start screen: demo time in the hall and the star turning on the spot,
-     with an empty aisle behind it (no bugs, sparkles or power-ups). */
+  /* The start screen: demo time in the hall and the star standing still,
+     facing you, with an empty aisle behind it (no bugs, sparkles or power-ups). */
   function titleParade() {
     obstacles.auto = false;
     obstacles.reset(0, 99);
@@ -809,7 +818,8 @@ function start() {
     mascot.root.position.set(G.x, 0, 0);
     if (G.state === 'run' || G.state === 'dead') mascot.root.rotation.y = approach(mascot.root.rotation.y, Math.PI, 10, dt);
     mascot.update(dt, {
-      speed: speed01(),
+      // 0..1 up to SPEED.ref, then on up to 1.8 at top speed: quicker strides, more lean
+      speed: speed01() + 0.8 * clamp((G.speed - SPEED.ref) / (SPEED.vmax - SPEED.ref), 0, 1),
       height: G.y / TUNING.mascotScale,
       lateral: G.vx / TUNING.mascotScale,
     });
@@ -983,8 +993,10 @@ function start() {
     const running = G.state === 'run' || G.state === 'dead';
     G.flyAmt = approach(G.flyAmt, G.flying ? 1 : 0, 2.6, dt);
     const f = G.flyAmt;
+    // the view opens out a little as the run gets faster, so the speed-up is felt
+    const fast = clamp((speedAt(G.distance) - SPEED.ref) / (SPEED.vmax - SPEED.ref), 0, 1);
     const t = running
-      ? { x: G.x * 0.5, y: 3.3 + G.y * (0.3 + 0.5 * f) + 0.4 * f, z: 6.2 + 0.8 * f, lx: G.x * 0.8, ly: 0.85 + G.y * 0.62 * f, lz: -10, fov: 66 + 10 * boostEnv() + 4 * f }
+      ? { x: G.x * 0.5, y: 3.3 + G.y * (0.3 + 0.5 * f) + 0.4 * f, z: 6.2 + 0.8 * f, lx: G.x * 0.8, ly: 0.85 + G.y * 0.62 * f, lz: -10, fov: 66 + 5 * fast + 10 * boostEnv() + 4 * f }
       : TITLE_VIEW;
     const rate = running && G.stateTime > 0.8 ? 7 : 3.2;
     for (const k in t) camState[k] = approach(camState[k], t[k], k === 'x' || k === 'lx' ? 6 : rate, dt);
