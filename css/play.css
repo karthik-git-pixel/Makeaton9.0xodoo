@@ -759,81 +759,59 @@ body {
   .home-pill:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
 }
 
-/* PLAY: a bright, glossy sticker in the logo's style. A sunny yellow-to-
-   orange plate with a candy shine on top and a warm glow against the dark
-   hall; PLAY in white comic letters with the logo's red 3D edge; the logo's
-   white edge and speed spikes. A shine sweeps across now and then and it
-   pulses gently. */
+/* "Tap to run": a quiet, friendly prompt under the star. Small letters, soft
+   paper cream face with dark ink lettering, no loud neon glow, speed spikes
+   or huge capitals. A gentle pulse guides the player. */
 .btn--play {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  min-width: min(62cqw, 250px);
-  margin: 2px 0 8px;
-  padding: 4px 32px 8px 24px;
-  font: 400 clamp(44px, 14cqw, 60px)/1 var(--font-display);
-  letter-spacing: 0.07em;
-  color: #FFFFFF;
-  background:
-    linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.7) 50%, transparent 70%) -150% 0 / 60% 100% no-repeat,
-    radial-gradient(140% 80% at 50% -22%, rgba(255, 255, 255, 0.85) 0 44%, rgba(255, 255, 255, 0) 45%),
-    linear-gradient(180deg, #FFF36B 0%, #FFD21A 45%, #FF9D00 100%);
-  border: 4px solid var(--ink);
-  border-radius: 20px;
-  box-shadow:
-    inset 0 3px 0 rgba(255, 255, 255, 0.75),
-    inset 0 -7px 0 rgba(222, 86, 0, 0.6),
-    var(--sticker),
-    0 7px 0 5px var(--ink),
-    0 0 36px 10px rgba(255, 190, 0, 0.42),
-    0 18px 26px rgba(12, 14, 15, 0.4);
-  transform: skewX(-8deg);
-  animation: play-pulse 1.5s ease-in-out infinite, play-shine 3s ease-in-out 2.8s infinite;
-  will-change: scale;
+  gap: 8px;
+  margin: 4px 0 8px;
+  padding: 8px 24px 9px 20px;
+  font-family: var(--font-tape);
+  font-size: clamp(15px, 4.2cqw, 18px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 0 0 2.5px #FFFFFF, 0 4px 0 2.5px var(--ink);
+  cursor: pointer;
+  animation: play-pulse 2s ease-in-out infinite;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+  will-change: transform;
 }
-.btn--play > * { transform: skewX(8deg); }
 .btn--play span {
-  -webkit-text-stroke: 0.09em var(--ink);
-  paint-order: stroke fill;
-  text-shadow: 0.035em 0.055em 0 var(--logo-red), 0.07em 0.1em 0 var(--ink);
+  display: inline-block;
+  color: var(--ink);
 }
 .btn--play svg {
-  width: 0.62em;
-  height: 0.62em;
-  fill: var(--logo-red);
-  stroke: var(--ink);
-  stroke-width: 2.6;
-  stroke-linejoin: round;
-  overflow: visible;
-  filter: drop-shadow(2px 3px 0 #8E0B00) drop-shadow(1px 2px 0 var(--ink));
+  flex: none;
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
 }
-/* the logo's speed spikes, out to either side */
-.btn--play::before,
-.btn--play::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 34px;
-  height: 26px;
-  margin-top: -13px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 26'%3E%3Cpath d='M33 6 2 11.5 33 15ZM33 17.5 11 22 33 23.5Z' fill='%23fff' stroke='%230C0E0F' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
-  pointer-events: none;
+.btn--play:hover {
+  background: #FFF2C8;
 }
-.btn--play::before { right: calc(100% + 7px); }
-.btn--play::after { left: calc(100% + 7px); transform: scaleX(-1); }
 .btn--play:active {
-  transform: skewX(-8deg);
-  translate: 0 5px;
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.75), inset 0 -4px 0 rgba(222, 86, 0, 0.6), var(--sticker), 0 2px 0 5px var(--ink), 0 0 28px 8px rgba(255, 190, 0, 0.4), 0 8px 14px rgba(12, 14, 15, 0.35);
+  transform: translateY(2px) scale(0.97);
+  box-shadow: 0 0 0 2.5px #FFFFFF, 0 1px 0 2.5px var(--ink);
   animation: none;
 }
-.btn--play:focus-visible { outline: 3px solid var(--blue); outline-offset: 8px; }
-/* Short phones: a lower PLAY and tighter gaps, so the star stays in view */
+.btn--play:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 4px;
+}
+/* Short phones: tighter gaps and a slightly smaller pill */
 @media (max-height: 620px) {
   .title__foot { gap: 8px; }
-  .btn--play { margin: 0 0 6px; padding: 2px 28px 6px 20px; font-size: clamp(38px, 12cqw, 46px); }
+  .btn--play { margin: 2px 0 4px; padding: 6px 18px 7px 16px; font-size: 14px; }
   .icon-btn { width: 48px; height: 48px; }
   .icon-btn--me .avatar { --s: 42px !important; }
 }
@@ -1283,13 +1261,8 @@ body {
 @keyframes drop-in { from { opacity: 0; transform: translateY(-40px) scale(0.9); } to { opacity: 1; transform: none; } }
 @keyframes rise-in { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
 @keyframes play-pulse {
-  0%, 100% { scale: 1; }
-  50% { scale: 1.045; }
-}
-/* PLAY's shine: the first background layer sweeps across */
-@keyframes play-shine {
-  0% { background-position: -150% 0, 0 0, 0 0; }
-  35%, 100% { background-position: 250% 0, 0 0, 0 0; }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
 }
 @keyframes sheet-in { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes shimmer { to { background-position: -200% 0; } }
@@ -1302,7 +1275,7 @@ body {
 @keyframes twinkle { 0%, 100% { scale: 1; opacity: 1; } 50% { scale: 0.45; opacity: 0.55; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .title__burst, .title__logo img, .btn--play, .btn--play::after, .title__spark, .podium__crown, .icon-btn__live, .live i { animation: none !important; }
+  .title__burst, .title__logo img, .btn--play, .title__spark, .podium__crown, .icon-btn__live, .live i { animation: none !important; }
   .podium__spot, .lb__row, .hud__sparkles.is-pop, .hud__sparkles.is-pop svg { animation-duration: 0.01s !important; animation-delay: 0s !important; }
   .title__top, .title__foot, .title__tag, .title__sound, .sheet__card, .notice { animation-duration: 0.01s !important; animation-delay: 0s !important; }
 }
