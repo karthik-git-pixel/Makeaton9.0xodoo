@@ -449,6 +449,22 @@ body {
 .card__slot:has(.card__actions) { margin-bottom: 0; }
 .card__actions .btn { gap: 6px; }
 .card__actions svg, .result__row svg { fill: currentColor; flex: none; }
+/* Music / Sounds switches under them */
+.card__toggles { display: flex; gap: 10px; justify-content: center; margin: 10px 0 0; }
+.btn--switch { --face: var(--paper); gap: 6px; }
+.btn--switch svg { fill: currentColor; flex: none; overflow: visible; }
+.btn__state {
+  min-width: 2.6em;
+  padding: 1px 6px 0;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+  background: #9EE6B8;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+.btn--switch[aria-pressed="false"] .btn__state { background: #E3DACB; }
 
 .btn {
   display: inline-block;
@@ -656,6 +672,58 @@ body {
   animation: live-ping 1.6s ease-out infinite;
 }
 .icon-btn__live[hidden] { display: none; }
+
+/* Music and sound effects on/off: one small two-part sticker in the top
+   corner, beside the Make-A-Ton logo and clear of the big title.
+   Off: grey, with a slash through the icon. */
+.title__sound {
+  position: absolute;
+  top: calc(var(--safe-t) + 14px);
+  right: calc(var(--safe-r) + 16px);
+  z-index: 3;
+  display: flex;
+  overflow: hidden;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 0 0 2.5px #fff, 0 0 0 4.5px var(--ink), 0 4px 0 4.5px var(--ink);
+  animation: drop-in 0.6s cubic-bezier(.2, 1.4, .4, 1) 1.9s both;
+}
+.title__sound:not(:has(.sound-btn:not([hidden]))) { display: none; } /* no Web Audio: no switches */
+.sound-btn {
+  --face: var(--paper);
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 36px;
+  padding: 0;
+  color: var(--ink);
+  background: var(--face);
+  border: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.sound-btn + .sound-btn { border-left: 2.5px solid var(--ink); }
+.sound-btn[hidden] { display: none; }
+.sound-btn svg { width: 21px; height: 21px; fill: currentColor; overflow: visible; transition: translate 0.1s ease; }
+.sound-btn--music { --face: var(--pink); }
+.sound-btn--sfx { --face: #9EE6B8; }
+.sound-btn[aria-pressed="false"] { --face: #CFC7BA; }
+.sound-btn:active svg { translate: 0 2px; }
+.sound-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: -5px; }
+/* the narrowest phones: a smaller sticker, so it stays clear of the Make-A-Ton logo */
+@container (max-width: 359px) {
+  .sound-btn { width: 35px; height: 32px; }
+  .sound-btn svg { width: 18px; height: 18px; }
+}
+
+/* The "off" slash on the music and speaker icons (start screen and pause card):
+   an ink line with a gap of the button's own colour around it */
+.i-off,
+.i-gap { display: none; fill: none; stroke-linecap: round; }
+.i-off { stroke: currentColor; stroke-width: 2.4px; }
+.i-gap { stroke: var(--face, var(--paper)); stroke-width: 6.5px; }
+[aria-pressed="false"] .i-off,
+[aria-pressed="false"] .i-gap { display: inline; }
 .title__when {
   margin: 0;
   font-size: 11px;
@@ -1236,5 +1304,5 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .title__burst, .title__logo img, .btn--play, .btn--play::after, .title__spark, .podium__crown, .icon-btn__live, .live i { animation: none !important; }
   .podium__spot, .lb__row, .hud__sparkles.is-pop, .hud__sparkles.is-pop svg { animation-duration: 0.01s !important; animation-delay: 0s !important; }
-  .title__top, .title__foot, .title__tag, .sheet__card, .notice { animation-duration: 0.01s !important; animation-delay: 0s !important; }
+  .title__top, .title__foot, .title__tag, .title__sound, .sheet__card, .notice { animation-duration: 0.01s !important; animation-delay: 0s !important; }
 }

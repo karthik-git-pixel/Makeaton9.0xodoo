@@ -35,6 +35,9 @@ export const BUTTON_ICONS = {
   restart: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4.5a7.5 7.5 0 1 1-7.1 9.9l2.6-.9A4.8 4.8 0 1 0 12 7.2c-1.4 0-2.6.6-3.5 1.5L11 11.2H3.8V4l2.8 2.8A7.4 7.4 0 0 1 12 4.5z"/></svg>',
   trophy: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1.1 1.8A5 5 0 0 1 7 9V7zm10 0v2a5 5 0 0 1-.1.8A2 2 0 0 0 18 8V7h-1z"/></svg>',
   user: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4.4 0-8 2.3-8 5.2V21h16v-1.8c0-2.9-3.6-5.2-8-5.2z"/></svg>',
+  // music and sound switches: the slash shows when the button's aria-pressed is false (css/play.css)
+  music: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M19 3v11.6a3.2 3.2 0 1 1-2-2.96V7.12L10 8.7v8a3.2 3.2 0 1 1-2-2.96V5.6z"/><path class="i-gap" d="M3.5 3.5l17 17"/><path class="i-off" d="M3.5 3.5l17 17"/></svg>',
+  sound: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 9h4l5-4.5v15L7 15H3z"/><path d="M14.6 7.8a1 1 0 0 1 1.4.1 6.2 6.2 0 0 1 0 8.2 1 1 0 1 1-1.5-1.3 4.2 4.2 0 0 0 0-5.6 1 1 0 0 1 .1-1.4z"/><path d="M17.4 5a1 1 0 0 1 1.4 0 10 10 0 0 1 0 14 1 1 0 1 1-1.4-1.4 8 8 0 0 0 0-11.2 1 1 0 0 1 0-1.4z"/><path class="i-gap" d="M3.5 3.5l17 17"/><path class="i-off" d="M3.5 3.5l17 17"/></svg>',
 };
 
 export class UI {
@@ -242,6 +245,31 @@ export class UI {
       row.append(b);
     }
     this.overlaySlot.replaceChildren(row);
+  }
+
+  /**
+   * On/off switches under the card's other buttons (music, sound effects).
+   * `toggle` flips the setting and returns whether it's now on.
+   * @param {Array<{label:string, icon:string, on:boolean, toggle:() => boolean}>} list
+   */
+  toggles(list) {
+    const row = document.createElement('div');
+    row.className = 'card__toggles';
+    for (const s of list) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn btn--ghost btn--sm btn--switch';
+      b.innerHTML = `${BUTTON_ICONS[s.icon] || ''}<span>${s.label}</span><b class="btn__state"></b>`;
+      const paint = (on) => {
+        b.setAttribute('aria-pressed', String(on));
+        b.querySelector('.btn__state').textContent = on ? 'On' : 'Off';
+      };
+      paint(s.on);
+      b.addEventListener('pointerdown', (e) => e.stopPropagation());
+      b.addEventListener('click', (e) => { e.stopPropagation(); paint(s.toggle()); });
+      row.append(b);
+    }
+    this.overlaySlot.append(row);
   }
 
   hide() {

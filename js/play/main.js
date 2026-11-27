@@ -29,6 +29,7 @@ import { PostFX } from './post.js';
 import { SPEED, speedAt, levelAt, multiplierFor, dayHourAt, phaseAt, CATALOG, EVENTS, DAY_HOURS } from './progress.js';
 import { Menu } from './menu.js';
 import { online } from './online.js';
+import { audio } from './audio.js';
 
 /* ---------------------------------------------------------------------------
    Tuning (speeds, levels and the day are in progress.js)
@@ -160,6 +161,8 @@ function start() {
     onPlay: () => { if (G.state === 'title' || G.state === 'dead') startRun(); },
     onMenu: () => toTitle(),
   });
+  // Music and sound effects (they start with the first tap or key: browsers ask for one)
+  if (!CAPTURE) audio.init();
 
   // Full-screen effects, and particles: dust/steam/confetti, and glowing sparkles/shards/flames
   const post = new PostFX(renderer, { samples: quality.level.samples });
@@ -322,6 +325,8 @@ function start() {
     ui.clearMessages();
     ui.setHudVisible(false);
     menu.showTitle(G.best);
+    audio.rocket(false);
+    audio.music('title');
   }
 
   /** A new run. opts.distance starts it further along (tests and captures). */
@@ -360,6 +365,9 @@ function start() {
     ui.hide();
     ui.setHudVisible(true);
     quality.resetProbe();
+    audio.rocket(false);
+    audio.music('run', { restart: true });
+    audio.sfx('start');
   }
 
   /**
@@ -394,6 +402,9 @@ function start() {
     G.shake = REDUCED_MOTION ? 0.12 : 0.35;
     G.cause = item ? item.type : null;
     ui.setPowers([]);
+    audio.rocket(false);
+    audio.music(null, { crash: true });
+    audio.sfx('crash', { cause: G.cause, bug: !!(item && item.T && item.T.bug) });
     const score = Math.floor(G.score);
     const newBest = score > G.best;
     if (newBest) {
@@ -413,6 +424,8 @@ function start() {
     const r = G.lastRun;
     const [title, line] = DEATH[r.cause] || ['GAME OVER', ''];
     ui.setHudVisible(false);
+    audio.sfx(r.newBest && r.score > 0 ? 'best' : 'over');
+    audio.music('title', { after: 1.6 }); // the calm music comes back behind the card
     ui.show({
       title,
       badge: r.newBest && r.score > 0 ? 'NEW BEST!' : '',
@@ -446,6 +459,7 @@ function start() {
     if (on === G.paused) return;
     if (on && G.state !== 'run') return;
     G.paused = on;
+    audio.pause(on);
     ui.pauseBtn.setAttribute('aria-pressed', String(on));
     ui.pauseBtn.setAttribute('aria-label', on ? 'Resume' : 'Pause');
     if (on) {
@@ -455,6 +469,13 @@ function start() {
         { label: 'Restart', icon: 'restart', onClick: () => { setPaused(false); startRun(); } },
         { label: 'Home', icon: 'home', onClick: () => { setPaused(false); toTitle(); } },
       ]);
+      // ...and the sound switches
+      if (audio.supported) {
+        ui.toggles([
+          { label: 'Music', icon: 'music', on: audio.isOn('music'), toggle: () => audio.toggle('music') },
+          { label: 'Sounds', icon: 'sound', on: audio.isOn('sfx'), toggle: () => audio.toggle('sfx') },
+        ]);
+      }
     } else { ui.hide(); last = performance.now(); }
   }
 
@@ -469,12 +490,32 @@ function start() {
   document.addEventListener('visibilitychange', () => { if (document.hidden) setPaused(true); });
   window.addEventListener('pagehide', () => setPaused(true));
 
+  /* Sound: a soft click for the menus' buttons (PLAY and Run again have their
+     own sound), and the start screen's music and sound-effects switches. Capture
+     phase, so Resume still counts as a pause-card click when it's handled. */
+  app.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('button');
+    if (!b || b.id === 'playBtn' || b.hasAttribute('data-sound') || (b === ui.overlayBtn && !G.paused)) return;
+    audio.sfx('click');
+  }, true);
+  const soundBtns = [...app.querySelectorAll('[data-sound]')];
+  for (const b of soundBtns) {
+    b.hidden = !audio.supported;
+    b.addEventListener('click', () => audio.toggle(b.dataset.sound));
+  }
+  audio.onChange((s) => {
+    for (const b of soundBtns) b.setAttribute('aria-pressed', String(!!s[b.dataset.sound]));
+  });
+
   /* Moves ------------------------------------------------------------------- */
   function tryAction(a) {
     switch (a.name) {
       case 'left':
       case 'right': {
-        G.lane = clamp(G.lane + (a.name === 'left' ? -1 : 1), 0, 2);
+        const dir = a.name === 'left' ? -1 : 1;
+        const lane = clamp(G.lane + dir, 0, 2);
+        if (lane !== G.lane) audio.sfx('lane', { dir });
+        G.lane = lane;
         return true;
       }
       case 'jump': {
@@ -486,6 +527,7 @@ function start() {
         G.airborne = true;
         if (G.slideLeft > 0) { G.slideLeft = 0; mascot.slide(false); }
         mascot.jump({ airTime: T, flip: speed01() > TUNING.flipFrom });
+        audio.sfx('jump');
         return true;
       }
       case 'slide': {
@@ -493,10 +535,12 @@ function start() {
         if (G.airborne) {
           G.vy = Math.min(G.vy, -16); // dive down, then slide on landing
           G.slideOnLand = true;
+          audio.sfx('dive');
           return true;
         }
         G.slideLeft = TUNING.slideTime;
         mascot.slide(true);
+        audio.sfx('slide');
         return true;
       }
       default:
@@ -564,6 +608,7 @@ function start() {
     award(TUNING.points.power);
     sparkleBurst(it.x, it.popTop, it.popZ, 12);
     popups.show(POWER_POPUP[kind], { position: popupAt(1.65), size: 0.72, life: 1.0 });
+    audio.sfx('power', { kind });
     switch (kind) {
       case 'coffee':
         if (!G.flying) G.power.coffee = TUNING.power.coffee;
@@ -600,6 +645,7 @@ function start() {
     mascot.slide(false);
     mascot.jump({ airTime: 0.9, flip: !REDUCED_MOTION });
     rocketRide.visible = true;
+    audio.rocket(true);
     const v = speedAt(G.distance);
     obstacles.startFlight(G.distance, G.distance + v * (TUNING.power.rocket + 0.6), G.lane, G.distance + v * 0.8);
   }
@@ -608,6 +654,8 @@ function start() {
   function endFlight() {
     G.flying = false;
     rocketRide.visible = false;
+    audio.rocket(false);
+    audio.sfx('rocketEnd');
     const T = TUNING.airTime0 + (TUNING.airTime1 - TUNING.airTime0) * speed01();
     G.gravity = (8 * TUNING.jumpHeight) / (T * T);
     G.vy = 1.5;
@@ -625,6 +673,7 @@ function start() {
       P[k] = Math.max(0, P[k] - dt);
       if (P[k] > 0) continue;
       if (k === 'rocket') endFlight();
+      else audio.sfx('powerEnd');
       if (k === 'coffee') G.grace = Math.max(G.grace, 0.5);
       if (k === 'duck') sparkleBurst(G.x, G.y + 1.3, 0, 8);
     }
@@ -646,11 +695,13 @@ function start() {
     const a = announcements.shift();
     if (a.level) {
       ui.levelUp(a.level, multiplierFor(a.level));
+      audio.sfx('levelup');
       confetti(30, { x: G.x * 0.5, y: 3.6, z: -4 });
       announceGap = 1.45;
     } else {
       // Yellow comic lettering, no white starburst behind it (the user found that white splash
       // distracting mid-run). 0.6 keeps the letters as big as they were inside the starburst.
+      audio.sfx(a.text === 'CLEARED!' ? 'cleared' : a.text === 'NEW BEST!' ? 'best' : 'alert');
       popups.show(a.text, { position: new THREE.Vector3(G.x * 0.4, 3.3, -3.6), style: 'shout', size: a.size * 0.6, life: 1.6, rise: 0.3, tilt: announceGap > -2 ? 0.07 : -0.06 });
       if (a.conf) confetti(a.conf, { x: G.x * 0.5, y: 3.9, z: -4 });
       announceGap = 1.25;
@@ -749,6 +800,8 @@ function start() {
       G.distance += step;
       G.score += step * mult();
       checkProgress(realDt);
+      // the music keeps pace with the star, and gets busier with the level (and on the rocket or coffee)
+      audio.update({ pace: (speedAt(G.distance) - SPEED.v0) / (SPEED.vmax - SPEED.v0), level: G.level, hype: G.flying || G.power.coffee > 0 });
     } else if (G.state === 'dead') {
       G.speed *= Math.exp(-9 * dt);
       G.distance += G.speed * dt;
@@ -770,6 +823,7 @@ function start() {
         const impact = Math.min(1.3, Math.abs(G.vy) / 7);
         G.vy = 0;
         mascot.land(impact);
+        if (G.state === 'run') audio.sfx('land', { impact });
         G.shake = Math.max(G.shake, (REDUCED_MOTION ? 0.03 : 0.08) * impact);
         if (G.state === 'run') dust(G.x, 0.05, 6, 1.2);
         if (G.slideOnLand && G.state === 'run') {
@@ -901,6 +955,7 @@ function start() {
         G.sparkles++;
         ui.setSparkles(G.sparkles, true);
         award(TUNING.points.sparkle);
+        audio.sfx('sparkle');
         // the glints go off where the sparkle pops to: above the star's head, in front of it
         sparkleBurst(it.x, it.popTop, it.popZ, it.mag ? 5 : 10);
         break;
@@ -921,6 +976,8 @@ function start() {
         G.slowLeft = REDUCED_MOTION ? 0.18 : TUNING.slowTime;
         G.nearMisses++;
         award(TUNING.points.near, 'CLOSE ONE');
+        audio.sfx('near');
+        audio.slowmo(G.slowLeft);
         popups.show('CLOSE ONE!', { position: popupAt(1.75), size: 0.8, life: 1.0 });
         break;
       default:
@@ -938,6 +995,7 @@ function start() {
       impactFx(it);
       if (it.T.bug) G.squashed++;
       award(TUNING.points.smash, 'SMASH');
+      audio.sfx('smash', { bug: !!it.T.bug });
       word(SMASH_WORDS, side);
       G.shake = Math.max(G.shake, REDUCED_MOTION ? 0.06 : 0.16);
       return;
@@ -948,6 +1006,7 @@ function start() {
       glitchShards(it.x, 0.3 + it.lift, itemZ(it), 18, true);
       G.squashed++;
       award(TUNING.points.squash, 'BUG FIXED');
+      audio.sfx('squash');
       word(SQUASH_WORDS, side);
       G.shake = Math.max(G.shake, REDUCED_MOTION ? 0.04 : 0.1);
       return;
@@ -962,6 +1021,7 @@ function start() {
       if (it.T.bug) G.squashed++;
       G.shake = Math.max(G.shake, REDUCED_MOTION ? 0.08 : 0.22);
       popups.show('BLOCKED!', { position: popupAt(1.6), size: 0.75, life: 0.9 });
+      audio.sfx('block');
       return;
     }
     die(it, e);
@@ -1107,7 +1167,7 @@ function start() {
      or ?debug: on the live game they would let anyone set their score from the
      console (and runs in those modes are never sent to the leaderboard). */
   if (CAPTURE || DEBUG) window.__game = {
-    G, TUNING, renderer, scene, camera, mascot, world, obstacles, quality, post, puffs, glints, ui, popups, menu, online,
+    G, TUNING, renderer, scene, camera, mascot, world, obstacles, quality, post, puffs, glints, ui, popups, menu, online, audio,
     toTitle,
     setQuality(name) { quality.forced = true; quality.set(name); },
     render,
