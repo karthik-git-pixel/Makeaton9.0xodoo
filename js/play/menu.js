@@ -9,6 +9,7 @@
 import { online, MASCOTS, MASCOT_COLS, mascotIndex, checkName, inAppBrowser } from './online.js';
 import { formatScore, BUTTON_ICONS } from './ui.js';
 import { CATALOG } from './progress.js';
+import { Shop, compactSparkles } from './shop.js';
 
 const BOARD_SIZE = 100;        // runners the open leaderboard lists (podium + list)
 const BOARD_REFRESH = 15000;   // ms between leaderboard updates while it's open
@@ -76,8 +77,9 @@ export class Menu {
    * @param {HTMLElement} o.root   the #app element
    * @param {() => void} o.onPlay  start a run
    * @param {() => void} o.onMenu  go back to the start screen
+   * @param {object} o.shopStage   the game's side of the sparkle shop (see shop.js)
    */
-  constructor({ root, onPlay, onMenu }) {
+  constructor({ root, onPlay, onMenu, shopStage }) {
     this.root = root;
     this.onPlay = onPlay;
     this.onMenu = onMenu;
@@ -95,6 +97,8 @@ export class Menu {
     this.boardBtn = $('#boardBtn');
     this.rankTag = $('#rankTag');
     this.boardLive = $('#boardLive');
+    this.shopBtn = $('#shopBtn');
+    this.shopTag = $('#shopTag');
     this.noticeEl = $('#notice');
     this.current = null;   // the open panel
     this.returnFocus = null;
@@ -105,6 +109,15 @@ export class Menu {
     this.boardBtn.addEventListener('click', () => this.open('leaderboard'));
     $('#howBtn').addEventListener('click', () => this.open('how'));
     this.meBtn.addEventListener('click', () => this.open('profile'));
+    this.shop = new Shop({
+      root: $('#stage'),
+      stage: shopStage,
+      openPanel: (name, opts) => this.open(name, opts),
+      notice: (text, ms) => this.notice(text, ms),
+      onClose: () => this.title.classList.remove('is-shopping'),
+    });
+    this.shopBtn.addEventListener('click', () => this.openShop());
+    online.onShop(() => this.setShopTag());
     this.sheet.querySelector('.sheet__close').addEventListener('click', () => this.close());
     this.sheet.addEventListener('click', (e) => { if (e.target === this.sheet) this.close(); });
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.current) { e.preventDefault(); this.close(); } });
@@ -152,8 +165,25 @@ export class Menu {
     }
   }
 
-  /** A panel is open (the game ignores its controls meanwhile). */
-  get blocking() { return !!this.current; }
+  /** A panel or the shop is open (the game ignores its controls meanwhile). */
+  get blocking() { return !!this.current || this.shop.isOpen; }
+
+  /** The sparkle shop, over the start screen (the star stays in view). */
+  openShop() {
+    if (this.title.hidden) return;
+    this.close();
+    this.title.classList.add('is-shopping');
+    this.shop.open();
+  }
+
+  /** Your sparkles on the shop's sticker (signed in). */
+  setShopTag() {
+    const s = online.shop;
+    const on = !!(online.signedIn && s && s.signedIn);
+    this.shopTag.hidden = !on;
+    this.shopTag.textContent = on ? compactSparkles(s.balance) : '';
+    this.shopBtn.setAttribute('aria-label', on ? `Sparkle Shop: you have ${formatScore(s.balance)} sparkles` : 'Sparkle Shop');
+  }
 
   /* --- start screen ----------------------------------------------------- */
   showTitle(best) {
@@ -168,6 +198,7 @@ export class Menu {
     this.noticeEl.hidden = true;
     if (this.title.hidden) return;
     this.close();
+    this.shop.close();
     this.title.classList.add('is-leaving');
     clearTimeout(this.leaveTimer);
     this.leaveTimer = setTimeout(() => { this.title.hidden = true; this.title.classList.remove('is-leaving'); }, 340);
@@ -568,11 +599,12 @@ export class Menu {
       return;
     }
     line.textContent = 'Sending your score…';
+    const earnedBefore = online.shop && online.shop.signedIn ? online.shop.earned : null;
     online.submitRun(run).then((res) => {
       if (!res) return;
       this.top = null; // the start screen's ticker fetches the board again
       if (res.status === 'review') {
-        line.replaceChildren(el('b', { text: 'Huge run!' }), ' The organisers will check it, then it goes on the board.');
+        line.replaceChildren(el('b', { text: 'Huge run!' }), ' The organisers will check it, then it goes on the board (and its sparkles into your wallet).');
       } else if (res.status === 'rejected') {
         line.textContent = "That score couldn't be accepted.";
       } else if (res.rank) {
@@ -580,6 +612,14 @@ export class Menu {
       } else {
         line.textContent = 'Score sent!';
       }
+      if (res.status !== 'ok') return;
+      // the run's sparkles went into the wallet: say how many
+      online.loadShop().then((s) => {
+        const gain = earnedBefore === null ? 0 : s.earned - earnedBefore;
+        if (gain > 0 && slot.contains(line)) {
+          line.append(el('span', { class: 'result__spark' }, `+${formatScore(gain)} sparkles saved · ${formatScore(s.balance)} to spend`));
+        }
+      }).catch(() => {});
     }).catch((err) => {
       line.textContent = err.message;
     });

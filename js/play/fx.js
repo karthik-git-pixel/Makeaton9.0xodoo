@@ -726,7 +726,8 @@ export function shieldMaterial(color = '#FFE23A') {
 
 /* ---------------------------------------------------------------------------
    Particles: one point cloud per blend kind, drawn in a single call.
-   Shapes: 0 soft puff (dust, steam), 1 four-point sparkle, 2 confetti/shard.
+   Shapes: 0 soft puff (dust, steam), 1 four-point sparkle, 2 confetti/shard,
+   3 heart, 4 square pixel (the last two for the shop's trails).
    --------------------------------------------------------------------------- */
 const PARTICLE_VERT = /* glsl */ `
 attribute float aSize;
@@ -763,9 +764,20 @@ void main() {
   } else if (vShape < 1.5) {
     vec2 q = abs(p);
     a = smoothstep(1.0, 0.82, pow(q.x, 0.5) + pow(q.y, 0.5));
-  } else {
+  } else if (vShape < 2.5) {
     vec2 q = abs(p);
     a = (1.0 - smoothstep(0.78, 0.86, q.x)) * (1.0 - smoothstep(0.42, 0.5, q.y));
+  } else if (vShape < 3.5) {
+    // a heart (Inigo Quilez's distance), point up
+    vec2 h = vec2(abs(p.x), -p.y) * 0.66 + vec2(0.0, 0.55);
+    float d = h.y + h.x > 1.0
+      ? length(h - vec2(0.25, 0.75)) - 0.35355
+      : sqrt(min(dot(h - vec2(0.0, 1.0), h - vec2(0.0, 1.0)), dot(h - 0.5 * max(h.x + h.y, 0.0), h - 0.5 * max(h.x + h.y, 0.0)))) * sign(h.x - h.y);
+    a = 1.0 - smoothstep(-0.03, 0.02, d);
+  } else {
+    // a square pixel, hard edged
+    vec2 q = abs(p);
+    a = (1.0 - smoothstep(0.74, 0.8, q.x)) * (1.0 - smoothstep(0.74, 0.8, q.y));
   }
   a *= vAlpha;
   if (a < 0.02) discard;

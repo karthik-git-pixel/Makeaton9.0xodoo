@@ -24,6 +24,7 @@ const KEY_OAUTH = 'mat9-24h-oauth';         // set while away at Google, so the 
 // than Instagram's), so this browser stays signed out: the game then asks the
 // player to sign in here, which sends this device's best run.
 const KEY_PENDING = 'mat9-24h-pending-email';
+const KEY_LOOK = 'mat9-24h-look'; // what the signed-in player wears (shown before the shop loads)
 
 /**
  * Apps' built-in browsers (Instagram's, Facebook's, LinkedIn's, Android web
@@ -114,6 +115,8 @@ class Online {
     this.listeners = [];
     this.refreshing = null;
     this.ticket = null;   // the running run's ticket from the server (a promise)
+    this.shop = null;     // the sparkle shop as last loaded (see setShop)
+    this.shopListeners = [];
   }
 
   get signedIn() { return !!(this.session && this.session.user); }
@@ -181,6 +184,8 @@ class Online {
     this.session = null;
     this.profile = null;
     store.set(KEY_SESSION, null);
+    store.set(KEY_LOOK, null);
+    if (this.shop && this.shop.signedIn) this.setShop({ prices: this.shop.prices });
   }
 
   /** Keeps the access token fresh (it lasts an hour). */
@@ -391,6 +396,53 @@ class Online {
   async myRank() {
     if (!this.signedIn) return null;
     return this.request('/rest/v1/rpc/my_rank', { method: 'POST', auth: true, body: {} });
+  }
+
+  /* --- the sparkle shop (supabase/sparkle-shop.sql) ------------------------ */
+  onShop(fn) { this.shopListeners.push(fn); }
+
+  setShop(data) {
+    const signedIn = this.signedIn && data && data.balance !== undefined;
+    const w = (data && data.wearing) || {};
+    this.shop = {
+      prices: (data && data.prices) || {},
+      signedIn,
+      balance: signedIn ? +data.balance || 0 : 0,
+      earned: signedIn ? +data.earned || 0 : 0,
+      owned: new Set(signedIn ? data.owned || [] : []),
+      wearing: { head: w.head || null, back: w.back || null, trail: w.trail || null },
+    };
+    // remembered for the next visit, so the star is dressed before the shop answers
+    if (signedIn) store.set(KEY_LOOK, JSON.stringify({ user: this.session.user.id, wearing: this.shop.wearing }));
+    for (const fn of this.shopListeners) { try { fn(this.shop); } catch (e) { /* a listener's problem */ } }
+    return this.shop;
+  }
+
+  /** What the signed-in player wore last time on this device (before the shop loads). */
+  get rememberedLook() {
+    if (!this.signedIn) return null;
+    try {
+      const saved = JSON.parse(store.get(KEY_LOOK) || 'null');
+      return saved && saved.user === this.session.user.id ? saved.wearing : null;
+    } catch (e) { return null; }
+  }
+
+  /** Prices for everyone; and your sparkles, what you own and wear when signed in. */
+  async loadShop() {
+    const data = await this.request('/rest/v1/rpc/shop_state', { method: 'POST', auth: this.signedIn, body: {} });
+    return this.setShop(data);
+  }
+
+  /** Buys an item (it goes straight on). The server checks the price and your sparkles. */
+  async buy(id) {
+    if (!this.signedIn) throw new OnlineError('auth', 'Sign in first.');
+    return this.setShop(await this.request('/rest/v1/rpc/shop_buy', { method: 'POST', auth: true, body: { p_item: id } }));
+  }
+
+  /** Wears something you own in its slot (id null: take it off). */
+  async wear(slot, id) {
+    if (!this.signedIn) throw new OnlineError('auth', 'Sign in first.');
+    return this.setShop(await this.request('/rest/v1/rpc/shop_wear', { method: 'POST', auth: true, body: { p_slot: slot, p_item: id || null } }));
   }
 }
 

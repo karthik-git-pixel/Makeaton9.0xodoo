@@ -30,6 +30,7 @@ import { SPEED, MAD, speedAt, runSpeedAt, madAt, levelAt, multiplierFor, dayHour
 import { Menu } from './menu.js';
 import { online } from './online.js';
 import { audio } from './audio.js';
+import { Outfit, Trail, renderIcon } from './cosmetics.js';
 
 /* ---------------------------------------------------------------------------
    Tuning (speeds, levels and the day are in progress.js)
@@ -156,6 +157,9 @@ function start() {
   mascot.root.scale.setScalar(TUNING.mascotScale);
   mascot.debrisParent = scene;
   scene.add(mascot.root);
+  // what the star wears from the Sparkle Shop, and the trail it leaves (cosmetics.js)
+  const outfit = new Outfit(mascot);
+  const trail = new Trail(scene);
 
   const ui = new UI(app);
   const popups = new ComicPopups(scene, { max: 6, reducedMotion: REDUCED_MOTION });
@@ -163,6 +167,14 @@ function start() {
     root: app,
     onPlay: () => { if (G.state === 'title' || G.state === 'dead') startRun(); },
     onMenu: () => toTitle(),
+    shopStage: {
+      open: (on) => shopOpen(on),
+      preview: (look, tab) => shopPreview(look, tab),
+      turn: (yaw) => { G.shopYaw = nearestTurn(mascot.root.rotation.y, yaw); },
+      spin: (dx) => { G.shopYaw += dx * 0.013; },
+      icon: (id) => renderIcon(renderer, id),
+      celebrate: () => { confetti(80, { x: 0, y: 2.8, z: 0.4 }); sparkleBurst(0, 1.0, 0.45, 18); },
+    },
   });
   // Sound effects (they start with the first tap or key: browsers ask for one)
   if (SOUND && !CAPTURE) audio.init();
@@ -181,6 +193,7 @@ function start() {
     world.applyQuality(L);
     puffs.setBudget(L.particles);
     glints.setBudget(L.particles);
+    trail.setBudget(L.particles);
   }
   applyQuality();
 
@@ -282,6 +295,9 @@ function start() {
     lastHit: null,
     cause: null,
     god: false,       // tests only: obstacles don't end the run
+    shop: false,      // the Sparkle Shop is open (over the start screen)
+    shopYaw: 0,       // which way the star faces in the shop (drag to turn it)
+    shopRun: false,   // trying on a trail: the star runs on the spot
   };
   const introduced = new Set(); // what has had its tip this run
 
@@ -327,6 +343,7 @@ function start() {
     mascot.root.rotation.y = 0;
     duckHat.visible = false;
     rocketRide.visible = false;
+    trail.clear();
     titleParade();
     popups.clear();
     G.day = TITLE_HOUR;
@@ -363,6 +380,7 @@ function start() {
     popups.clear();
     puffs.clear();
     glints.clear();
+    trail.clear();
     ui.clearMessages();
     ui.setSparkles(0);
     ui.setScore(0);
@@ -440,6 +458,49 @@ function start() {
     // your place on the leaderboard (signed in), or a nudge to sign up
     menu.gameOver({ score: r.score, distance: r.distance, sparkles: r.sparkles, level: r.level, seconds: r.seconds }, ui.overlaySlot);
   }
+
+  /* The Sparkle Shop (js/play/shop.js, cosmetics.js) ------------------------
+     The star wears what the player bought (signed in); in the shop it tries
+     things on, and for a trail it runs on the spot so the trail shows. */
+  let wearing = { head: null, back: null, trail: null };
+  function dress(look) {
+    outfit.set(look || {});
+    trail.set(look && look.trail);
+  }
+  function applyLook(look) {
+    wearing = { head: null, back: null, trail: null, ...(look || {}) };
+    if (!G.shop) dress(wearing);
+  }
+  /** The angle closest to `from` that faces the same way as `to`. */
+  const nearestTurn = (from, to) => to + Math.PI * 2 * Math.round((from - to) / (Math.PI * 2));
+  function shopOpen(on) {
+    G.shop = on;
+    G.shopYaw = 0;
+    SHOP_VIEW = null; // framed again for this screen (shopView)
+    if (on) return;
+    G.shopRun = false;
+    mascot.setMode('title');
+    const r = mascot.root.rotation.y;
+    mascot.root.rotation.y = Math.atan2(Math.sin(r), Math.cos(r)); // turn back the short way
+    trail.clear();
+    dress(wearing);
+  }
+  function shopPreview(look, tab) {
+    dress(look);
+    G.shopRun = tab === 'trails' && !!look.trail;
+    mascot.setMode(G.shopRun ? 'run' : 'title');
+    if (!G.shopRun) trail.clear();
+  }
+  // dressed as soon as we know who's playing (from this device's memory, then the server)
+  let lookUser;
+  online.onChange(() => {
+    const uid = online.signedIn ? online.session.user.id : null;
+    if (uid === lookUser) return;
+    lookUser = uid;
+    applyLook(uid ? online.rememberedLook : null);
+    online.loadShop().catch(() => {});
+  });
+  online.onShop((s) => applyLook(s.wearing));
 
   /* Input ------------------------------------------------------------------ */
   function onAction(name) {
@@ -862,13 +923,29 @@ function start() {
     // Mascot
     mascot.root.position.set(G.x, 0, 0);
     if (G.state === 'run' || G.state === 'dead') mascot.root.rotation.y = approach(mascot.root.rotation.y, Math.PI, 10, dt);
+    else if (G.state === 'title') mascot.root.rotation.y = approach(mascot.root.rotation.y, G.shop ? G.shopYaw : 0, G.shop ? 9 : 6, dt);
+    const previewRun = G.state === 'title' && G.shop && G.shopRun; // the shop: trying on a trail
+    // 0..1 up to SPEED.ref, then on up to 1.8 at top speed: quicker strides, more lean
+    const stride = previewRun ? 0.6 : speed01() + 0.8 * clamp((G.speed - SPEED.ref) / (SPEED.vmax - SPEED.ref), 0, 1);
     mascot.update(dt, {
-      // 0..1 up to SPEED.ref, then on up to 1.8 at top speed: quicker strides, more lean
-      speed: speed01() + 0.8 * clamp((G.speed - SPEED.ref) / (SPEED.vmax - SPEED.ref), 0, 1),
+      speed: stride,
       height: G.y / TUNING.mascotScale,
       lateral: G.vx / TUNING.mascotScale,
     });
     duckHat.visible = G.state === 'run' && G.power.duck > 0 && (G.power.duck > 1.5 || Math.floor(G.now * 8) % 2 === 0);
+    // the duck sits where a hat goes, the rocket where a cape or wings go
+    outfit.hide('head', duckHat.visible);
+    outfit.hide('back', rocketRide.visible);
+    outfit.update(dt, { speed: stride, running: G.state === 'run' || previewRun });
+    if (G.state === 'run') {
+      // the trail streams back from the star's lower back, towards the camera
+      trail.emit(dt, { x: G.x, y: G.y + (G.slideLeft > 0 ? 0.3 : 0.58), z: 0.22, bx: 0, bz: 1, v: clamp(G.speed, 8, 22), across: 'side' }); // (v capped: at mad speed it would fly into the camera)
+    } else if (previewRun) {
+      const yaw = mascot.root.rotation.y;
+      const bx = -Math.sin(yaw), bz = -Math.cos(yaw);
+      trail.emit(dt, { x: bx * 0.2, y: 0.6, z: bz * 0.2, bx, bz, v: 9, across: 'up' });
+    }
+    trail.update(dt);
 
     // Particles: dust from the boots, steam from coffee, rocket flame, confetti cannons at demo time
     if (G.state === 'run') {
@@ -1024,6 +1101,25 @@ function start() {
     lx: [0, 0, 0], ly: [6, 3, 0.95], lz: [-100, -45, 0], fov: [50, 58, 56],
   };
   const TITLE_VIEW = { x: 0, y: 1.4, z: 4.2, lx: 0, ly: 0.95, lz: 0, fov: 56 };
+  /* The shop: the star, hat and all, fitted into the open space above the
+     shelves (whatever the screen's shape), seen from a little above. */
+  let SHOP_VIEW = null;
+  function shopView() {
+    const st = stageEl.getBoundingClientRect();
+    const view = app.querySelector('.shop__view');
+    const r = view && view.getBoundingClientRect();
+    const H = Math.max(1, st.height);
+    const top = r && r.height ? (r.top - st.top) / H : 0.08;
+    const bottom = r && r.height ? (r.bottom - st.top) / H : 0.44;
+    const fov = 46;
+    const t = Math.tan((fov * Math.PI) / 360);
+    const tall = 1.6, wide = 1.5, mid = 0.78; // metres: the star with a hat (or halo), with wings; its middle
+    const dist = Math.max(tall / (2 * t * 0.8 * (bottom - top)), wide / (2 * t * (st.width / H) * 0.9), 3.2);
+    const f = top + 0.46 * (bottom - top);   // where its middle goes, from the top
+    const y = mid + 0.45;
+    const down = Math.atan((y - mid) / dist) + Math.atan(t * (1 - 2 * f));
+    return { x: 0, y, z: dist, lx: 0, ly: y - dist * Math.tan(down), lz: 0, fov };
+  }
 
   function updateCamera(dt) {
     // Opening move: a wide shot of the stage, then pull back and down to the star
@@ -1044,7 +1140,7 @@ function start() {
     const fast = clamp((speedAt(G.distance) - SPEED.ref) / (SPEED.vmax - SPEED.ref), 0, 1);
     const t = running
       ? { x: G.x * 0.5, y: 3.3 + G.y * (0.3 + 0.5 * f) + 0.4 * f, z: 6.2 + 0.8 * f, lx: G.x * 0.8, ly: 0.85 + G.y * 0.62 * f, lz: -10, fov: 66 + 5 * fast + 6 * madAmt() + 10 * boostEnv() + 4 * f }
-      : TITLE_VIEW;
+      : G.shop ? SHOP_VIEW || (SHOP_VIEW = shopView()) : TITLE_VIEW;
     const rate = running && G.stateTime > 0.8 ? 7 : 3.2;
     for (const k in t) camState[k] = approach(camState[k], t[k], k === 'x' || k === 'lx' ? 6 : rate, dt);
     applyCamera(dt);
@@ -1060,6 +1156,7 @@ function start() {
       camera.updateProjectionMatrix();
       puffs.setView(renderer.domElement.height, camera.fov, maxPoint);
       glints.setView(renderer.domElement.height, camera.fov, maxPoint);
+      trail.setView(renderer.domElement.height, camera.fov, maxPoint);
     }
   }
 
@@ -1077,6 +1174,7 @@ function start() {
 
   /* Render loop -------------------------------------------------------------- */
   function resize() {
+    SHOP_VIEW = null;
     const r = stageEl.getBoundingClientRect();
     const w = Math.max(1, Math.round(r.width));
     const h = Math.max(1, Math.round(r.height));
@@ -1088,6 +1186,7 @@ function start() {
     post.setSize(renderer.domElement.width, renderer.domElement.height, renderer.getPixelRatio());
     puffs.setView(renderer.domElement.height, camera.fov, maxPoint);
     glints.setView(renderer.domElement.height, camera.fov, maxPoint);
+    trail.setView(renderer.domElement.height, camera.fov, maxPoint);
   }
   new ResizeObserver(resize).observe(stageEl);
   quality.onChange(() => { applyQuality(); resize(); });
@@ -1155,7 +1254,7 @@ function start() {
      or ?debug: on the live game they would let anyone set their score from the
      console (and runs in those modes are never sent to the leaderboard). */
   if (CAPTURE || DEBUG) window.__game = {
-    G, TUNING, renderer, scene, camera, mascot, world, obstacles, quality, post, puffs, glints, ui, popups, menu, online, audio,
+    G, TUNING, renderer, scene, camera, mascot, world, obstacles, quality, post, puffs, glints, ui, popups, menu, online, audio, outfit, trail,
     toTitle,
     setQuality(name) { quality.forced = true; quality.set(name); },
     render,

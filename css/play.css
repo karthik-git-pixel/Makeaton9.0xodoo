@@ -573,8 +573,15 @@ body {
 .title__icons {
   display: flex;
   justify-content: center;
-  gap: clamp(16px, 6cqw, 26px);
+  gap: clamp(12px, 4.4cqw, 24px);
   margin: 0 0 8px;
+}
+/* the narrowest phones: five stickers still fit in a row */
+@container (max-width: 359px) {
+  .title__icons { gap: 9px; }
+  .icon-btn { width: 47px; height: 47px; }
+  .icon-btn__face svg { width: 25px; height: 25px; }
+  .icon-btn--me .avatar { --s: 41px !important; }
 }
 .icon-btn {
   position: relative;
@@ -599,6 +606,10 @@ body {
 .icon-btn__face svg { width: 28px; height: 28px; fill: currentColor; }
 .icon-btn--board { background: var(--logo-yellow); }
 .icon-btn--how { background: #7FA9FF; }
+.icon-btn--shop { background: #C493FF; }
+/* your sparkles: yellow on the logo's purple, with a sparkle in front */
+.icon-btn__tag--spark { background: var(--logo-purple); }
+.icon-btn__tag--spark::before { content: "✦"; margin-right: 2px; font-size: 0.85em; }
 .icon-btn--me .avatar { --s: 48px !important; border: 0; } /* your mascot fills the sticker */
 .icon-btn__tag {
   position: absolute;
@@ -1250,6 +1261,310 @@ body {
 .result__line b { font-family: var(--font-display); font-weight: 400; font-size: 20px; letter-spacing: 0.04em; }
 .result__row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 
+.result__spark {
+  display: block;
+  width: fit-content;
+  margin: 6px auto 0;
+  padding: 2px 10px 1px;
+  font-size: 12px;
+  color: var(--logo-yellow);
+  background: var(--logo-purple);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+.result__spark::before { content: "✦ "; }
+
+/* ==========================================================================
+   The Sparkle Shop (js/play/shop.js): the 3D star stays in view at the top,
+   the shelves slide up from the bottom. Rarity colours: common green, rare
+   blue, epic purple, legendary gold.
+   ========================================================================== */
+/* the start screen steps aside (visibility, so its entrance animations don't replay after) */
+.title.is-shopping > *,
+.title.is-shopping::before { visibility: hidden; }
+
+.shop {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+.shop[hidden] { display: none; }
+.shop > * { pointer-events: auto; }
+/* messages ("Top Hat is yours!") sit just over the shelves, clear of the star's head */
+.stage:has(> .shop:not([hidden])) .notice { top: auto; bottom: calc(min(57%, 500px) + 10px); }
+[data-rarity="common"] { --rar: #1F9E55; --tile: #E6F7EB; --halo: #BDEFCD; }
+[data-rarity="rare"] { --rar: #3270F0; --tile: #E5EDFF; --halo: #B9CEFF; }
+[data-rarity="epic"] { --rar: #8A3FE8; --tile: #F1E7FF; --halo: #D9BFFF; }
+[data-rarity="legendary"] { --rar: #D99400; --tile: #FFF3C7; --halo: #FFDA66; }
+
+.shop__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(var(--safe-t) + 12px) calc(var(--safe-r) + 12px) 0 calc(var(--safe-l) + 12px);
+  animation: drop-in 0.35s cubic-bezier(.2, 1.3, .4, 1) both;
+}
+.shop__back {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  color: var(--ink);
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2.5px #fff, 0 0 0 4.5px var(--ink), 0 4px 0 4.5px var(--ink);
+  cursor: pointer;
+}
+.shop__back svg { fill: currentColor; }
+.shop__back:active { translate: 0 3px; box-shadow: 0 0 0 2.5px #fff, 0 0 0 4.5px var(--ink), 0 1px 0 4.5px var(--ink); }
+.shop__back:focus-visible { outline: 3px solid var(--blue); outline-offset: 6px; }
+.shop__title {
+  min-width: 0;
+  margin: 0;
+  font: 400 clamp(26px, 8.4cqw, 34px)/1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--logo-yellow);
+  -webkit-text-stroke: 0.1em var(--logo-purple);
+  paint-order: stroke fill;
+  text-shadow: 0.04em 0.07em 0 var(--logo-purple);
+  transform: rotate(-2deg);
+  white-space: nowrap;
+}
+.shop__wallet {
+  flex: none;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 12px 2px 8px;
+  font: 400 21px/1.1 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--logo-yellow);
+  background: var(--logo-purple);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 0 0 2.5px #fff, 0 0 0 4.5px var(--ink);
+  cursor: default;
+}
+.shop__wallet svg { width: 18px; height: 18px; fill: var(--logo-yellow); flex: none; }
+.shop__wallet.is-guest { cursor: pointer; font-size: 17px; }
+.shop__wallet:focus-visible { outline: 3px solid var(--blue); outline-offset: 6px; }
+
+/* the open space over the star: drag to turn it */
+.shop__view {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 120px;
+  touch-action: none;
+  cursor: grab;
+}
+.shop__view.is-dragging { cursor: grabbing; }
+.shop__spin {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px 3px 9px;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--paper);
+  background: rgba(12, 14, 15, 0.55);
+  border-radius: 999px;
+  translate: -50% 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.shop__spin svg { fill: currentColor; }
+.shop__view.is-dragging .shop__spin { opacity: 0; }
+
+.shop__drawer {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  height: min(57%, 500px);
+  background: var(--paper);
+  border-top: 3px solid var(--ink);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -5px 0 rgba(12, 14, 15, 0.22);
+  animation: sheet-in 0.36s cubic-bezier(.2, 1.2, .4, 1) both;
+}
+.shop__tabs {
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 12px 12px 4px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.shop__tabs button { padding: 7px 6px; font: 15px var(--font-tape); color: var(--ink); background: var(--paper); border: 0; cursor: pointer; }
+.shop__tabs button[aria-selected="true"] { background: var(--tape); }
+.shop__tabs button + button { border-left: 3px solid var(--ink); }
+.shop__tabs button:focus-visible { outline: 3px solid var(--blue); outline-offset: -5px; }
+
+.shop__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 12px 12px;
+}
+.shop__group { margin: 8px 2px 7px; font: 400 19px/1 var(--font-display); letter-spacing: 0.04em; }
+.shop__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px 8px; }
+.shop-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 5px 5px 7px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 2.5px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: 0 3px 0 var(--ink);
+  cursor: pointer;
+  transition: translate 0.12s ease, box-shadow 0.12s ease;
+}
+.shop-card:active { translate: 0 2px; box-shadow: 0 1px 0 var(--ink); }
+.shop-card:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.shop-card[aria-pressed="true"] {
+  box-shadow: 0 0 0 3px var(--tape), 0 0 0 5.5px var(--ink), 0 3px 0 5.5px var(--ink);
+  translate: 0 -2px;
+}
+.shop-card__pic {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 50% 46%, var(--halo) 0 36%, transparent 68%), var(--tile);
+  border-radius: 11px;
+  overflow: hidden;
+}
+.shop-card__pic img { width: 94%; height: 94%; object-fit: contain; -webkit-user-drag: none; }
+.shop-card__pic img[hidden] { display: none; }
+/* a rarity gem in the corner */
+.shop-card__gem {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 10px;
+  height: 10px;
+  background: var(--rar);
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  rotate: 45deg;
+}
+[data-rarity="legendary"] .shop-card__pic::after {
+  /* a slow shine across the legendary tiles */
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.75) 50%, transparent 58%);
+  animation: shop-shine 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+.shop-card__name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.3em;
+  font-size: 11.5px;
+  line-height: 1.12;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.shop-card__price,
+.shop-card__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 100%;
+  padding: 2px 8px 1px 6px;
+  font: 400 15px/1.1 var(--font-display);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+.shop-card__price { background: var(--tape); }
+.shop-card__price svg { width: 11px; height: 11px; fill: var(--ink); flex: none; }
+.shop-card__price.is-far { background: #EFE7DA; color: rgba(12, 14, 15, 0.72); }
+.shop-card__price.is-far svg { fill: rgba(12, 14, 15, 0.6); }
+.shop-card__state { padding: 2px 9px 1px; font: 12px/1.3 var(--font-tape); letter-spacing: 0; background: #fff; }
+.shop-card__state--on { background: #9EE6B8; }
+
+/* the bar at the bottom: what's picked, and what you can do with it */
+.shop__bar {
+  flex: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px calc(var(--safe-r) + 12px) calc(var(--safe-b) + 12px) calc(var(--safe-l) + 14px);
+  border-top: 2px dashed rgba(12, 14, 15, 0.3);
+}
+.shop__info { min-width: 0; }
+.shop__line { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.shop__name { font: 400 21px/1 var(--font-display); letter-spacing: 0.04em; }
+.shop__rarity {
+  padding: 1px 7px 0;
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--rar);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+.shop__blurb { margin: 3px 0 0; font-size: 12px; line-height: 1.3; opacity: 0.75; }
+.shop__note { margin: 4px 0 0; font-size: 12px; }
+.shop__meter {
+  height: 9px;
+  margin: 6px 0 0;
+  overflow: hidden;
+  background: #EFE7DA;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+.shop__meter i { display: block; height: 100%; background: linear-gradient(90deg, #FFE23A, #FFB800); border-right: 2px solid var(--ink); }
+.shop__act {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 10px 16px;
+  font-size: 16px;
+  white-space: nowrap;
+}
+.shop__act svg { width: 14px; height: 14px; fill: currentColor; flex: none; }
+.shop__act[hidden] { display: none; }
+.shop__act[disabled] { cursor: default; color: rgba(12, 14, 15, 0.65); background: #EFE7DA; box-shadow: 2px 2px 0 rgba(12, 14, 15, 0.5); transform: none; }
+.shop__act.is-confirm { color: #fff; background: var(--logo-red); animation: play-pulse 0.8s ease-in-out infinite; }
+@container (max-width: 359px) {
+  .shop__act { padding: 9px 12px; font-size: 14px; }
+  .shop__top { gap: 8px; }
+  .shop__title { font-size: 23px; }
+  .shop__wallet { padding: 2px 9px 1px 6px; font-size: 18px; }
+  .shop__wallet svg { width: 15px; height: 15px; }
+}
+.shop { container-type: inline-size; }
+
+@keyframes shop-shine { 0%, 55% { translate: -60% 0; } 100% { translate: 60% 0; } }
 @keyframes burst-spin { to { transform: rotate(360deg); } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes title-out { to { opacity: 0; transform: scale(1.06); } }
@@ -1270,7 +1585,8 @@ body {
 @keyframes twinkle { 0%, 100% { scale: 1; opacity: 1; } 50% { scale: 0.45; opacity: 0.55; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .title__burst, .title__logo img, .btn--play, .title__spark, .podium__crown, .icon-btn__live, .live i { animation: none !important; }
+  .title__burst, .title__logo img, .btn--play, .title__spark, .podium__crown, .icon-btn__live, .live i, .shop__act.is-confirm, .shop-card__pic::after { animation: none !important; }
+  .shop__top, .shop__drawer { animation-duration: 0.01s !important; }
   .podium__spot, .lb__row, .hud__sparkles.is-pop, .hud__sparkles.is-pop svg { animation-duration: 0.01s !important; animation-delay: 0s !important; }
   .title__top, .title__foot, .title__tag, .title__sound, .sheet__card, .notice { animation-duration: 0.01s !important; animation-delay: 0s !important; }
 }
