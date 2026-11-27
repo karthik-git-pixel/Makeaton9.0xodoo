@@ -12,12 +12,12 @@
  *   events      short themed stretches (a bug swarm, a board meeting...)
  */
 
-/* Speed in m/s: v0 at the start, approaching vmax. It climbs hard (about
-   19 m/s at 500 m, 23 at 1 km, 29 at 2 km, 33 at 3 km, 36 at 5 km), doubling
-   in the first minute and a half, then keeps edging up. Obstacle spacing is
-   in seconds, so a faster run gives as long between moves; things are fully
-   in view 72 m ahead, about 1.9 s at top speed. */
-export const SPEED = { v0: 14, vmax: 38, scale: 2000, ref: 24 };
+/* Speed in m/s: v0 at the start, approaching vmax. It climbs fast (about
+   22 m/s at 500 m, 27 at 1 km, 33 at 2 km, 37 at 3 km, 39 at 5 km): nearly
+   double within the first minute, then it keeps edging up. Obstacle spacing
+   is in seconds, so a faster run gives as long between moves; things are
+   fully in view 72 m ahead, about 1.8 s at top speed. */
+export const SPEED = { v0: 15, vmax: 40, scale: 1500, ref: 24 };
 export const speedAt = (distance) => SPEED.v0 + (SPEED.vmax - SPEED.v0) * (1 - Math.exp(-Math.max(0, distance) / SPEED.scale));
 
 /* Levels: level 2 at 250 m, then each level is 100 m longer than the one before
@@ -34,19 +34,20 @@ export function levelAt(distance) {
 export const MAX_MULTIPLIER = 10;
 export const multiplierFor = (level) => Math.min(level, MAX_MULTIPLIER);
 
-/* 0 at the start, 1 from about 1.8 km on. */
-export const difficultyAt = (distance) => Math.min(1, Math.max(0, distance) / 1800) ** 0.8;
-/* After that the rows keep closing in a little: 0 at 1.8 km, 1 from 6.8 km on. */
-export const lateAt = (distance) => Math.min(1, Math.max(0, distance - 1800) / 5000);
+/* 0 at the start, 1 from 1 km on (about 45 s in): the run gets hard fast. */
+export const difficultyAt = (distance) => Math.min(1, Math.max(0, distance) / 1000) ** 0.7;
+/* After that the rows keep closing in: 0 at 1 km, 1 from 4 km on. */
+export const lateAt = (distance) => Math.min(1, Math.max(0, distance - 1000) / 3000);
 
-/* What appears from which level. 'rollingChair' is a chair that rolls at you. */
+/* What appears from which level (level 2 at 250 m, 3 at 600, 4 at 1050, 5 at
+   1600): every kind of obstacle is in by about 1.6 km. 'rollingChair' is a
+   chair that rolls at you. */
 export const UNLOCK = {
   beetle: 1, chair: 1, board: 1, coffee: 1, shield: 1,
   firefly: 2, hurdle: 2, magnet: 2,
   ant: 3, standee: 3, duck: 3, pizza: 3, rocket: 3,
-  roly: 4, rollingChair: 4,
-  hopper: 5,
-  stack: 6,
+  roly: 4, rollingChair: 4, hopper: 4,
+  stack: 5,
 };
 
 /* The day: hours 0..25 over DAY_M metres, then round again (24-25 is the

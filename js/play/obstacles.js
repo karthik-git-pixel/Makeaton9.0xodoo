@@ -569,7 +569,7 @@ const ALL = ['jump', 'slide', 'block'];
 
 export const PATTERNS = [
   {
-    name: 'single', level: 1, weight: (d) => 1.3 - 0.8 * d,
+    name: 'single', level: 1, weight: (d) => 1.3 - 0.95 * d,
     ok: (c) => c.any(ALL),
     make(c) {
       const type = c.pickAny(ALL);
@@ -582,7 +582,7 @@ export const PATTERNS = [
     },
   },
   {
-    name: 'pair', level: 1, from: 140, weight: (d) => 0.35 + 0.6 * d,
+    name: 'pair', level: 1, from: 140, weight: (d) => 0.35 + 0.7 * d,
     ok: (c) => c.any(ALL),
     make(c) {
       const free = c.lane();
@@ -603,7 +603,7 @@ export const PATTERNS = [
     },
   },
   {
-    name: 'mixed', level: 2, weight: (d) => 0.08 + 0.3 * d,
+    name: 'mixed', level: 2, weight: (d) => 0.08 + 0.4 * d,
     ok: (c) => c.any(['jump']) && c.any(['slide']),
     make(c) {
       // read your lane: each lane needs one move, at least one jump and one slide
@@ -613,14 +613,14 @@ export const PATTERNS = [
     },
   },
   {
-    name: 'combo', level: 2, from: 420, weight: (d) => 0.06 + 0.32 * d,
+    name: 'combo', level: 2, from: 420, weight: (d) => 0.06 + 0.4 * d,
     ok: (c) => c.any(['jump']) && c.any(['slide']),
     make(c) {
-      // the same lane asks for two moves in a row
+      // the same lane asks for two moves in a row, quicker later on
       const lane = c.lane();
       const seq = c.r() < 0.5 ? [c.pick('slide'), c.pick('jump')] : [c.pick('jump'), c.pick('slide')];
       c.add(seq[0], lane, 0);
-      const gap = c.speed * 0.72;
+      const gap = c.speed * (0.72 - 0.14 * c.d);
       c.add(seq[1], lane, gap);
       c.sparkleLine((lane + 1) % 3, gap / 2, 3);
       return gap / c.speed;
@@ -636,7 +636,7 @@ export const PATTERNS = [
       const lead = c.speed * 0.25;
       c.add('standee', left, lead);
       // later on, the free lane sometimes has something to jump just after it
-      if (c.d > 0.5 && c.r() < 0.35 && c.any(['jump'])) { c.add(c.pick('jump'), free, lead + c.speed * 0.6); return 0.8; }
+      if (c.d > 0.5 && c.r() < 0.45 && c.any(['jump'])) { c.add(c.pick('jump'), free, lead + c.speed * (0.6 - 0.1 * c.d)); return 0.75; }
       c.sparkleLine(free, lead);
       return 0.35;
     },
@@ -667,11 +667,12 @@ export const PATTERNS = [
     make(c) {
       const lane = c.lane();
       c.add('roly', lane, 0);
-      if (c.r() < 0.3 + 0.3 * c.d) {
-        // a second one, in another lane, half a second later
+      if (c.r() < 0.3 + 0.4 * c.d) {
+        // a second one, in another lane, half a second later (less, later on)
         const l2 = (lane + 1 + Math.floor(c.r() * 2)) % 3;
-        c.add('roly', l2, c.speed * 0.55);
-        return 0.55;
+        const gap = 0.55 - 0.1 * c.d;
+        c.add('roly', l2, c.speed * gap);
+        return gap;
       }
       c.sparkleArc(lane);
       return 0.1;
@@ -681,15 +682,16 @@ export const PATTERNS = [
     name: 'stampede', level: 4, weight: (d) => 0.1 + 0.2 * d, boost: { stampede: 3 },
     ok: (c) => c.has('rollingChair'),
     make(c) {
-      // two chairs roll at you, the second three-quarters of a second after the first:
-      // dodge into the lane the first one has just left, or go round both early
+      // two chairs roll at you, the second three-quarters of a second after the
+      // first (0.6 s later on): dodge into the lane the first one has just
+      // left, or go round both early
       const free = c.lane();
       const lanes = shuffle([0, 1, 2].filter((l) => l !== free), c.r);
-      const gap = c.speed * 0.75;
+      const secs = 0.75 - 0.15 * c.d;
       c.add('chair', lanes[0], 0, { roll: true });
-      c.add('chair', lanes[1], gap, { roll: true });
+      c.add('chair', lanes[1], c.speed * secs, { roll: true });
       c.sparkleLine(free, 0, 5);
-      return 0.75;
+      return secs;
     },
   },
   {
@@ -705,21 +707,21 @@ export const PATTERNS = [
     },
   },
   {
-    name: 'zigzag', level: 4, weight: (d) => 0.32 * d, boost: { stampede: 2 },
+    name: 'zigzag', level: 4, weight: (d) => 0.42 * d, boost: { stampede: 2 },
     ok: (c) => c.any(['block']),
     make(c) {
       // two rows of tall things: the gap swaps sides, so it's two quick swipes
       const first = c.r() < 0.5 ? 0 : 2;
       const second = 2 - first;
       for (let l = 0; l < 3; l++) if (l !== first) c.add(c.pick('block'), l, 0);
-      const gap = c.speed * (0.7 - 0.06 * c.d);
+      const gap = c.speed * (0.7 - 0.14 * c.d);
       for (let l = 0; l < 3; l++) if (l !== second) c.add(c.pick('block'), l, gap);
       c.sparkleLine(first, 0, 3);
       return 0.25 + gap / c.speed;
     },
   },
   {
-    name: 'breather', level: 1, from: 180, weight: (d) => 0.16 - 0.06 * d, boost: { rush: 50 },
+    name: 'breather', level: 1, from: 180, weight: (d) => 0.16 - 0.1 * d, boost: { rush: 50 },
     ok: () => true,
     make(c) {
       c.sparkleWave();
@@ -958,11 +960,12 @@ export class Obstacles {
     for (const p of options) { roll -= weight(p); if (roll <= 0) { pattern = p; break; } }
     const extraGap = pattern.make(c) || 0;
 
-    // Seconds to the next row: long at first, shorter as the run goes on
-    // (0.66 s from 1.8 km), then a little shorter still on long runs (0.56 s
-    // from 6.8 km). A jump lasts 0.5 s, so even then there's time to land.
-    const base = (1.15 + (0.66 - 1.15) * d) * (1 - 0.15 * lateAt(at));
-    let gapSeconds = Math.max(0.5, base + r() * 0.25 * (1 - 0.5 * d) + extraGap);
+    // Seconds to the next row: 1 s at the start, 0.56 s from 1 km (about 45 s
+    // in), 0.46 s from 4 km. Every move still fits: a lane change takes under
+    // 0.1 s, a jump 0.5 s (jump again the moment you land), and sliding in the
+    // air dives you straight down.
+    const base = (1.0 + (0.56 - 1.0) * d) * (1 - 0.18 * lateAt(at));
+    let gapSeconds = Math.max(0.42, base + r() * 0.22 * (1 - 0.6 * d) + extraGap);
     if (ev && ev.type === 'rush') gapSeconds = Math.max(0.5, gapSeconds * 0.55);
     const next = at + speed * gapSeconds;
 

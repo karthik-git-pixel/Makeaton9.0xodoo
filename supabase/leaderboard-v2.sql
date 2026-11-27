@@ -84,26 +84,27 @@ as $$
 $$;
 
 -- The most points a run of d metres can have. Simulated in the game (as tuned
--- on 2026-11-27: speed 14 -> 38 m/s, rocket 6.5 s) with no way to die and
--- pizza (double points), the magnet and debug mode on the whole time, runs
--- reach at most about 11 times the distance points. Real players can't.
+-- on 2026-11-27: speed 15 -> 40 m/s, rows every 0.46-1 s, rocket 6.5 s) with
+-- no way to die and pizza (double points), the magnet and debug mode on the
+-- whole time, runs reach at most about 13.5 times the distance points. Real
+-- players can't.
 create or replace function public.score_limit(d double precision)
 returns double precision
 language sql
 immutable
 set search_path = ''
-as $$ select 12 * public.run_base_points(d) + 5000 $$;
+as $$ select 15 * public.run_base_points(d) + 5000 $$;
 
 -- Above this a run is held until an organiser approves it. Simulated runs that
--- can't die but get power-ups as they come reach about 2.6 times; good real
--- players steer for the sparkles and get about a third more (3.5 or so).
+-- can't die but get power-ups as they come reach about 3.3 times; good real
+-- players steer for the sparkles and get about a third more (4.4 or so).
 -- Change the game's speed, scoring or power-ups? Simulate again and re-tune.
 create or replace function public.score_review_line(d double precision)
 returns double precision
 language sql
 immutable
 set search_path = ''
-as $$ select 4.5 * public.run_base_points(d) + 2000 $$;
+as $$ select 5.5 * public.run_base_points(d) + 2000 $$;
 
 
 -- 5. Who is playing: a Google / email player with a profile ------------------------
@@ -190,7 +191,7 @@ begin
   if p_score is null or p_distance is null or p_seconds is null
      or p_score < 0 or p_distance < 0 or coalesce(p_sparkles, 0) < 0 or p_seconds <= 0
      or p_seconds > elapsed + 10                       -- longer than the run really lasted
-     or p_distance > p_seconds * 44 + 150              -- faster than the star can run (up to 38 m/s, a bit more on coffee)
+     or p_distance > p_seconds * 46 + 150              -- faster than the star can run (up to 40 m/s, a bit more on coffee)
      or p_score > public.score_limit(p_distance) then  -- more points than the distance allows
     verdict := 'rejected';
   elsif p_score > public.score_review_line(p_distance) then

@@ -564,50 +564,6 @@ body {
   gap: 10px;
   animation: rise-in 0.6s cubic-bezier(.2, 1.3, .4, 1) 2.15s both;
 }
-/* You: a small sticker like the logo (white edge, slanted, a 3D drop) */
-.title__best {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  max-width: calc(100% - 24px);
-  margin: 0 0 4px;
-  padding: 3px 12px 3px 10px;
-  font: 400 clamp(15px, 5.4cqw, 19px)/1.1 var(--font-display);
-  letter-spacing: 0.04em;
-  color: var(--ink);
-  white-space: nowrap;
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: 12px;
-  box-shadow: var(--sticker), 0 5px 0 5px var(--ink);
-  transform: skewX(-8deg) rotate(-2deg);
-  cursor: pointer;
-  transition: translate 0.12s ease, box-shadow 0.12s ease;
-}
-.title__best[hidden] { display: none; }
-.title__best:active { translate: 0 4px; box-shadow: var(--sticker), 0 1px 0 5px var(--ink); }
-.title__best:focus-visible { outline: 3px solid var(--blue); outline-offset: 6px; }
-.title__edit { display: inline-flex; margin: 0 -3px 0 2px; }
-.title__edit svg { width: 15px; height: 15px; fill: currentColor; }
-.title__best b { font-weight: 400; font-size: 1.1em; color: var(--logo-red); -webkit-text-stroke: 0.04em var(--ink); paint-order: stroke fill; }
-.title__best .avatar { --s: 26px; margin: -3px 2px -3px -4px; border-width: 2px; }
-.title__me { flex: 0 1 auto; }
-.title__me { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-/* your place, on a red tag with the logo's lettering */
-.title__rank {
-  margin-left: 3px;
-  padding: 1px 7px 0;
-  font: 400 1em/1.15 var(--font-display);
-  letter-spacing: 0.04em;
-  color: var(--logo-yellow);
-  -webkit-text-stroke: 0.06em var(--ink);
-  paint-order: stroke fill;
-  background: var(--logo-red);
-  border: 2px solid var(--ink);
-  border-radius: 7px;
-  rotate: 4deg;
-}
-
 /* A dark wash behind the buttons, so they stand off the busy hall */
 .title::before {
   content: "";
@@ -635,87 +591,79 @@ body {
 .title__spark--c { top: 56%; left: -2%; --s: 15px; --c: #F57EB4; animation-delay: 1.3s, 2.3s; }
 .title__spark--d { top: 62%; right: 0; --s: 22px; animation-delay: 0.35s, 2.3s; }
 
-/* Leaderboard and How to play: white stickers like the logo, slanted the same
-   way as PLAY, with a tilted icon badge and a second line */
-.title__row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: min(100% - 8px, 360px); }
-.tile {
+/* Everything but PLAY: a row of round stickers like the logo (white edge,
+   outline, 3D drop). Small red tags carry your best (on you) and your rank
+   (on the trophy); a green dot pings while the board is live. */
+.title__icons {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  padding: 6px 8px 6px 6px;
-  font-family: var(--font-tape);
-  color: var(--ink);
-  text-align: left;
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: 13px;
-  box-shadow: var(--sticker), 0 5px 0 5px var(--ink);
-  transform: skewX(-8deg);
-  cursor: pointer;
-  transition: translate 0.12s ease, box-shadow 0.12s ease;
+  justify-content: center;
+  gap: clamp(16px, 6cqw, 26px);
+  margin: 0 0 8px;
 }
-.tile > * { transform: skewX(8deg); } /* the contents stand upright */
-.tile:active { translate: 0 4px; box-shadow: var(--sticker), 0 1px 0 5px var(--ink); }
-.tile:focus-visible { outline: 3px solid var(--blue); outline-offset: 7px; }
-.tile__icon {
+.icon-btn {
+  position: relative;
   flex: none;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  border: 2.5px solid var(--ink);
-  border-radius: 9px;
-  box-shadow: 2px 2px 0 var(--ink);
-}
-.tile__icon svg { width: 20px; height: 20px; }
-.tile__icon svg { fill: var(--ink); }
-.tile--board .tile__icon { background: var(--logo-yellow); transform: skewX(8deg) rotate(-8deg); }
-.tile--how .tile__icon { background: #7FA9FF; transform: skewX(8deg) rotate(7deg); }
-.tile__text { display: grid; min-width: 0; gap: 1px; }
-/* the label in the logo's lettering */
-.tile__text b {
-  font: 400 clamp(15px, 4.9cqw, 20px)/1 var(--font-display); /* cqw: of the game's frame */
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.tile__text small { font-size: clamp(9px, 2.7cqw, 10.5px); line-height: 1.2; letter-spacing: 0.01em; opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* "#1 Asha · 48,210", one runner at a time, with a live dot */
-.ticker { display: flex; align-items: center; gap: 4px; height: 14px; overflow: hidden; }
-.tile__text .ticker { opacity: 1; }
-.ticker::before {
-  content: "";
-  flex: none;
-  width: 7px;
-  height: 7px;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--paper);
+  border: 3px solid var(--ink);
   border-radius: 50%;
-  background: #A0A0A0;
+  box-shadow: var(--sticker), 0 5px 0 5px var(--ink);
+  cursor: pointer;
+  transition: translate 0.12s ease, box-shadow 0.12s ease;
 }
-.ticker.is-live::before { background: #19C25B; box-shadow: 0 0 0 0 rgba(25, 194, 91, 0.6); animation: live-ping 1.6s ease-out infinite; }
-.ticker__line { min-width: 0; overflow: hidden; text-overflow: ellipsis; animation: ticker-in 0.35s cubic-bezier(.2, 1.3, .4, 1); }
+.icon-btn:active { translate: 0 4px; box-shadow: var(--sticker), 0 1px 0 5px var(--ink); }
+.icon-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 7px; }
+.icon-btn__face { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; }
+.icon-btn__face svg { width: 28px; height: 28px; fill: currentColor; }
+.icon-btn--board { background: var(--logo-yellow); }
+.icon-btn--how { background: #7FA9FF; }
+.icon-btn--me .avatar { --s: 48px !important; border: 0; } /* your mascot fills the sticker */
+.icon-btn__tag {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  translate: -50% 0;
+  padding: 1px 6px 0;
+  font: 400 14px/1.15 var(--font-display);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: var(--logo-yellow);
+  -webkit-text-stroke: 0.07em var(--ink);
+  paint-order: stroke fill;
+  background: var(--logo-red);
+  border: 2px solid var(--ink);
+  border-radius: 7px;
+  rotate: -5deg;
+  pointer-events: none;
+}
+.icon-btn__tag[hidden] { display: none; }
+.icon-btn--board .icon-btn__tag { top: -12px; right: -14px; bottom: auto; left: auto; translate: none; rotate: 8deg; }
+.icon-btn__live {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 13px;
+  height: 13px;
+  background: #19C25B;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  animation: live-ping 1.6s ease-out infinite;
+}
+.icon-btn__live[hidden] { display: none; }
 .title__when {
-  margin: 2px 0 0;
+  margin: 0;
   font-size: 11px;
   letter-spacing: 0.03em;
   color: var(--paper);
   text-shadow: 0 1px 2px rgba(12, 14, 15, 0.9);
   text-align: center;
 }
-/* Back to the Make-A-Ton site */
-.title__home {
-  display: inline-block;
-  padding: 6px 2px;          /* a bigger tap target than the 11px text */
-  margin: -6px 0;
-  color: var(--tape);
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 2px;
-}
-.title__home:focus-visible { outline: 2px solid var(--tape); outline-offset: 2px; border-radius: 4px; }
 
 /* The same link beside the framed game on wide screens */
 .home-pill { display: none; }
@@ -804,7 +752,8 @@ body {
 @media (max-height: 620px) {
   .title__foot { gap: 8px; }
   .btn--play { margin: 0 0 6px; padding: 2px 28px 6px 20px; font-size: clamp(38px, 12cqw, 46px); }
-  .title__best { margin-bottom: 2px; }
+  .icon-btn { width: 48px; height: 48px; }
+  .icon-btn--me .avatar { --s: 42px !important; }
 }
 
 .btn--ghost {
@@ -1268,11 +1217,10 @@ body {
 @keyframes crown-bob { 50% { translate: 0 -3px; rotate: 6deg; } }
 @keyframes live-blink { 50% { opacity: 0.25; } }
 @keyframes live-ping { 0% { box-shadow: 0 0 0 0 rgba(25, 194, 91, 0.6); } 100% { box-shadow: 0 0 0 7px rgba(25, 194, 91, 0); } }
-@keyframes ticker-in { from { opacity: 0; transform: translateY(9px); } }
 @keyframes twinkle { 0%, 100% { scale: 1; opacity: 1; } 50% { scale: 0.45; opacity: 0.55; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .title__burst, .title__logo img, .btn--play, .btn--play::after, .title__spark, .podium__crown, .ticker::before, .live i { animation: none !important; }
-  .podium__spot, .lb__row, .ticker__line, .hud__sparkles.is-pop, .hud__sparkles.is-pop svg { animation-duration: 0.01s !important; animation-delay: 0s !important; }
+  .title__burst, .title__logo img, .btn--play, .btn--play::after, .title__spark, .podium__crown, .icon-btn__live, .live i { animation: none !important; }
+  .podium__spot, .lb__row, .hud__sparkles.is-pop, .hud__sparkles.is-pop svg { animation-duration: 0.01s !important; animation-delay: 0s !important; }
   .title__top, .title__foot, .title__tag, .sheet__card, .notice { animation-duration: 0.01s !important; animation-delay: 0s !important; }
 }

@@ -12,8 +12,15 @@ import { CATALOG } from './progress.js';
 
 const BOARD_SIZE = 100;        // runners the open leaderboard lists (podium + list)
 const BOARD_REFRESH = 15000;   // ms between leaderboard updates while it's open
-const TOP_STALE = 30000;       // ms before the start screen fetches the top runners again
-const TICK = 2800;             // ms each top runner shows on the start screen's Leaderboard button
+const TOP_STALE = 30000;       // ms before the start screen checks the board (and your place) again
+
+/** A best score short enough for a tag: 9,850 · 15.2K · 152K · 1.2M */
+function compact(n) {
+  const short = (v, unit) => `${v >= 100 ? Math.round(v) : (Math.round(v * 10) / 10).toString()}${unit}`;
+  if (n >= 1e6) return short(n / 1e6, 'M');
+  if (n >= 1e4) return short(n / 1e3, 'K');
+  return formatScore(n);
+}
 
 /** Makes an element: el('p', { class, text, onclick, ... }, ...children) */
 function el(tag, attrs = {}, ...kids) {
@@ -80,18 +87,24 @@ export class Menu {
     this.sheetCard = this.sheet.querySelector('.sheet__card');
     this.sheetTitle = $('#sheetTitle');
     this.sheetBody = $('#sheetBody');
-    this.bestEl = $('#titleBest');
-    this.tickerEl = $('#boardTicker');
+    // the start screen's icons (see play.html: "you", the trophy, how to play, home)
+    this.meBtn = $('#meBtn');
+    this.meFace = $('#meFace');
+    this.meIcon = this.meFace.innerHTML; // the plain person, for when you're signed out
+    this.meTag = $('#meTag');
+    this.boardBtn = $('#boardBtn');
+    this.rankTag = $('#rankTag');
+    this.boardLive = $('#boardLive');
     this.noticeEl = $('#notice');
     this.current = null;   // the open panel
     this.returnFocus = null;
-    this.top = null;       // the top runners, for the start screen ({ rows, at })
+    this.top = null;       // the board as the start screen last saw it ({ live, rank, at })
     this.best = 0;
 
     $('#playBtn').addEventListener('click', () => this.onPlay());
-    $('#boardBtn').addEventListener('click', () => this.open('leaderboard'));
+    this.boardBtn.addEventListener('click', () => this.open('leaderboard'));
     $('#howBtn').addEventListener('click', () => this.open('how'));
-    this.bestEl.addEventListener('click', () => this.open('profile'));
+    this.meBtn.addEventListener('click', () => this.open('profile'));
     this.sheet.querySelector('.sheet__close').addEventListener('click', () => this.close());
     this.sheet.addEventListener('click', (e) => { if (e.target === this.sheet) this.close(); });
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.current) { e.preventDefault(); this.close(); } });
@@ -153,7 +166,6 @@ export class Menu {
   /** Fades the start screen out (when a run starts). */
   hideTitle() {
     this.noticeEl.hidden = true;
-    clearInterval(this.tickTimer);
     if (this.title.hidden) return;
     this.close();
     this.title.classList.add('is-leaving');
@@ -161,53 +173,42 @@ export class Menu {
     this.leaveTimer = setTimeout(() => { this.title.hidden = true; this.title.classList.remove('is-leaving'); }, 340);
   }
 
-  /** "Your best 12,340"; signed in, with your mascot, name and place on the board. */
+  /**
+   * The start screen's icons: "you" shows your mascot (signed in) and your
+   * best on a tag; the trophy shows your place on a tag and a live dot.
+   */
   setBest(best) {
     this.best = best;
     const p = online.signedIn && online.profile;
-    this.bestEl.hidden = !(best > 0 || p);
-    const me = p && this.top && this.top.rows.find((r) => r.is_me);
-    this.bestEl.title = p ? 'Change your name or mascot' : 'Sign in to go on the leaderboard';
-    this.bestEl.replaceChildren(...(p
-      ? [avatar(p.mascot, 24), el('span', { class: 'title__me', text: p.username }), best > 0 && ' · best ', best > 0 && el('b', { text: formatScore(best) }), me && el('span', { class: 'title__rank', text: `#${me.rank}` }), el('span', { class: 'title__edit' }, icon('edit'))]
-      : ['Your best ', el('b', { text: formatScore(best) })]).filter(Boolean));
+    if (p) this.meFace.replaceChildren(avatar(p.mascot, 48));
+    else this.meFace.innerHTML = this.meIcon;
+    this.meTag.hidden = !(best > 0);
+    this.meTag.textContent = best > 0 ? compact(best) : '';
+    const bestText = best > 0 ? `, best ${formatScore(best)}` : '';
+    this.meBtn.setAttribute('aria-label', p ? `${p.username}: your profile${bestText}` : `Sign in to go on the leaderboard${bestText}`);
+    this.meBtn.title = p ? 'Your profile' : 'Sign in';
+    const rank = p && this.top && this.top.rank;
+    this.rankTag.hidden = !rank;
+    this.rankTag.textContent = rank ? `#${rank}` : '';
+    this.boardBtn.setAttribute('aria-label', rank ? `Leaderboard: you're #${rank}` : 'Leaderboard');
+    this.boardLive.hidden = !(this.top && this.top.live);
   }
 
-  /**
-   * The start screen's Leaderboard button shows who's on top, one runner at a
-   * time ("#1 Asha · 48,210"), so the board feels alive before you open it.
-   */
+  /** Checks the board for the start screen: is it up, and where are you on it? */
   async refreshTop(force = false) {
-    if (!this.tickerEl) return;
-    if (force || !this.top || Date.now() - this.top.at > TOP_STALE) {
-      if (!this.top) this.setTicker('Live now', true);
-      try {
-        this.top = { rows: await online.leaderboard(5), at: Date.now() };
-      } catch (e) {
-        this.top = null;
-        this.setTicker(e.kind === 'not-set-up' ? 'Opens soon' : 'Top runners');
-        return;
+    if (!force && this.top && Date.now() - this.top.at < TOP_STALE) { this.setBest(this.best); return; }
+    let live = false;
+    let rank = null;
+    try {
+      await online.leaderboard(1);
+      live = true;
+      if (online.signedIn) {
+        const me = await online.myRank().catch(() => null);
+        rank = me && me.rank ? me.rank : null;
       }
-      this.setBest(this.best);
-    }
-    const rows = this.top.rows;
-    clearInterval(this.tickTimer);
-    if (!rows.length) { this.setTicker('Be the first!', true); return; }
-    let i = 0;
-    const show = () => {
-      const r = rows[i % rows.length];
-      this.setTicker(`#${r.rank} ${r.username} · ${formatScore(r.score)}`, true);
-      i++;
-    };
-    show();
-    if (rows.length > 1) this.tickTimer = setInterval(() => { if (!this.title.hidden) show(); }, TICK);
-  }
-
-  setTicker(text, live = false) {
-    const t = this.tickerEl;
-    t.classList.toggle('is-live', live);
-    const line = el('span', { class: 'ticker__line', text });
-    t.replaceChildren(line);
+    } catch (e) { /* offline, or not set up yet: no dot */ }
+    this.top = { live, rank, at: Date.now() };
+    this.setBest(this.best);
   }
 
   /** A short message over the start screen. */

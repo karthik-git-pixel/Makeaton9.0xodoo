@@ -86,24 +86,30 @@
           <i class="title__spark title__spark--d" aria-hidden="true"></i>
         </header>
         <footer class="title__foot">
-          <!-- Tapping it opens your profile (change name / mascot), or the join form -->
-          <button id="titleBest" class="title__best" type="button" hidden>Your best <b>0</b></button>
           <button id="playBtn" class="btn btn--play" type="button">
             <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.2-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>
             <span>PLAY</span>
           </button>
-          <div class="title__row">
-            <!-- The board's top runners tick through on this button (js/play/menu.js) -->
-            <button id="boardBtn" class="tile tile--board" type="button">
-              <span class="tile__icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1.1 1.8A5 5 0 0 1 7 9V7zm10 0v2a5 5 0 0 1-.1.8A2 2 0 0 0 18 8V7h-1z"/></svg></span>
-              <span class="tile__text"><b>Leaderboard</b><small id="boardTicker" class="ticker" aria-live="off"></small></span>
+          <!-- Everything else: round sticker icons. js/play/menu.js keeps their
+               tags current: your mascot and best on "you", your rank on the trophy. -->
+          <nav class="title__icons" aria-label="More">
+            <button id="meBtn" class="icon-btn icon-btn--me" type="button" aria-label="Sign in to go on the leaderboard" title="Sign in">
+              <span id="meFace" class="icon-btn__face"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4.4 0-8 2.3-8 5.2V21h16v-1.8c0-2.9-3.6-5.2-8-5.2z"/></svg></span>
+              <span id="meTag" class="icon-btn__tag" hidden></span>
             </button>
-            <button id="howBtn" class="tile tile--how" type="button">
-              <span class="tile__icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 14a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8zm.2-10.2c-2.3 0-3.9 1.3-4.1 3.3h2.6c.1-.7.6-1.1 1.4-1.1.9 0 1.4.5 1.4 1.2 0 .6-.3 1-1.2 1.6-1.1.7-1.6 1.4-1.5 2.7v.6h2.5v-.4c0-.7.3-1.1 1.2-1.6 1.1-.7 1.7-1.5 1.7-2.9 0-2.1-1.6-3.4-4-3.4z"/></svg></span>
-              <span class="tile__text"><b>How to play</b><small>Swipe · jump · slide</small></span>
+            <button id="boardBtn" class="icon-btn icon-btn--board" type="button" aria-label="Leaderboard" title="Leaderboard">
+              <span class="icon-btn__face"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1.1 1.8A5 5 0 0 1 7 9V7zm10 0v2a5 5 0 0 1-.1.8A2 2 0 0 0 18 8V7h-1z"/></svg></span>
+              <span id="rankTag" class="icon-btn__tag" hidden></span>
+              <i id="boardLive" class="icon-btn__live" hidden></i>
             </button>
-          </div>
-          <p class="title__when"><a class="title__home" href="./" data-home>&larr; makeaton.in</a> · 24-hour final · CUSAT, Kochi · 19–20 Dec</p>
+            <button id="howBtn" class="icon-btn icon-btn--how" type="button" aria-label="How to play" title="How to play">
+              <span class="icon-btn__face"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 14a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8zm.2-10.2c-2.3 0-3.9 1.3-4.1 3.3h2.6c.1-.7.6-1.1 1.4-1.1.9 0 1.4.5 1.4 1.2 0 .6-.3 1-1.2 1.6-1.1.7-1.6 1.4-1.5 2.7v.6h2.5v-.4c0-.7.3-1.1 1.2-1.6 1.1-.7 1.7-1.5 1.7-2.9 0-2.1-1.6-3.4-4-3.4z"/></svg></span>
+            </button>
+            <a class="icon-btn icon-btn--home" href="./" data-home aria-label="Back to makeaton.in" title="makeaton.in">
+              <span class="icon-btn__face"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 2.8 11h2.7v9.3h5V15h3v5.3h5V11h2.7z"/></svg></span>
+            </a>
+          </nav>
+          <p class="title__when">24-hour final · CUSAT, Kochi · 19–20 Dec</p>
         </footer>
       </section>
 
