@@ -298,7 +298,6 @@ function start() {
     return k * k * (3 - 2 * k);
   };
   const mult = () => multiplierFor(G.level) * (G.power.pizza > 0 ? 2 : 1);
-  const popupAt = (dy = 1.7, dz = -0.6) => new THREE.Vector3(G.x, G.y + dy, dz);
 
   /** Adds points (times the multiplier); with a label, they float up by the score. */
   function award(points, label) {
@@ -599,12 +598,17 @@ function start() {
   function word(list, side) {
     popups.show(list[G.wordN++ % list.length], { position: new THREE.Vector3(G.x + side * 1.0, 0.75 + G.y, 0.2), size: 0.5, life: 0.7, tilt: side > 0 ? 0.14 : -0.14, rise: 0.6 });
   }
+  /** A word on the floor just under the star (CLOSE ONE!, power-ups, BLOCKED!), level with the
+      camera so it stays on a phone's screen: never over the star or the aisle ahead (user, 2026-11-27). */
+  function underStar(text, size = 0.45, life = 1.0) {
+    popups.show(text, { position: new THREE.Vector3(G.x * 0.5, 0.35 + G.y, 1.6), size, life, tilt: G.wordN++ % 2 ? 0.08 : -0.08, rise: 0.3 });
+  }
 
   /* Power-ups ----------------------------------------------------------------- */
   function collectPower(kind, it) {
     award(TUNING.points.power);
     sparkleBurst(it.x, it.popTop, it.popZ, 12);
-    popups.show(POWER_POPUP[kind], { position: popupAt(1.65), size: 0.72, life: 1.0 });
+    underStar(POWER_POPUP[kind]);
     switch (kind) {
       case 'coffee':
         if (!G.flying) G.power.coffee = TUNING.power.coffee;
@@ -685,26 +689,17 @@ function start() {
     announceGap -= dt;
     if (announceGap > 0 || !announcements.length) return;
     const a = announcements.shift();
-    if (a.level) {
-      ui.levelUp(a.level, multiplierFor(a.level));
-      confetti(30, { x: G.x * 0.5, y: 3.6, z: -4 });
-      announceGap = 1.45;
-    } else {
-      // Yellow comic lettering, no white starburst behind it (the user found that white splash
-      // distracting mid-run). 0.6 keeps the letters as big as they were inside the starburst.
-      popups.show(a.text, { position: new THREE.Vector3(G.x * 0.4, 3.3, -3.6), style: 'shout', size: a.size * 0.6, life: 1.6, rise: 0.3, tilt: announceGap > -2 ? 0.07 : -0.06 });
-      if (a.conf) confetti(a.conf, { x: G.x * 0.5, y: 3.9, z: -4 });
-      announceGap = 1.25;
-    }
+    // Yellow comic lettering high up, over the top of the hall: lower down it
+    // hid the aisle ahead and what was coming down it (user, 2026-11-27).
+    popups.show(a.text, { position: new THREE.Vector3(G.x * 0.4, 5.5 + G.y, -3.6), style: 'shout', size: a.size * 0.5, life: 1.6, rise: 0.2, tilt: announceGap > -2 ? 0.07 : -0.06 });
+    if (a.conf) confetti(a.conf, { x: G.x * 0.5, y: 5.9 + G.y, z: -4 });
+    announceGap = 1.25;
   }
 
   /* Progress: levels, events, the day, a new best, tips ---------------------- */
   function checkProgress(dt) {
     const L = levelAt(G.distance);
-    if (L > G.level) {
-      G.level = L;
-      announce({ level: L });
-    }
+    if (L > G.level) G.level = L; // no banner: the user found LEVEL 2, 3... in the way
 
     for (const ev of obstacles.events) {
       if (!ev.announced && G.distance >= ev.startAt - G.speed * 1.9) {
@@ -972,7 +967,7 @@ function start() {
         G.slowLeft = REDUCED_MOTION ? 0.18 : TUNING.slowTime;
         G.nearMisses++;
         award(TUNING.points.near, 'CLOSE ONE');
-        popups.show('CLOSE ONE!', { position: popupAt(1.75), size: 0.8, life: 1.0 });
+        underStar('CLOSE ONE!');
         break;
       default:
         break;
@@ -1012,7 +1007,7 @@ function start() {
       impactFx(it);
       if (it.T.bug) G.squashed++;
       G.shake = Math.max(G.shake, REDUCED_MOTION ? 0.08 : 0.22);
-      popups.show('BLOCKED!', { position: popupAt(1.6), size: 0.75, life: 0.9 });
+      underStar('BLOCKED!', 0.45, 0.9);
       audio.sfx('block');
       return;
     }

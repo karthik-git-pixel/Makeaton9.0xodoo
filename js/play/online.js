@@ -37,11 +37,16 @@ export function inAppBrowser() {
 /** The mascots you can pick as your icon (cells of assets/play/avatars.webp, in this order). */
 export const MASCOTS = [
   { id: 'red-cool', name: 'Cool' }, { id: 'red-cheer', name: 'Cheer' }, { id: 'red-excited', name: 'Hyped' },
-  { id: 'red-curious', name: 'Curious' }, { id: 'red-star-eyes', name: 'Starstruck' }, { id: 'red-pet', name: 'Chill' },
+  { id: 'red-curious', name: 'Curious' }, { id: 'red-star-eyes', name: 'Starstruck' },
   { id: 'green-cool', name: 'Green cool' }, { id: 'green-cheer', name: 'Green cheer' }, { id: 'green-excited', name: 'Green hyped' },
-  { id: 'green-curious', name: 'Green curious' }, { id: 'green-star-eyes', name: 'Green starstruck' }, { id: 'yellow-wink', name: 'Wink' },
+  { id: 'green-curious', name: 'Green curious' }, { id: 'green-star-eyes', name: 'Green starstruck' },
+  { id: 'yellow-cool', name: 'Yellow cool' }, { id: 'yellow-cheer', name: 'Yellow cheer' }, { id: 'yellow-excited', name: 'Yellow hyped' },
+  { id: 'yellow-curious', name: 'Yellow curious' }, { id: 'yellow-star-eyes', name: 'Yellow starstruck' },
 ];
-export const mascotIndex = (id) => Math.max(0, MASCOTS.findIndex((m) => m.id === id));
+export const MASCOT_COLS = 5; // the sprite's grid: 5 faces across, red / green / yellow rows
+// icons that were taken out: players who had them get the closest one still there
+const RETIRED = { 'yellow-wink': 'yellow-cheer', 'red-pet': 'red-cheer' };
+export const mascotIndex = (id) => Math.max(0, MASCOTS.findIndex((m) => m.id === (RETIRED[id] || id)));
 
 /** Rules for names (the database checks them too). */
 export function checkName(name) {

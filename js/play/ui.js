@@ -51,7 +51,6 @@ export class UI {
     this.gainEl = $('#gain');
     this.pauseBtn = $('#pauseBtn');
     this.toastEl = $('#toast');
-    this.levelEl = $('#levelup');
     this.overlay = $('#overlay');
     this.overlayBadge = $('#overlayBadge');
     this.overlayTitle = $('#overlayTitle');
@@ -67,7 +66,6 @@ export class UI {
     this.powerEls = new Map();
     this.toasts = [];      // queued tips
     this.toastT = 0;       // seconds the current tip has been up (0: none)
-    this.levelT = 0;
   }
 
   setScore(n) {
@@ -145,21 +143,8 @@ export class UI {
     if (this.toasts.length < 3) this.toasts.push(entry);
   }
 
-  /** "LEVEL 3 · ×3 POINTS" banner. */
-  levelUp(level, mult) {
-    this.levelEl.querySelector('b').textContent = `LEVEL ${level}`;
-    this.levelEl.querySelector('span').textContent = `×${mult} points`;
-    this.levelEl.hidden = false;
-    this.bump(this.levelEl, 'is-on');
-    this.levelT = 1.7;
-  }
-
-  /** Timers for the tips and the banner (game time, so tests can step them). */
+  /** Timers for the tips (game time, so tests can step them). */
   update(dt) {
-    if (this.levelT > 0) {
-      this.levelT -= dt;
-      if (this.levelT <= 0) this.levelEl.hidden = true;
-    }
     if (this.toastT > 0) {
       this.toastT += dt;
       if (this.toastT > 2.6 && !this.toastEl.classList.contains('is-out')) this.toastEl.classList.add('is-out');
@@ -181,13 +166,11 @@ export class UI {
     }
   }
 
-  /** Clears the tips and the banner (a new run). */
+  /** Clears the tips (a new run). */
   clearMessages() {
     this.toasts.length = 0;
     this.toastT = 0;
     this.toastEl.hidden = true;
-    this.levelT = 0;
-    this.levelEl.hidden = true;
     this.setPowers([]);
   }
 

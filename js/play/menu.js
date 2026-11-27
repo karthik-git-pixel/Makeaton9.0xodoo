@@ -6,7 +6,7 @@
  *
  * Playing never needs an account; the panels are for the leaderboard only.
  */
-import { online, MASCOTS, mascotIndex, checkName, inAppBrowser } from './online.js';
+import { online, MASCOTS, MASCOT_COLS, mascotIndex, checkName, inAppBrowser } from './online.js';
 import { formatScore, BUTTON_ICONS } from './ui.js';
 import { CATALOG } from './progress.js';
 
@@ -44,8 +44,8 @@ export function avatar(id, size = 40) {
   const i = mascotIndex(id);
   const a = el('span', { class: 'avatar', 'aria-hidden': 'true' });
   a.style.setProperty('--s', `${size}px`);
-  a.style.setProperty('--col', String(i % 6));
-  a.style.setProperty('--row', String(Math.floor(i / 6)));
+  a.style.setProperty('--col', String(i % MASCOT_COLS));
+  a.style.setProperty('--row', String(Math.floor(i / MASCOT_COLS)));
   return a;
 }
 
