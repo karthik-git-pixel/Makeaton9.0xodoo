@@ -33,7 +33,7 @@ import {
   toonMaterial, tintToonMaterial, mergeColored, sparkleShape, weld, outlineMaterial, instancedOutline,
   uniform, keepNote, blobShadowTexture,
 } from './fx.js';
-import { levelAt, difficultyAt, lateAt, dayHourAt, phaseAt, UNLOCK, EVENTS } from './progress.js';
+import { levelAt, difficultyAt, lateAt, dayHourAt, phaseAt, UNLOCK, EVENTS, MAD, madAt, runSpeedAt } from './progress.js';
 
 /** Hitboxes in metres (a little smaller than the drawings, to be fair). */
 export const TYPES = {
@@ -50,7 +50,7 @@ export const TYPES = {
 };
 export const POWERS = ['coffee', 'shield', 'magnet', 'duck', 'pizza', 'rocket'];
 
-export const SPAWN_AHEAD = 82;  // metres ahead where things appear (the stage is at 100)
+export const SPAWN_AHEAD = 82;  // metres ahead where things appear (the stage is at 100; MAD.ahead at mad speed)
 const BEHIND = 8;               // metres behind the player where they are recycled
 const APPEAR = 10;              // metres over which they pop up
 const ROLL_FROM = 34;           // a chair starts rolling when this close...
@@ -839,6 +839,8 @@ export class Obstacles {
     this.flight = null;
     this.skyLane = 1;
     this.lastPattern = '';
+    this.madFrom = Infinity;             // where mad speed starts (main.js sets it with goMad)
+    this.ahead = SPAWN_AHEAD;
     for (const k in this.meshes) { this.meshes[k].count = 0; this.meshes[k].userData.hull.count = 0; }
     for (const k in this.extra) this.extra[k].count = 0;
     this.shadows.count = 0;
@@ -934,10 +936,23 @@ export class Obstacles {
     return c;
   }
 
+  /**
+   * Mad speed: whatever is laid out already is passed at the old speed, then
+   * a short clear run-up while the speed climbs. Returns where it starts.
+   */
+  goMad() {
+    this.madFrom = this.nextAt;
+    this.nextAt += MAD.breather;
+    return this.madFrom;
+  }
+
   /** Places the next row (and now and then a power-up) according to the patterns. */
   spawnNext(speed) {
     const r = this.random;
     const at = this.nextAt;
+    // past the start of mad speed, space things for the speed the star will have there
+    const mad = at > this.madFrom;
+    if (mad) speed = Math.max(speed, runSpeedAt(at, this.madFrom));
 
     // Flying with the rocket: sparkles up in the air, then a clear landing strip
     if (this.flight && at < this.flight.clearTo) {
@@ -965,7 +980,7 @@ export class Obstacles {
     // 0.1 s, a jump 0.5 s (jump again the moment you land), and sliding in the
     // air dives you straight down.
     const base = (1.0 + (0.56 - 1.0) * d) * (1 - 0.18 * lateAt(at));
-    let gapSeconds = Math.max(0.42, base + r() * 0.22 * (1 - 0.6 * d) + extraGap);
+    let gapSeconds = Math.max(mad ? MAD.gapFloor : 0.42, base + r() * 0.22 * (1 - 0.6 * d) + extraGap);
     if (ev && ev.type === 'rush') gapSeconds = Math.max(0.5, gapSeconds * 0.55);
     const next = at + speed * gapSeconds;
 
@@ -1031,7 +1046,9 @@ export class Obstacles {
    */
   update(dt, distance, speed) {
     this.time += dt;
-    while (this.auto && this.nextAt < distance + SPAWN_AHEAD) this.spawnNext(speed);
+    // at mad speed things appear further ahead, so there's still time to read them
+    this.ahead = SPAWN_AHEAD + (MAD.ahead - SPAWN_AHEAD) * madAt(distance, this.madFrom);
+    while (this.auto && this.nextAt < distance + this.ahead) this.spawnNext(speed);
     if (this.flight && distance > this.flight.clearTo) this.flight = null;
 
     const keep = [];
@@ -1106,7 +1123,7 @@ export class Obstacles {
       if (i >= CAPACITY[it.type]) continue;
       counts[it.type]++;
       const dz = it.at - distance;
-      const a = Math.min(1, Math.max(0, (SPAWN_AHEAD - dz) / APPEAR));
+      const a = Math.min(1, Math.max(0, (this.ahead - dz) / APPEAR));
       const pop = a < 1 ? 1 + 2.4 * (a - 1) ** 3 + 1.4 * (a - 1) ** 2 : 1; // ease out, small overshoot
       o.position.set(it.x, it.y, -dz);
       o.rotation.set(0, 0, 0);

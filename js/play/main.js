@@ -26,7 +26,7 @@ import {
   setResolution, shared, ComicPopups, shieldMaterial, Particles, tintToonMaterial, outlineMaterial, addOutline, keepNote,
 } from './fx.js';
 import { PostFX } from './post.js';
-import { SPEED, speedAt, levelAt, multiplierFor, dayHourAt, phaseAt, CATALOG, EVENTS, DAY_HOURS } from './progress.js';
+import { SPEED, MAD, speedAt, runSpeedAt, madAt, levelAt, multiplierFor, dayHourAt, phaseAt, CATALOG, EVENTS, DAY_HOURS } from './progress.js';
 import { Menu } from './menu.js';
 import { online } from './online.js';
 import { audio } from './audio.js';
@@ -57,6 +57,9 @@ export const TUNING = {
 const params = new URLSearchParams(location.search);
 const CAPTURE = params.has('capture'); // tests step the clock by hand
 const DEBUG = params.has('debug');
+/* Sound is switched off for now (user, 2026-11-27): no sound at all and no
+   sound switches. true brings back the effects in js/play/audio.js. */
+const SOUND = false;
 const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const CONFETTI = ['#FCC230', '#EF4225', '#4080FB', '#AD69FF', '#F57EB4', '#22AC5F', '#FFE23A', '#FFFFFF'];
@@ -161,8 +164,8 @@ function start() {
     onPlay: () => { if (G.state === 'title' || G.state === 'dead') startRun(); },
     onMenu: () => toTitle(),
   });
-  // Music and sound effects (they start with the first tap or key: browsers ask for one)
-  if (!CAPTURE) audio.init();
+  // Sound effects (they start with the first tap or key: browsers ask for one)
+  if (SOUND && !CAPTURE) audio.init();
 
   // Full-screen effects, and particles: dust/steam/confetti, and glowing sparkles/shards/flames
   const post = new PostFX(renderer, { samples: quality.level.samples });
@@ -253,6 +256,8 @@ function start() {
     now: 0,           // seconds since load, real time
     stateTime: 0,     // seconds in the current state
     runTime: 0,
+    madFrom: Infinity, // metres where mad speed starts (after MAD.at seconds)
+    madAnnounced: false,
     best: parseInt(store.get('best-score', '0'), 10) || 0,
     newBest: false,
     shake: 0,
@@ -285,6 +290,12 @@ function start() {
   const boostEnv = () => {
     const left = G.power.coffee;
     return left <= 0 ? 0 : Math.min(1, (TUNING.power.coffee - left) / 0.15, left / 0.5);
+  };
+  /* 0..1 as mad speed comes in (eased), for the camera and the speed lines */
+  const madAmt = () => {
+    if (G.state !== 'run' && G.state !== 'dead') return 0;
+    const k = madAt(G.distance, G.madFrom);
+    return k * k * (3 - 2 * k);
   };
   const mult = () => multiplierFor(G.level) * (G.power.pizza > 0 ? 2 : 1);
   const popupAt = (dy = 1.7, dz = -0.6) => new THREE.Vector3(G.x, G.y + dy, dz);
@@ -340,6 +351,7 @@ function start() {
       lane: 1, x: 0, vx: 0, y: 0, vy: 0, airborne: false, slideLeft: 0, slideOnLand: false, pending: [],
       sparkles: 0, squashed: 0, nearMisses: 0, newBest: false, power: freshPowers(), shield: false, flying: false, grace: 0,
       timeScale: 1, slowLeft: 0, nearCooldown: 0, lastHit: null, cause: null, god: false,
+      madFrom: Infinity, madAnnounced: false,
       dayFrom, dayBlend: blend ? 0 : 1,
     });
     if (blend) G.day = dayFrom;
@@ -461,7 +473,7 @@ function start() {
         { label: 'Home', icon: 'home', onClick: () => { setPaused(false); toTitle(); } },
       ]);
       // ...and the sound switch
-      if (audio.supported) {
+      if (SOUND && audio.supported) {
         ui.toggles([
           { label: 'Sounds', icon: 'sound', on: audio.isOn('sfx'), toggle: () => audio.toggle('sfx') },
         ]);
@@ -489,7 +501,7 @@ function start() {
   }, true);
   const soundBtns = [...app.querySelectorAll('[data-sound]')];
   for (const b of soundBtns) {
-    b.hidden = !audio.supported;
+    b.hidden = !SOUND || !audio.supported;
     b.addEventListener('click', () => audio.toggle(b.dataset.sound));
   }
   audio.onChange((s) => {
@@ -629,7 +641,7 @@ function start() {
     mascot.slide(false);
     mascot.jump({ airTime: 0.9, flip: !REDUCED_MOTION });
     rocketRide.visible = true;
-    const v = speedAt(G.distance);
+    const v = runSpeedAt(G.distance, G.madFrom);
     obstacles.startFlight(G.distance, G.distance + v * (TUNING.power.rocket + 0.6), G.lane, G.distance + v * 0.8);
   }
 
@@ -729,6 +741,15 @@ function start() {
       G.phase = phase;
     }
 
+    // MAD SPEED after MAD.at seconds (not mid-flight: the rocket lays out its own stretch)
+    if (G.madFrom === Infinity && G.runTime >= MAD.at && !G.flying && !obstacles.flight) {
+      G.madFrom = obstacles.goMad();
+    }
+    if (!G.madAnnounced && G.distance >= G.madFrom - G.speed * 1.4) {
+      G.madAnnounced = true;
+      announcements.unshift({ text: 'MAD SPEED!', size: 1.9, conf: 40 }); // ahead of anything waiting
+    }
+
     if (!G.newBest && G.best > 0 && G.score > G.best) {
       G.newBest = true;
       burst('NEW BEST!', 1.3, 50);
@@ -773,7 +794,7 @@ function start() {
       tickPowers(dt);
       if (G.grace > 0) G.grace -= dt;
       if (G.nearCooldown > 0) G.nearCooldown -= dt;
-      G.speed = speedAt(G.distance) * (1 + TUNING.coffeeExtra * boostEnv());
+      G.speed = runSpeedAt(G.distance, G.madFrom) * (1 + TUNING.coffeeExtra * boostEnv());
       const step = G.speed * dt;
       G.distance += step;
       G.score += step * mult();
@@ -1027,7 +1048,7 @@ function start() {
     // the view opens out a little as the run gets faster, so the speed-up is felt
     const fast = clamp((speedAt(G.distance) - SPEED.ref) / (SPEED.vmax - SPEED.ref), 0, 1);
     const t = running
-      ? { x: G.x * 0.5, y: 3.3 + G.y * (0.3 + 0.5 * f) + 0.4 * f, z: 6.2 + 0.8 * f, lx: G.x * 0.8, ly: 0.85 + G.y * 0.62 * f, lz: -10, fov: 66 + 5 * fast + 10 * boostEnv() + 4 * f }
+      ? { x: G.x * 0.5, y: 3.3 + G.y * (0.3 + 0.5 * f) + 0.4 * f, z: 6.2 + 0.8 * f, lx: G.x * 0.8, ly: 0.85 + G.y * 0.62 * f, lz: -10, fov: 66 + 5 * fast + 6 * madAmt() + 10 * boostEnv() + 4 * f }
       : TITLE_VIEW;
     const rate = running && G.stateTime > 0.8 ? 7 : 3.2;
     for (const k in t) camState[k] = approach(camState[k], t[k], k === 'x' || k === 'lx' ? 6 : rate, dt);
@@ -1052,7 +1073,8 @@ function start() {
     renderer.info.reset();
     if (quality.level.post) {
       post.setTime(G.day);
-      post.render(scene, camera, { boost: boostEnv(), time: REDUCED_MOTION ? 0 : G.now });
+      // mad speed keeps a light version of the coffee rush's speed lines on
+      post.render(scene, camera, { boost: Math.max(boostEnv(), 0.4 * madAmt()), time: REDUCED_MOTION ? 0 : G.now });
     } else {
       renderer.render(scene, camera);
     }

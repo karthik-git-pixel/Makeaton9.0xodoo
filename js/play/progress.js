@@ -20,6 +20,26 @@
 export const SPEED = { v0: 15, vmax: 40, scale: 1500, ref: 24 };
 export const speedAt = (distance) => SPEED.v0 + (SPEED.vmax - SPEED.v0) * (1 - Math.exp(-Math.max(0, distance) / SPEED.scale));
 
+/* MAD SPEED: survive MAD.at seconds (about 1.4 km, at ~30 m/s) and the run goes
+   mad. Once the rows already laid out are passed, the speed climbs over
+   MAD.ramp metres (a clear run-up, about 3 s) to MAD.v, then keeps edging up
+   towards MAD.vTop. Rows keep their rhythm (their spacing is in seconds, with
+   a slightly higher floor), and things appear further down the aisle (MAD.ahead
+   instead of 82 m), so there are still about 1.5 s to read what's coming: hard,
+   but a quick player can keep going. The server's speed check
+   (supabase/leaderboard-v2.sql, run_problem) knows these numbers. */
+export const MAD = { at: 60, ramp: 120, breather: 45, v: 50, vTop: 56, scale: 3000, ahead: 96, gapFloor: 0.45 };
+/** 0 before mad speed starts at `from` metres (Infinity: not yet), 1 once it's fully mad. */
+export const madAt = (distance, from = Infinity) => (distance > from ? Math.min(1, (distance - from) / MAD.ramp) : 0);
+/** The run's speed at `distance`, mad speed included once it has started at `from`. */
+export function runSpeedAt(distance, from = Infinity) {
+  const base = speedAt(distance);
+  if (!(distance > from)) return base;
+  const k = madAt(distance, from);
+  const mad = MAD.v + (MAD.vTop - MAD.v) * (1 - Math.exp(-(distance - from) / MAD.scale));
+  return base + (mad - base) * k * k * (3 - 2 * k);
+}
+
 /* Levels: level 2 at 250 m, then each level is 100 m longer than the one before
    (250, 350, 450...). At first a level takes about 20 s, later about 30 s. */
 export function levelStart(level) {

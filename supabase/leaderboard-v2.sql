@@ -94,7 +94,9 @@ $$;
 -- on 2026-11-27: speed 15 -> 40 m/s, rows every 0.46-1 s, rocket 6.5 s) with
 -- no way to die and pizza (double points), the magnet and debug mode on the
 -- whole time, runs reach at most about 13.5 times the distance points. Real
--- players can't.
+-- players can't. MAD SPEED (after 60 s, added 2026-11-27) keeps this safe: rows
+-- come at the same rhythm in seconds, so at a higher speed there are fewer
+-- sparkles, bugs and near misses per metre, never more.
 create or replace function public.score_limit(d double precision)
 returns double precision
 language sql
@@ -128,7 +130,9 @@ as $$
       then 'impossible numbers'
     when p_seconds > coalesce(p_elapsed, 0) + 10
       then 'longer than the server timed'
-    when p_distance > p_seconds * 46 + 150     -- top speed 40 m/s, a bit more on coffee
+    -- up to 40 m/s for the first minute (a bit more on coffee), then MAD SPEED
+    -- (js/play/progress.js, MAD: from 60 s on, up to 56 m/s, more on coffee)
+    when p_distance > least(p_seconds, 60) * 46 + greatest(p_seconds - 60, 0) * 66 + 150
       then 'faster than the star can run'
     when p_score > public.score_limit(p_distance)
       then 'more points than the distance allows'

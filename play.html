@@ -101,11 +101,11 @@
           <i class="title__spark title__spark--d" aria-hidden="true"></i>
         </header>
         <footer class="title__foot">
-            <button id="playBtn" class="btn btn--play" type="button" aria-label="tap to run">
-              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+            <button id="playBtn" class="btn btn--play" type="button">
+              <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">
                 <path d="M8 5v14l11-7z" />
               </svg>
-              <span>tap to run</span>
+              <span>PLAY</span>
             </button>
             <!-- Everything else: round sticker icons. js/play/menu.js keeps their
                tags current: your mascot and best on "you", your rank on the trophy. -->
@@ -144,9 +144,10 @@
             <p class="title__when">24-hour final · CUSAT, Kochi · 19–20 Dec</p>
         </footer>
         <!-- Sound effects on/off (js/play/audio.js remembers the setting; the
-             pause card has the same switch) -->
+             pause card has the same switch). Sound is off for now (SOUND in
+             js/play/main.js), so the switch stays hidden. -->
         <div class="title__sound">
-          <button id="sfxBtn" class="sound-btn sound-btn--sfx" type="button" data-sound="sfx" aria-pressed="true"
+          <button id="sfxBtn" class="sound-btn sound-btn--sfx" type="button" data-sound="sfx" aria-pressed="true" hidden
             aria-label="Sound effects" title="Sound effects">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M3 9h4l5-4.5v15L7 15H3z" />
