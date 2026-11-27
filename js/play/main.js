@@ -326,7 +326,6 @@ function start() {
     ui.setHudVisible(false);
     menu.showTitle(G.best);
     audio.rocket(false);
-    audio.music('title');
   }
 
   /** A new run. opts.distance starts it further along (tests and captures). */
@@ -366,7 +365,6 @@ function start() {
     ui.setHudVisible(true);
     quality.resetProbe();
     audio.rocket(false);
-    audio.music('run', { restart: true });
     audio.sfx('start');
   }
 
@@ -403,7 +401,6 @@ function start() {
     G.cause = item ? item.type : null;
     ui.setPowers([]);
     audio.rocket(false);
-    audio.music(null, { crash: true });
     audio.sfx('crash', { cause: G.cause, bug: !!(item && item.T && item.T.bug) });
     const score = Math.floor(G.score);
     const newBest = score > G.best;
@@ -425,7 +422,6 @@ function start() {
     const [title, line] = DEATH[r.cause] || ['GAME OVER', ''];
     ui.setHudVisible(false);
     audio.sfx(r.newBest && r.score > 0 ? 'best' : 'over');
-    audio.music('title', { after: 1.6 }); // the calm music comes back behind the card
     ui.show({
       title,
       badge: r.newBest && r.score > 0 ? 'NEW BEST!' : '',
@@ -469,10 +465,9 @@ function start() {
         { label: 'Restart', icon: 'restart', onClick: () => { setPaused(false); startRun(); } },
         { label: 'Home', icon: 'home', onClick: () => { setPaused(false); toTitle(); } },
       ]);
-      // ...and the sound switches
+      // ...and the sound switch
       if (audio.supported) {
         ui.toggles([
-          { label: 'Music', icon: 'music', on: audio.isOn('music'), toggle: () => audio.toggle('music') },
           { label: 'Sounds', icon: 'sound', on: audio.isOn('sfx'), toggle: () => audio.toggle('sfx') },
         ]);
       }
@@ -491,7 +486,7 @@ function start() {
   window.addEventListener('pagehide', () => setPaused(true));
 
   /* Sound: a soft click for the menus' buttons (PLAY and Run again have their
-     own sound), and the start screen's music and sound-effects switches. Capture
+     own sound), and the start screen's sound effects switch. Capture
      phase, so Resume still counts as a pause-card click when it's handled. */
   app.addEventListener('click', (e) => {
     const b = e.target.closest && e.target.closest('button');
@@ -800,8 +795,6 @@ function start() {
       G.distance += step;
       G.score += step * mult();
       checkProgress(realDt);
-      // the music keeps pace with the star, and gets busier with the level (and on the rocket or coffee)
-      audio.update({ pace: (speedAt(G.distance) - SPEED.v0) / (SPEED.vmax - SPEED.v0), level: G.level, hype: G.flying || G.power.coffee > 0 });
     } else if (G.state === 'dead') {
       G.speed *= Math.exp(-9 * dt);
       G.distance += G.speed * dt;

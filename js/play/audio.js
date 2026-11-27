@@ -1,36 +1,23 @@
 /**
  * Run-A-Ton · audio.js
- * The game's music and sound effects, all synthesized live with the Web Audio
- * API: nothing to download, and every effect varies a little each time, so
- * nothing sounds like one sample on repeat.
+ * The game's sound effects, all synthesized live with the Web Audio API:
+ * nothing to download, and every effect varies a little each time, so nothing
+ * sounds like one sample on repeat.
  *
- *   music  one 16-bar tune in A minor / C major. On the start screen (and
- *          behind the game-over card) a calm version: pads, a plucked arp,
- *          soft bass. In a run, the full band: four-on-the-floor drums, an
- *          octave bass, offbeat chords and a lead. It speeds up with the star
- *          (124 to 150 BPM), adds layers from level 3, and gets a hype layer
- *          on the rocket and the coffee rush.
  *   sfx    sparkles (a soft bell that climbs a scale along a line of them),
  *          moves, power-ups, hits, announcements, the crash, game over.
  *
  * Browsers only allow sound after the player has touched the page, so nothing
- * plays until the first tap or key press. Music and sound effects each have an
- * on/off switch, remembered in localStorage.
+ * plays until the first tap or key press. Sound effects have an on/off switch,
+ * remembered in localStorage.
  *
- * Levels: sparkles and moves sit well under the music (they happen many times
- * a second); level-ups and the crash are about as loud as it. Everything goes
- * through a gentle compressor, so stacked sounds never clip.
+ * Everything goes through a gentle compressor, so stacked sounds never clip.
  */
 
 const Ctor = typeof window !== 'undefined' ? (window.AudioContext || window.webkitAudioContext) : null;
 
-const STORE = { music: 'mat9-24h-music', sfx: 'mat9-24h-sfx' };
-const LEVEL = { master: 0.85, music: 0.3, sfx: 0.8 };
-const LOOKAHEAD = 0.2;  // s of music scheduled ahead (rides out a slow frame)
-const TICK_MS = 40;
-const OPEN = 18000;     // the music's lowpass when nothing is muffling it (Hz)
-const MUFFLED = 750;    // ...while the game is paused
-const BPM = { calm: 108, run0: 124, run1: 150 };
+const STORE = { sfx: 'mat9-24h-sfx' };
+const LEVEL = { master: 0.85, sfx: 0.8 };
 
 const mtof = (m) => 440 * 2 ** ((m - 69) / 12);
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -43,36 +30,7 @@ function saveOn(key, on) {
   try { window.localStorage.setItem(key, on ? '1' : '0'); } catch (e) { /* no storage: it just won't be remembered */ }
 }
 
-/* ---------------------------------------------------------------------------
-   The tune: 16 bars of 16 steps. A section (bars 0-7): Am F C G twice, a
-   bouncy hook. B section (8-15): F G Em Am, F G C G, longer notes that lift.
-   Each bar is [chord, lead], lead notes are [step, MIDI note, steps long].
-   --------------------------------------------------------------------------- */
-const CHORDS = { Am: [57, 60, 64], F: [57, 60, 65], C: [55, 60, 64], G: [55, 59, 62], Em: [55, 59, 64] };
-const ROOT = { Am: 45, F: 41, C: 48, G: 43, Em: 40 };
-
-const A1 = [[0, 69, 2], [2, 72, 2], [4, 76, 3], [7, 74, 2], [9, 72, 2], [11, 74, 1], [12, 76, 4]];
-const A2 = [[0, 77, 3], [3, 76, 3], [6, 72, 2], [8, 69, 4], [12, 72, 2], [14, 74, 2]];
-const A3 = [[0, 76, 3], [3, 74, 3], [6, 72, 2], [8, 67, 4], [12, 72, 2], [14, 74, 2]];
-const A4 = [[0, 74, 4], [4, 71, 2], [6, 67, 2], [8, 71, 2], [10, 74, 2], [12, 79, 4]];
-const A8 = [[0, 74, 3], [3, 76, 3], [6, 79, 2], [8, 81, 4], [12, 79, 2], [14, 76, 2]];
-const B1 = [[0, 72, 6], [6, 74, 2], [8, 77, 6], [14, 76, 2]];
-const B2 = [[0, 74, 6], [6, 76, 2], [8, 79, 8]];
-const B3 = [[0, 79, 4], [4, 76, 4], [8, 71, 4], [12, 74, 4]];
-const B4 = [[0, 72, 8], [8, 69, 4], [12, 71, 4]];
-const B5 = [[0, 72, 6], [6, 74, 2], [8, 77, 6], [14, 79, 2]];
-const B6 = [[0, 81, 4], [4, 79, 4], [8, 74, 8]];
-const B7 = [[0, 76, 4], [4, 79, 4], [8, 84, 6], [14, 83, 2]];
-const B8 = [[0, 79, 4], [4, 74, 4], [8, 71, 4], [12, 74, 2], [14, 76, 2]];
-const SONG = [
-  ['Am', A1], ['F', A2], ['C', A3], ['G', A4], ['Am', A1], ['F', A2], ['C', A3], ['G', A8],
-  ['F', B1], ['G', B2], ['Em', B3], ['Am', B4], ['F', B5], ['G', B6], ['C', B7], ['G', B8],
-];
-const ARP = [0, 1, 2, 1];
-const B_BASS = { 0: 0, 3: 0, 6: 12, 8: 0, 11: 0, 14: 12 }; // the B section's syncopated bass
-
-/* Sparkles climb this scale (C major pentatonic, D5 to E6: it fits every
-   chord of the tune) while they come in quick succession. */
+/* Sparkles climb this scale (C major pentatonic, D5 to E6) while they come in quick succession. */
 const PENTA = [74, 76, 79, 81, 84, 86, 88];
 const STREAK_GAP = 0.4; // s: a longer pause than this starts again at the bottom
 
@@ -82,15 +40,9 @@ const GAP = { sparkle: 0.035, lane: 0.03, jump: 0.05, dive: 0.05, slide: 0.08, l
 export class AudioEngine {
   constructor() {
     this.supported = !!Ctor;
-    this.on = { music: readOn(STORE.music), sfx: readOn(STORE.sfx) };
+    this.on = { sfx: readOn(STORE.sfx) };
     this.ctx = null;
     this.ready = false;     // the player has touched the page and sound is running
-    this.mode = null;       // the music wanted: 'title' (calm) | 'run' | null
-    this.modeAt = 0;        // ...starting no earlier than this (context time)
-    this.song = null;       // the music playing
-    this.bpm = BPM.calm;
-    this.targetBpm = BPM.calm;
-    this.intensity = 1;     // run layers: 1 basic, 2 from level 3, 3 hype (rocket, coffee)
     this.paused = false;
     this.engine = null;     // the rocket's rumble, while flying
     this.last = {};
@@ -144,31 +96,6 @@ export class AudioEngine {
     this.master = gain(LEVEL.master);
     this.master.connect(glue);
 
-    // music: on/off -> tone (muffled when paused) -> duck (under big effects) -> master
-    this.musicDuck = gain(1);
-    this.musicDuck.connect(this.master);
-    this.musicTone = ctx.createBiquadFilter();
-    this.musicTone.type = 'lowpass';
-    this.musicTone.frequency.value = OPEN;
-    this.musicTone.Q.value = 0.7;
-    this.musicTone.connect(this.musicDuck);
-    this.musicBus = gain(this.on.music ? LEVEL.music : 0);
-    this.musicBus.connect(this.musicTone);
-
-    // an echo for the lead, darker on every repeat
-    this.echo = ctx.createDelay(1.5);
-    this.echo.delayTime.value = 0.36;
-    const damp = ctx.createBiquadFilter();
-    damp.type = 'lowpass';
-    damp.frequency.value = 2400;
-    const feedback = gain(0.3);
-    this.echo.connect(damp);
-    damp.connect(feedback);
-    feedback.connect(this.echo);
-    const wet = gain(0.45);
-    damp.connect(wet);
-    wet.connect(this.musicBus);
-
     this.sfxBus = gain(this.on.sfx ? LEVEL.sfx : 0);
     this.sfxBus.connect(this.master);
 
@@ -207,28 +134,27 @@ export class AudioEngine {
   wake() {
     if (this.ready) return;
     this.ready = true;
-    this.timer = setInterval(() => this.tick(), TICK_MS);
-    this.tick();
     this.emit();
   }
 
   /* --- switches --------------------------------------------------------------- */
 
-  isOn(kind) { return !!this.on[kind]; }
+  isOn(kind = 'sfx') { return kind === 'sfx' ? !!this.on.sfx : false; }
 
-  /** Turns music or sound effects ('music' | 'sfx') on or off; returns the new state. */
-  toggle(kind) {
-    const on = !this.on[kind];
-    this.on[kind] = on;
-    saveOn(STORE[kind], on);
+  /** Turns sound effects on or off; returns the new state. */
+  toggle(kind = 'sfx') {
+    if (kind !== 'sfx') return false;
+    const on = !this.on.sfx;
+    this.on.sfx = on;
+    saveOn(STORE.sfx, on);
     if (this.ctx) {
-      const bus = kind === 'music' ? this.musicBus : this.sfxBus;
+      const bus = this.sfxBus;
       const t = this.ctx.currentTime;
       bus.gain.cancelScheduledValues(t);
       bus.gain.setValueAtTime(bus.gain.value, t);
-      bus.gain.linearRampToValueAtTime(on ? LEVEL[kind] : 0, t + 0.15);
+      bus.gain.linearRampToValueAtTime(on ? LEVEL.sfx : 0, t + 0.15);
     }
-    if (kind === 'sfx' && on) setTimeout(() => this.sfx('toggle'), 170);
+    if (on) setTimeout(() => this.sfx('toggle'), 170);
     this.emit();
     return on;
   }
@@ -244,61 +170,23 @@ export class AudioEngine {
   }
 
   state() {
-    return { music: this.on.music, sfx: this.on.sfx, supported: this.supported, ready: this.ready };
+    return { sfx: this.on.sfx, supported: this.supported, ready: this.ready };
   }
 
-  /* --- what the game tells us ----------------------------------------------- */
+  /* --- compatibility / no-op hooks ------------------------------------------- */
 
-  /**
-   * The music for now: 'title' (calm), 'run', or null (none).
-   * opts.restart starts it from the top even if it's already playing;
-   * opts.after waits that long (s); opts.crash winds the old music down hard.
-   */
-  music(mode, { restart = false, after = 0, crash = false } = {}) {
-    if (mode === this.mode && !restart) return;
-    this.mode = mode;
-    if (mode === 'run') {
-      this.bpm = this.targetBpm = BPM.run0;
-      this.intensity = 1;
-    } else if (mode) {
-      this.targetBpm = BPM.calm;
-    }
-    const ctx = this.ctx;
-    this.modeAt = ctx ? ctx.currentTime + after : 0;
-    if (this.song && ctx) {
-      this.fadeOut(this.song, crash ? 0.45 : mode === 'run' ? 0.08 : 0.6);
-      if (crash) this.windDown();
-    }
-    this.song = null;
-  }
+  music() {}
+  update() {}
+  duck() {}
+  slowmo() {}
+  windDown() {}
 
-  /** Every frame of a run: how fast (0..1 of the speed range), the level, hype. */
-  update({ pace = 0, level = 1, hype = false }) {
-    this.targetBpm = BPM.run0 + (BPM.run1 - BPM.run0) * clamp(pace, 0, 1);
-    this.intensity = hype ? 3 : level >= 3 ? 2 : 1;
-  }
-
-  /** Paused: the music goes muffled and quieter, the rocket's rumble stops. */
+  /** Paused: the rocket's rumble stops if flying. */
   pause(on) {
     this.paused = on;
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
-    this.glide(this.musicTone.frequency, on ? MUFFLED : OPEN, 0.25);
-    const g = this.musicDuck.gain;
-    g.cancelScheduledValues(t);
-    g.setValueAtTime(g.value, t);
-    g.linearRampToValueAtTime(on ? 0.6 : 1, t + 0.25);
     if (this.engine) this.engine.gain.gain.setTargetAtTime(on ? 0 : 1, t, 0.05);
-  }
-
-  /** A near miss: the music dips under water for the slow motion. */
-  slowmo(seconds) {
-    if (!this.ctx || this.paused) return;
-    const f = this.musicTone.frequency;
-    const t = this.ctx.currentTime;
-    this.glide(f, 1000, 0.06);
-    f.setValueAtTime(1000, t + seconds);
-    f.exponentialRampToValueAtTime(OPEN, t + seconds + 0.5);
   }
 
   /** The rocket's rumble, on while flying. */
@@ -361,18 +249,6 @@ export class AudioEngine {
     if (this.last[name] !== undefined && now - this.last[name] < gap && now >= this.last[name]) return;
     this.last[name] = now;
     try { fx(this, now + 0.006, o); } catch (e) { /* a missing sound never breaks the game */ }
-  }
-
-  /** Dips the music under a big effect for a moment. */
-  duck(depth = 0.5, hold = 0.35) {
-    if (!this.ctx || this.paused) return;
-    const g = this.musicDuck.gain;
-    const t = this.ctx.currentTime;
-    g.cancelScheduledValues(t);
-    g.setValueAtTime(g.value, t);
-    g.linearRampToValueAtTime(depth, t + 0.03);
-    g.setValueAtTime(depth, t + hold);
-    g.linearRampToValueAtTime(1, t + hold + 0.5);
   }
 
   /* --- building blocks -------------------------------------------------------- */
@@ -485,183 +361,6 @@ export class AudioEngine {
     return PENTA[s.n <= top ? s.n : top - ((s.n - top) % 2)];
   }
 
-  /* --- the music -------------------------------------------------------------- */
-
-  stepDur() { return 60 / this.bpm / 4; }
-
-  /** Schedules the music a little ahead (runs every TICK_MS). */
-  tick() {
-    const ctx = this.ctx;
-    if (!ctx || ctx.state !== 'running') return;
-    this.bpm += (this.targetBpm - this.bpm) * 0.05;
-    const now = ctx.currentTime;
-    if (this.mode && !this.song && now >= this.modeAt - LOOKAHEAD) this.startSong();
-    const s = this.song;
-    if (!s) return;
-    if (!this.on.music) { s.next = Math.max(s.next, now + 0.05); return; } // hold its place
-    if (s.next < now - 0.03) {
-      // fell behind (a long stall): skip what was missed rather than cram it in
-      while (s.next < now) { s.next += this.stepDur(); this.advance(s); }
-    }
-    while (s.next < now + LOOKAHEAD) {
-      try { this.playStep(s, s.next); } catch (e) { /* skip a broken note */ }
-      s.next += this.stepDur();
-      this.advance(s);
-    }
-  }
-
-  startSong() {
-    const ctx = this.ctx;
-    const calm = this.mode !== 'run';
-    const t0 = Math.max(ctx.currentTime + 0.05, this.modeAt);
-    const out = ctx.createGain();
-    out.gain.setValueAtTime(calm ? 0 : 1, ctx.currentTime);
-    if (calm) {
-      out.gain.setValueAtTime(0, t0);
-      out.gain.linearRampToValueAtTime(1, t0 + 2.5); // the calm music fades in
-      this.bpm = BPM.calm;
-    }
-    out.connect(this.musicBus);
-    const pump = ctx.createGain(); // the chords breathe with the kick
-    pump.connect(out);
-    this.song = { mode: this.mode, calm, out, pump, bar: 0, step: 0, pass: 0, next: t0 };
-  }
-
-  fadeOut(s, sec) {
-    const t = this.ctx.currentTime;
-    const g = s.out.gain;
-    g.cancelScheduledValues(t);
-    g.setValueAtTime(g.value, t);
-    g.linearRampToValueAtTime(0, t + sec);
-    setTimeout(() => { try { s.out.disconnect(); } catch (e) { /* gone */ } }, sec * 1000 + 500);
-  }
-
-  /** The crash: the music sinks away. */
-  windDown() {
-    const f = this.musicTone.frequency;
-    const t = this.ctx.currentTime;
-    this.glide(f, 240, 0.45);
-    f.setValueAtTime(this.paused ? MUFFLED : OPEN, t + 0.8);
-  }
-
-  advance(s) {
-    s.step++;
-    if (s.step < 16) return;
-    s.step = 0;
-    s.bar++;
-    if (s.bar < SONG.length) return;
-    s.bar = 0;
-    s.pass++;
-  }
-
-  playStep(s, t) {
-    const [name, lead] = SONG[s.bar];
-    const chord = CHORDS[name];
-    const root = ROOT[name];
-    const st = s.step;
-    const dur = this.stepDur();
-    const B = s.bar >= 8;
-    if (st === 0) this.echo.delayTime.setTargetAtTime(dur * 3, t, 0.3);
-
-    if (s.calm) {
-      // the start screen: pads, a plucked arp, soft bass and a heartbeat kick
-      if (st === 0) this.pad(s.pump, t, chord, dur * 16, 1.3);
-      if (st % 2 === 0) this.arp(s.out, t, chord[ARP[(st / 2) % 4]] + 12, 1.05, st % 4 ? 0.3 : -0.3);
-      if (st === 0 || st === 8) {
-        this.bass(s.out, t, root, dur * 7, 0.9);
-        this.kick(s, t, 0.4);
-      }
-      if (st % 4 === 2) this.hat(s.out, t, 0.6, false);
-      return;
-    }
-
-    const I = this.intensity;
-    const fill = (s.bar === 7 || s.bar === 15) && st >= 12;
-    // drums
-    if (st % 4 === 0 && !(fill && st > 12)) this.kick(s, t, 1);
-    if (st === 4 || st === 12) this.clap(s.out, t, 1);
-    if (fill && st > 12) this.clap(s.out, t, 0.45 + (st - 12) * 0.18);
-    if (st % 4 === 2) this.hat(s.out, t, 1, true);
-    else if (I >= 2 && st % 2 === 1) this.hat(s.out, t, I >= 3 ? 0.75 : 0.5, false);
-    if (st === 0 && (s.bar === 0 || s.bar === 8)) this.cymbal(s.out, t, s.bar === 0 && s.pass === 0 ? 1 : 0.7);
-
-    // bass
-    if (!B && st % 2 === 0) this.bass(s.out, t, root + (st % 4 === 2 ? 12 : 0), dur * 1.8, 1);
-    if (B && B_BASS[st] !== undefined) this.bass(s.out, t, root + B_BASS[st], dur * 2.6, 1);
-
-    // chords: offbeat stabs in A, a pad and an arp in B
-    if (!B && st % 4 === 2) this.stab(s.pump, t, chord, dur * 1.4, 1);
-    if (B) {
-      if (st === 0) this.pad(s.pump, t, chord, dur * 16, 0.9);
-      if (st % 2 === 0 || I >= 2) this.arp(s.pump, t, chord[ARP[st % 4]] + 12, 0.75, st % 2 ? 0.35 : -0.35);
-    }
-    if (I >= 3 && st % 2 === 0) this.arp(s.pump, t, chord[ARP[(st / 2) % 4]] + 24, 0.4, st % 4 ? 0.5 : -0.5);
-
-    // the lead comes in after four bars of the first time round
-    if (s.pass === 0 && s.bar < 4) return;
-    for (const [at, note, len] of lead) {
-      if (at !== st) continue;
-      this.lead(s, t, note, len * dur, I >= 3);
-    }
-  }
-
-  /* --- the band -------------------------------------------------------------- */
-
-  kick(s, t, v) {
-    this.tone(s.out, t, { f: 150, to: 46, glide: 0.11, a: 0.002, peak: 0.8 * v, d: 0.32 });
-    this.tone(s.out, t, { type: 'triangle', f: 1400, to: 300, glide: 0.015, a: 0.001, peak: 0.09 * v, d: 0.025 }); // the beater, for phone speakers
-    if (s.calm) return;
-    const p = s.pump.gain;
-    p.setTargetAtTime(0.5, t, 0.006);
-    p.setTargetAtTime(1, t + 0.04, 0.09);
-  }
-
-  clap(dest, t, v) {
-    this.hiss(dest, t, { f: 1700, q: 0.9, a: 0.001, peak: 0.33 * v, d: 0.13 });
-    this.hiss(dest, t + 0.012, { f: 2300, q: 1.2, a: 0.001, peak: 0.17 * v, d: 0.08 });
-    this.tone(dest, t, { type: 'triangle', f: 210, to: 160, glide: 0.04, peak: 0.05 * v, d: 0.05 });
-  }
-
-  hat(dest, t, v, open) {
-    this.hiss(dest, t, { kind: 'highpass', f: 7500, q: 0.7, a: 0.001, peak: (open ? 0.09 : 0.065) * v, d: open ? 0.11 : 0.035, pan: 0.2 });
-  }
-
-  cymbal(dest, t, v) {
-    this.hiss(dest, t, { kind: 'highpass', f: 4800, q: 0.5, a: 0.002, peak: 0.07 * v, d: 1.2, pan: -0.15 });
-  }
-
-  bass(dest, t, m, len, v) {
-    this.tone(dest, t, { type: 'sawtooth', f: mtof(m), a: 0.004, peak: 0.17 * v, hold: len * 0.5, d: len * 0.6, lp: 1500, lpTo: 340, lpGlide: Math.max(0.06, len * 0.8), q: 3 });
-  }
-
-  stab(dest, t, chord, len, v) {
-    for (const m of chord) {
-      this.tone(dest, t, { type: 'square', f: mtof(m + 12), a: 0.003, peak: 0.042 * v, d: len, lp: 2400, q: 1 });
-      this.tone(dest, t, { type: 'triangle', f: mtof(m + 12), a: 0.003, peak: 0.055 * v, d: len });
-    }
-  }
-
-  pad(dest, t, chord, len, v) {
-    for (const m of chord) {
-      for (const cents of [-7, 7]) {
-        this.tone(dest, t, { type: 'sawtooth', f: mtof(m), detune: cents, a: 0.35, hold: Math.max(0, len - 0.4), d: 0.6, peak: 0.028 * v, lp: 1200, q: 0.5, pan: cents / 30 });
-      }
-    }
-  }
-
-  arp(dest, t, m, v, pan) {
-    this.tone(dest, t, { type: 'triangle', f: mtof(m), a: 0.003, peak: 0.085 * v, d: 0.2, pan });
-  }
-
-  lead(s, t, m, len, doubled) {
-    const f = mtof(m);
-    const hold = Math.max(0.02, len * 0.75);
-    const wobble = len > 0.3 ? [5.5, f * 0.007, 0.25] : null;
-    const dests = [s.out, this.echo];
-    this.tone(dests, t, { wave: this.pulse, f, a: 0.008, peak: 0.07, hold, d: 0.14, lp: 3400, q: 0.8, wobble });
-    this.tone(s.out, t, { type: 'triangle', f: f / 2, a: 0.008, peak: 0.04, hold, d: 0.14 });
-    if (doubled) this.tone(dests, t, { type: 'triangle', f: f * 2, a: 0.01, peak: 0.022, hold, d: 0.12 });
-  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -672,7 +371,7 @@ const FX = {
   /**
    * A sparkle: a soft bell, a step up the scale for each one in a quick row.
    * A line of them comes in at up to 20 a second, so after the first each
-   * one is quieter and shorter: the run stays under the music.
+   * one is quieter and shorter.
    */
   sparkle(e, t) {
     const f = mtof(e.streakNote());

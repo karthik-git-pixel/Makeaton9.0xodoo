@@ -449,7 +449,7 @@ body {
 .card__slot:has(.card__actions) { margin-bottom: 0; }
 .card__actions .btn { gap: 6px; }
 .card__actions svg, .result__row svg { fill: currentColor; flex: none; }
-/* Music / Sounds switches under them */
+/* Sound effects switch under them */
 .card__toggles { display: flex; gap: 10px; justify-content: center; margin: 10px 0 0; }
 .btn--switch { --face: var(--paper); gap: 6px; }
 .btn--switch svg { fill: currentColor; flex: none; overflow: visible; }
@@ -673,9 +673,9 @@ body {
 }
 .icon-btn__live[hidden] { display: none; }
 
-/* Music and sound effects on/off: one small two-part sticker in the top
+/* Sound effects on/off: a small round sticker button in the top
    corner, beside the Make-A-Ton logo and clear of the big title.
-   Off: grey, with a slash through the icon. */
+   Off: grey, with a slash through the speaker icon. */
 .title__sound {
   position: absolute;
   top: calc(var(--safe-t) + 14px);
@@ -693,8 +693,8 @@ body {
   --face: var(--paper);
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   padding: 0;
   color: var(--ink);
   background: var(--face);
@@ -704,19 +704,18 @@ body {
 }
 .sound-btn + .sound-btn { border-left: 2.5px solid var(--ink); }
 .sound-btn[hidden] { display: none; }
-.sound-btn svg { width: 21px; height: 21px; fill: currentColor; overflow: visible; transition: translate 0.1s ease; }
-.sound-btn--music { --face: var(--pink); }
+.sound-btn svg { width: 20px; height: 20px; fill: currentColor; overflow: visible; transition: translate 0.1s ease; }
 .sound-btn--sfx { --face: #9EE6B8; }
 .sound-btn[aria-pressed="false"] { --face: #CFC7BA; }
 .sound-btn:active svg { translate: 0 2px; }
 .sound-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: -5px; }
 /* the narrowest phones: a smaller sticker, so it stays clear of the Make-A-Ton logo */
 @container (max-width: 359px) {
-  .sound-btn { width: 35px; height: 32px; }
-  .sound-btn svg { width: 18px; height: 18px; }
+  .sound-btn { width: 34px; height: 34px; }
+  .sound-btn svg { width: 17px; height: 17px; }
 }
 
-/* The "off" slash on the music and speaker icons (start screen and pause card):
+/* The "off" slash on the speaker icon (start screen and pause card):
    an ink line with a gap of the button's own colour around it */
 .i-off,
 .i-gap { display: none; fill: none; stroke-linecap: round; }
